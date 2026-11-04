@@ -349,4 +349,57 @@ export default function App() {
                       <label className="block text-sm font-medium text-slate-600 mb-1">Role (Hak Akses)</label>
                       <select 
                         value={newUser.role}
-                        onChange={(e) => setNew
+                        onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                        className="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
+                      >
+                        <option value="Admin">Admin (Akses Penuh)</option>
+                        <option value="Editor">Editor (Update Progress)</option>
+                        <option value="Viewer">Viewer (Hanya Lihat)</option>
+                      </select>
+                    </div>
+                    <button 
+                      type="submit"
+                      className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" /> Tambah Pengguna
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Placeholder Tab Lainnya */}
+          {(activeTab === 'update' || activeTab === 'calendar') && (
+            <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
+              <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                {activeTab === 'update' ? <Home className="w-8 h-8" /> : <Calendar className="w-8 h-8" />}
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Modul {activeTab === 'update' ? 'Update Progress' : 'Kalender'}</h3>
+              <p className="text-slate-500">Halaman ini sedang dalam tahap pengembangan.</p>
+            </div>
+          )}
+
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Komponen Kecil untuk Badge Status di Tabel
+function StatusBadge({ status }) {
+  if (status === 'Selesai') {
+    return <span className="px-2.5 py-1 text-xs font-semibold rounded-md border border-green-200 bg-green-50 text-green-700 whitespace-nowrap">Selesai</span>;
+  }
+  if (status === 'Proses') {
+    return <span className="px-2.5 py-1 text-xs font-semibold rounded-md border border-blue-200 bg-blue-50 text-blue-700 whitespace-nowrap">Sedang Proses</span>;
+  }
+  if (status === 'Belum') {
+    return <span className="px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-slate-50 text-slate-500 whitespace-nowrap">Belum</span>;
+  }
+  return (
+    <span className="px-2.5 py-1 text-xs font-semibold rounded-md border border-amber-200 bg-amber-50 text-amber-700 whitespace-nowrap flex items-center gap-1">
+      <Calendar className="w-3 h-3" /> {status.replace('Jadwal ', '')}
+    </span>
+  );
+}
