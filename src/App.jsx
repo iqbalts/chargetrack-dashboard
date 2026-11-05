@@ -296,6 +296,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
+      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -340,7 +341,6 @@ export default function App() {
               <p className="text-slate-500 mt-1">Pantau progres deployment titik charging station.</p>
             </div>
             
-            {/* SEARCH BAR DISEMBUNYIKAN KALAU DI TAB SETTINGS */}
             {activeTab !== 'settings' && (
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
@@ -424,7 +424,6 @@ export default function App() {
                        <th className="py-3 px-3 border-b border-slate-100">PKS</th>
                        <th className="py-3 px-3 border-b border-slate-100">PROSES INSTALASI</th>
                        <th className="py-3 px-3 border-b border-slate-100">TESTING & COMM.</th>
-                       {/* EFEK STICKY DIBALIKIN DENGAN Z-INDEX DAN SOLID BACKGROUND */}
                        <th className="py-3 px-3 text-center sticky right-0 bg-slate-50 z-20 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI</th>
                      </tr>
                    </thead>
@@ -492,7 +491,6 @@ export default function App() {
                            </td>
                          ))}
                          
-                         {/* EFEK STICKY DIBALIKIN DENGAN Z-INDEX DAN SOLID BACKGROUND */}
                          <td className="py-3 px-3 text-center sticky right-0 z-10 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
@@ -644,11 +642,14 @@ function StatusBadge({ status }) {
   if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full">Belum</span>;
   if (status.startsWith('Jadwal')) {
     const dateStr = status.replace('Jadwal ', '');
-    const day = dateStr.split('-')[2];
+    const [year, month, day] = dateStr.split('-');
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+    const displayDate = `${day} ${monthNames[parseInt(month, 10) - 1]} ${year}`;
+    
     return (
       <div className="flex flex-col w-full text-center shadow-sm">
         <span className="bg-blue-100 text-blue-700 border border-blue-200 border-b-0 rounded-t py-1">Jadwal</span>
-        <span className="bg-white text-slate-600 border border-blue-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium"><Calendar className="w-3 h-3" /> {day}</span>
+        <span className="bg-white text-slate-600 border border-blue-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium whitespace-nowrap px-1 text-[11px]"><Calendar className="w-3 h-3 shrink-0" /> {displayDate}</span>
       </div>
     );
   }
