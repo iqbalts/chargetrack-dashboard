@@ -32,7 +32,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const appId = 'caztrack-v1'; // Identifier unik buat database lo
+const appId = 'caztrack-v1';
 
 // Default Data Seeders
 const defaultUsers = [
@@ -57,22 +57,6 @@ const defaultLocations = [
     survey: 'Selesai', teknis: 'Selesai', pln: 'Jadwal 2026-11-10', izin: 'Selesai',
     vendor: 'Selesai', pks: 'Proses', instalasi: 'Belum', testing: 'Belum',
     keterangan: 'Draft PKS direview legal'
-  },
-  {
-    id: '3', lokasi: 'Apartemen Kalibata City',
-    chargers: [{ jenis: '7kW AC', brand: 'Teison', jumlah: 3 }],
-    pics: ['Citra R.'],
-    survey: 'Selesai', teknis: 'Jadwal 2026-11-20', pln: 'Belum', izin: 'Belum',
-    vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
-    keterangan: 'Jadwal teknis 20 Nov'
-  },
-  {
-    id: '4', lokasi: 'Perkantoran Sudirman',
-    chargers: [{ jenis: '22kW AC', brand: 'TIDE', jumlah: 1 }, { jenis: '60kW DC', brand: 'Starcharge', jumlah: 2 }],
-    pics: ['Dimas W.'],
-    survey: 'Selesai', teknis: 'Selesai', pln: 'Selesai', izin: 'Jadwal 2026-11-28',
-    vendor: 'Selesai', pks: 'Selesai', instalasi: 'Proses', testing: 'Belum',
-    keterangan: 'Pekerjaan sipil berjalan'
   }
 ];
 
@@ -92,34 +76,24 @@ export default function App() {
 
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
   const [editingIds, setEditingIds] = useState([]);
-  
-  // STATE BARU: Melacak bulan kalender yang lagi dilihat (default hari ini)
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
-  // 1. Initialize Firebase Auth
+  // STATE BARU: Untuk nangkep input pencarian
+  const [searchQuery, setSearchQuery] = useState('');
+
   useEffect(() => {
     const initAuth = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (err) {
-        console.error("Auth init error:", err);
-      }
+      try { await signInAnonymously(auth); } catch (err) { console.error(err); }
     };
     initAuth();
-    
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-    });
+    const unsubscribe = onAuthStateChanged(auth, setFirebaseUser);
     return () => unsubscribe();
   }, []);
 
-  // 2. Fetch Users & Locations from Firestore
   useEffect(() => {
     if (!firebaseUser) return;
-
     const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
     const locsRef = collection(db, 'artifacts', appId, 'public', 'data', 'locations');
-
     let seededUsers = false;
     let seededLocs = false;
 
@@ -128,43 +102,28 @@ export default function App() {
         seededUsers = true;
         defaultUsers.forEach(u => setDoc(doc(usersRef, u.id), u));
       } else {
-        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        setUsers(data);
+        setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
       }
-    }, (err) => console.error(err));
+    });
 
     const unsubLocs = onSnapshot(locsRef, (snapshot) => {
       if (snapshot.empty && !seededLocs) {
         seededLocs = true;
         defaultLocations.forEach(l => setDoc(doc(locsRef, l.id), l));
       } else {
-        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(a.id) - parseInt(b.id));
-        setLocations(data);
+        setLocations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(a.id) - parseInt(b.id)));
         setIsFirebaseLoaded(true);
       }
-    }, (err) => console.error(err));
+    });
 
-    return () => {
-      unsubUsers();
-      unsubLocs();
-    };
+    return () => { unsubUsers(); unsubLocs(); };
   }, [firebaseUser]);
 
   const handleLogin = (e) => {
     e.preventDefault();
     const user = users.find(u => u.email === loginForm.email && u.password === loginForm.password);
-    if (user) {
-      setCurrentUser(user);
-      setLoginError('');
-      setActiveTab('dashboard'); 
-    } else {
-      setLoginError('Email atau password salah!');
-    }
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setLoginForm({ email: '', password: '' });
+    if (user) { setCurrentUser(user); setLoginError(''); setActiveTab('dashboard'); } 
+    else { setLoginError('Email atau password salah!'); }
   };
 
   const calculateProgress = (loc) => {
@@ -190,28 +149,20 @@ export default function App() {
   };
 
   const handleDeleteUser = async (id) => {
-    if (!firebaseUser) return;
-    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', id.toString()));
+    if (firebaseUser) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', id.toString()));
   };
 
   const saveNewPassword = async () => {
     if (!firebaseUser || !resetModal.userId || !resetModal.newPassword) return;
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', resetModal.userId.toString()), { 
-      password: resetModal.newPassword 
-    });
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', resetModal.userId.toString()), { password: resetModal.newPassword });
     setResetModal({ isOpen: false, userId: null, newPassword: '' });
   };
 
   const updateLocationStatus = async (id, field, value) => {
-    if (!firebaseUser) return;
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()), { 
-      [field]: value 
-    });
+    if (firebaseUser) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()), { [field]: value });
   };
 
-  const toggleEdit = (id) => {
-    setEditingIds(prev => prev.includes(id) ? prev.filter(eId => eId !== id) : [...prev, id]);
-  };
+  const toggleEdit = (id) => setEditingIds(prev => prev.includes(id) ? prev.filter(eId => eId !== id) : [...prev, id]);
 
   const handleAddLocation = async () => {
     if (!firebaseUser) return;
@@ -226,8 +177,7 @@ export default function App() {
   };
 
   const handleDeleteLocation = async (id) => {
-    if (!firebaseUser) return;
-    if (window.confirm("Yakin bray mau ngapus lokasi ini secara permanen?")) {
+    if (firebaseUser && window.confirm("Yakin bray mau ngapus lokasi ini secara permanen?")) {
       await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()));
     }
   };
@@ -235,15 +185,13 @@ export default function App() {
   const handleArrayAdd = async (locId, field, defaultItem) => {
     if (!firebaseUser) return;
     const loc = locations.find(l => l.id === locId);
-    const newArray = [...(loc[field] || []), defaultItem];
-    await updateLocationStatus(locId, field, newArray);
+    await updateLocationStatus(locId, field, [...(loc[field] || []), defaultItem]);
   };
 
   const handleArrayRemove = async (locId, field, index) => {
     if (!firebaseUser) return;
     const loc = locations.find(l => l.id === locId);
-    const newArray = (loc[field] || []).filter((_, i) => i !== index);
-    await updateLocationStatus(locId, field, newArray);
+    await updateLocationStatus(locId, field, (loc[field] || []).filter((_, i) => i !== index));
   };
 
   const handleArrayUpdate = async (locId, field, index, key, value) => {
@@ -262,18 +210,19 @@ export default function App() {
     await updateLocationStatus(locId, field, newArray);
   };
 
-  // HANDLER KALENDER
-  const handlePrevMonth = () => {
-    setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
-  };
-  
-  const handleNextMonth = () => {
-    setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
-  };
+  const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
+  const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
-  if (!isFirebaseLoaded) {
-    return <div className="flex h-screen bg-slate-900 items-center justify-center font-sans text-white">Memuat Database...</div>;
-  }
+  // --- LOGIKA FILTER PENCARIAN ---
+  const filteredLocations = locations.filter(loc => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    const matchLokasi = loc.lokasi?.toLowerCase().includes(query) || false;
+    const matchPic = loc.pics?.some(pic => pic.toLowerCase().includes(query)) || false;
+    return matchLokasi || matchPic;
+  });
+
+  if (!isFirebaseLoaded) return <div className="flex h-screen bg-slate-900 items-center justify-center font-sans text-white">Memuat Database...</div>;
 
   if (!currentUser) {
     return (
@@ -283,41 +232,23 @@ export default function App() {
             <h1 className="text-3xl font-bold tracking-wider text-green-500 mb-2">CAZ<span className="text-slate-900">TRACK</span></h1>
             <p className="text-slate-500 text-sm">Masuk ke Dashboard SPKLU</p>
           </div>
-          {loginError && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium mb-6 text-center border border-red-100">
-              {loginError}
-            </div>
-          )}
+          {loginError && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium mb-6 text-center border border-red-100">{loginError}</div>}
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
               <div className="relative">
                 <Mail className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                <input 
-                  type="email" 
-                  value={loginForm.email}
-                  onChange={e => setLoginForm({...loginForm, email: e.target.value})}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                  required
-                />
+                <input type="email" value={loginForm.email} onChange={e => setLoginForm({...loginForm, email: e.target.value})} className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
               <div className="relative">
                 <Lock className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                <input 
-                  type="password" 
-                  value={loginForm.password}
-                  onChange={e => setLoginForm({...loginForm, password: e.target.value})}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                  required
-                />
+                <input type="password" value={loginForm.password} onChange={e => setLoginForm({...loginForm, password: e.target.value})} className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
               </div>
             </div>
-            <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors mt-2">
-              Masuk
-            </button>
+            <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors mt-2">Masuk</button>
           </form>
         </div>
       </div>
@@ -331,32 +262,22 @@ export default function App() {
     { id: 'settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['Admin'] },
   ];
 
-  const filteredNavItems = navItems.filter(item => 
-    !item.allowedRoles || item.allowedRoles.includes(currentUser?.role)
-  );
-
-  const totalTitik = locations.length;
-  const selesai = locations.filter(l => calculateProgress(l) === 100).length;
-  const proses = locations.filter(l => calculateProgress(l) > 0 && calculateProgress(l) < 100).length;
-  const menunggu = locations.filter(l => calculateProgress(l) === 0).length;
+  // Hitungan metrik disesuaikan dengan hasil filter pencarian
+  const totalTitik = filteredLocations.length;
+  const selesai = filteredLocations.filter(l => calculateProgress(l) === 100).length;
+  const proses = filteredLocations.filter(l => calculateProgress(l) > 0 && calculateProgress(l) < 100).length;
+  const menunggu = filteredLocations.filter(l => calculateProgress(l) === 0).length;
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
-      {/* Reset Password Modal */}
+      {/* Sidebar & Modal (Sama persis) */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="text-lg font-bold text-slate-800 mb-4">Reset Password</h3>
             <div className="mb-5">
               <label className="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
-              <input 
-                type="password" 
-                value={resetModal.newPassword}
-                onChange={(e) => setResetModal({...resetModal, newPassword: e.target.value})}
-                className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" 
-                placeholder="Masukkan password baru..."
-                autoFocus
-              />
+              <input type="password" value={resetModal.newPassword} onChange={(e) => setResetModal({...resetModal, newPassword: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan password baru..." autoFocus />
             </div>
             <div className="flex justify-end gap-3">
               <button onClick={() => setResetModal({ isOpen: false, userId: null, newPassword: '' })} className="px-4 py-2 text-slate-500 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
@@ -366,67 +287,41 @@ export default function App() {
         </div>
       )}
 
-      {/* Sidebar */}
       <aside className="w-64 bg-[#111827] text-white flex flex-col shadow-xl z-10 shrink-0">
-        <div className="p-6 mb-4">
-          <h1 className="text-2xl font-bold tracking-wider text-green-400">CAZ<span className="text-white">TRACK</span></h1>
-        </div>
-        
+        <div className="p-6 mb-4"><h1 className="text-2xl font-bold tracking-wider text-green-400">CAZ<span className="text-white">TRACK</span></h1></div>
         <nav className="flex-1 space-y-1 px-3">
-          {filteredNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActive 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            );
-          })}
+          {navItems.filter(i => !i.allowedRoles || i.allowedRoles.includes(currentUser.role)).map((item) => (
+            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+              <item.icon className="w-5 h-5" /> <span className="font-medium">{item.label}</span>
+            </button>
+          ))}
         </nav>
-        
         <div className="p-4 border-t border-slate-800">
           <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">
-              {currentUser?.name.charAt(0)}
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-semibold">{currentUser?.name}</p>
-              <p className="text-xs text-slate-400">{currentUser?.role}</p>
-            </div>
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">{currentUser?.name.charAt(0)}</div>
+            <div className="text-left"><p className="text-sm font-semibold">{currentUser?.name}</p><p className="text-xs text-slate-400">{currentUser?.role}</p></div>
           </div>
-          <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-slate-800 rounded-lg transition-colors">
-            <LogOut className="w-4 h-4" /> Keluar
-          </button>
+          <button onClick={() => setCurrentUser(null)} className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-slate-800 rounded-lg"><LogOut className="w-4 h-4" /> Keluar</button>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         <div className="p-8">
-          
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-3xl font-bold text-slate-800">
-                {activeTab === 'dashboard' && 'Dashboard Project SPKLU'}
-                {activeTab === 'update' && 'Update Progress SPKLU'}
-                {activeTab === 'calendar' && 'Kalender Penjadwalan'}
-                {activeTab === 'settings' && 'Pengaturan Sistem'}
+                {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
               </h2>
               <p className="text-slate-500 mt-1">Pantau progres deployment titik charging station.</p>
             </div>
+            
+            {/* SEARCH BAR SEKARANG BERFUNGSI */}
             <div className="relative">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input 
                 type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari lokasi atau PIC..." 
                 className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
               />
@@ -435,101 +330,45 @@ export default function App() {
 
           {activeTab === 'dashboard' && (
             <>
-              {/* Summary Cards */}
+              {/* Summary Cards ikut ter-update berdasarkan pencarian */}
               <div className="grid grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-                  <div><p className="text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-3xl font-bold text-slate-800">{totalTitik}</p></div>
-                  <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600"><Home className="w-5 h-5" /></div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-                  <div><p className="text-sm font-medium text-slate-500 mb-1">Selesai Beroperasi</p><p className="text-3xl font-bold text-green-600">{selesai}</p></div>
-                  <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Activity className="w-5 h-5" /></div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-                  <div><p className="text-sm font-medium text-slate-500 mb-1">Sedang Proses</p><p className="text-3xl font-bold text-amber-500">{proses}</p></div>
-                  <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500"><Activity className="w-5 h-5" /></div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-                  <div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div>
-                  <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div>
-                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600"><Home className="w-5 h-5" /></div></div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Selesai Beroperasi</p><p className="text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Activity className="w-5 h-5" /></div></div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Sedang Proses</p><p className="text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500"><Activity className="w-5 h-5" /></div></div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              {/* Data Table Horizontal Scroll */}
+              {/* Tabel Dashboard Menggunakan filteredLocations */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
-                    <tr>
-                      <th className="py-4 px-4">NO</th>
-                      <th className="py-4 px-4">LOKASI</th>
-                      <th className="py-4 px-4">JENIS CHARGER</th>
-                      <th className="py-4 px-4">BRAND</th>
-                      <th className="py-4 px-4">JUMLAH</th>
-                      <th className="py-4 px-4">PIC</th>
-                      <th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th>
-                      <th className="py-4 px-4">EARLY SURVEY</th>
-                      <th className="py-4 px-4">SURVEY TEKNIS</th>
-                      <th className="py-4 px-4">SURVEY PLN</th>
-                      <th className="py-4 px-4">PERIZINAN</th>
-                      <th className="py-4 px-4">PENAWARAN VENDOR</th>
-                      <th className="py-4 px-4">PKS</th>
-                      <th className="py-4 px-4">PROSES INSTALASI</th>
-                      <th className="py-4 px-4">TESTING & COMM.</th>
-                      <th className="py-4 px-4">STATUS AKHIR</th>
-                      <th className="py-4 px-4">KETERANGAN</th>
-                    </tr>
+                    <tr><th className="py-4 px-4">NO</th><th className="py-4 px-4">LOKASI</th><th className="py-4 px-4">JENIS CHARGER</th><th className="py-4 px-4">BRAND</th><th className="py-4 px-4">JUMLAH</th><th className="py-4 px-4">PIC</th><th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th><th className="py-4 px-4">EARLY SURVEY</th><th className="py-4 px-4">SURVEY TEKNIS</th><th className="py-4 px-4">SURVEY PLN</th><th className="py-4 px-4">PERIZINAN</th><th className="py-4 px-4">PENAWARAN VENDOR</th><th className="py-4 px-4">PKS</th><th className="py-4 px-4">PROSES INSTALASI</th><th className="py-4 px-4">TESTING & COMM.</th><th className="py-4 px-4">STATUS AKHIR</th><th className="py-4 px-4">KETERANGAN</th></tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {locations.map((item, index) => {
+                    {filteredLocations.map((item, index) => {
                       const progress = calculateProgress(item);
                       const statusAkhir = getStatusAkhir(progress);
                       return (
                       <tr key={item.id} className="hover:bg-slate-50/50">
                         <td className="py-4 px-4 text-slate-400 align-top">{index + 1}</td>
                         <td className="py-4 px-4 font-bold text-slate-800 align-top">{item.lokasi}</td>
-                        <td className="py-4 px-4 space-y-1 align-top">
-                          {item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}
-                        </td>
-                        <td className="py-4 px-4 space-y-2 font-semibold align-top">
-                          {item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}
-                        </td>
-                        <td className="py-4 px-4 space-y-2 text-slate-500 align-top">
-                          {item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}
-                        </td>
+                        <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
+                        <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
+                        <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}</td>
                         <td className="py-4 px-4 space-y-1 align-top">
                           {item.pics?.map((p, i) => (
-                            <div key={i} className="flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span>
-                              <span className="text-slate-600">{p}</span>
-                            </div>
+                            <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
                           ))}
                         </td>
-                        <td className="py-4 px-4 align-top">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
-                            </div>
-                            <span className="font-bold text-slate-700">{progress}%</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.survey} /></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.teknis} /></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.pln} /></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.izin} /></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.vendor} /></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.pks} /></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.instalasi} /></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.testing} /></td>
-                        <td className="py-4 px-4 align-top">
-                          <div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}>
-                            <span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top">
-                          <p className="whitespace-normal break-words">{item.keterangan}</p>
-                        </td>
+                        <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.survey} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.teknis} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pln} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.izin} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.vendor} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pks} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.instalasi} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.testing} /></td>
+                        <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
+                        <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                       </tr>
                     )})}
+                    {filteredLocations.length === 0 && (
+                      <tr><td colSpan="17" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -539,45 +378,25 @@ export default function App() {
           {activeTab === 'update' && (
              <div className="space-y-4">
                <div className="flex justify-end mb-4">
-                 <button 
-                   onClick={handleAddLocation} 
-                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors"
-                 >
+                 <button onClick={handleAddLocation} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors">
                    <Plus className="w-4 h-4" /> Tambah Lokasi
                  </button>
                </div>
 
+               {/* Tabel Update Menggunakan filteredLocations */}
                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto p-4 pb-8">
                  <table className="w-max min-w-full text-xs text-left">
                    <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
-                     <tr>
-                       <th className="py-3 px-3 min-w-[200px]">LOKASI</th>
-                       <th className="py-3 px-3 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
-                       <th className="py-3 px-3 min-w-[180px]">PIC</th>
-                       <th className="py-3 px-3 min-w-[200px]">KETERANGAN</th>
-                       <th className="py-3 px-3">EARLY SURVEY</th>
-                       <th className="py-3 px-3">SURVEY TEKNIS</th>
-                       <th className="py-3 px-3">SURVEY PLN</th>
-                       <th className="py-3 px-3">PERIZINAN</th>
-                       <th className="py-3 px-3">PENAWARAN VENDOR</th>
-                       <th className="py-3 px-3">PKS</th>
-                       <th className="py-3 px-3">PROSES INSTALASI</th>
-                       <th className="py-3 px-3">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center">AKSI</th>
-                     </tr>
+                     <tr><th className="py-3 px-3 min-w-[200px]">LOKASI</th><th className="py-3 px-3 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th><th className="py-3 px-3 min-w-[180px]">PIC</th><th className="py-3 px-3 min-w-[200px]">KETERANGAN</th><th className="py-3 px-3">EARLY SURVEY</th><th className="py-3 px-3">SURVEY TEKNIS</th><th className="py-3 px-3">SURVEY PLN</th><th className="py-3 px-3">PERIZINAN</th><th className="py-3 px-3">PENAWARAN VENDOR</th><th className="py-3 px-3">PKS</th><th className="py-3 px-3">PROSES INSTALASI</th><th className="py-3 px-3">TESTING & COMM.</th><th className="py-3 px-3 text-center border-l border-slate-100">AKSI</th></tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
-                     {locations.map(item => {
+                     {filteredLocations.map(item => {
                        const isEditing = editingIds.includes(item.id);
                        return (
                        <tr key={item.id} className="group hover:bg-slate-50 align-top">
                          
                          <td className="py-3 px-3">
-                           {isEditing ? (
-                              <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." />
-                           ) : (
-                              <span className="font-bold text-slate-800 block pt-1.5">{item.lokasi}</span>
-                           )}
+                           {isEditing ? <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{item.lokasi}</span>}
                          </td>
 
                          <td className="py-3 px-3">
@@ -586,20 +405,10 @@ export default function App() {
                                {(item.chargers || []).map((chg, idx) => (
                                  <div key={idx} className="flex gap-1 items-center">
                                    <select value={chg.jenis || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
-                                     <option value="" disabled>- Jenis -</option>
-                                     <option value="7kW AC">7kW AC</option>
-                                     <option value="22kW AC">22kW AC</option>
-                                     <option value="30kW DC">30kW DC</option>
-                                     <option value="60kW DC">60kW DC</option>
-                                     <option value="120kW DC">120kW DC</option>
-                                     <option value="240kW DC">240kW DC</option>
+                                     <option value="" disabled>- Jenis -</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
                                    </select>
                                    <select value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
-                                     <option value="" disabled>- Brand -</option>
-                                     <option value="TIDE">TIDE</option>
-                                     <option value="Moderntec">Moderntec</option>
-                                     <option value="Teison">Teison</option>
-                                     <option value="Starcharge">Starcharge</option>
+                                     <option value="" disabled>- Brand -</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
                                    </select>
                                    <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
                                    <button onClick={() => handleArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -609,9 +418,7 @@ export default function App() {
                              </div>
                            ) : (
                              <div className="space-y-1 pt-1">
-                               {(item.chargers || []).map((c, i) => (
-                                 <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>
-                               ))}
+                               {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
                                {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                              </div>
                            )}
@@ -630,50 +437,37 @@ export default function App() {
                              </div>
                            ) : (
                              <div className="space-y-1 pt-1">
-                               {(item.pics || []).map((p, i) => (
-                                 <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
-                               ))}
+                               {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
                                {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                              </div>
                            )}
                          </td>
 
                          <td className="py-3 px-3">
-                           {isEditing ? (
-                             <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." />
-                           ) : (
-                             <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>
-                           )}
+                           {isEditing ? <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
                          {['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
-                             {isEditing ? (
-                               <EditableStatus loc={item} stage={stage} updateLocationStatus={updateLocationStatus} />
-                             ) : (
-                               <div className="pt-1"><StatusBadge status={item[stage]} /></div>
-                             )}
+                             {isEditing ? <EditableStatus loc={item} stage={stage} updateLocationStatus={updateLocationStatus} /> : <div className="pt-1"><StatusBadge status={item[stage]} /></div>}
                            </td>
                          ))}
                          
-                         <td className="py-3 px-3 text-center">
+                         <td className="py-3 px-3 text-center bg-white group-hover:bg-slate-50 border-l border-slate-200 transition-colors">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
-                               <button onClick={() => toggleEdit(item.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan">
-                                 <Check className="w-3.5 h-3.5" /> Simpan
-                               </button>
+                               <button onClick={() => toggleEdit(item.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan"><Check className="w-3.5 h-3.5" /> Simpan</button>
                              ) : (
-                               <button onClick={() => toggleEdit(item.id)} className="p-2 text-blue-500 hover:bg-blue-100 rounded transition-colors" title="Edit Baris">
-                                 <Edit2 className="w-4 h-4" />
-                               </button>
+                               <button onClick={() => toggleEdit(item.id)} className="p-2 text-blue-500 hover:bg-blue-100 rounded transition-colors" title="Edit Baris"><Edit2 className="w-4 h-4" /></button>
                              )}
-                             <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi">
-                               <Trash2 className="w-4 h-4" />
-                             </button>
+                             <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
                            </div>
                          </td>
                        </tr>
                      )})}
+                     {filteredLocations.length === 0 && (
+                       <tr><td colSpan="13" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                     )}
                    </tbody>
                  </table>
                </div>
@@ -739,13 +533,11 @@ export default function App() {
           )}
 
           {activeTab === 'calendar' && (() => {
-            // Logika penghitungan kalender dinamis
             const year = calendarMonth.getFullYear();
             const month = calendarMonth.getMonth();
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 (Minggu) sampe 6 (Sabtu)
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
 
             return (
               <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
@@ -754,12 +546,8 @@ export default function App() {
                      Jadwal {monthNames[month]} {year}
                    </h3>
                    <div className="flex gap-2">
-                     <button onClick={handlePrevMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Sebelumnya">
-                       <ChevronLeft className="w-5 h-5" />
-                     </button>
-                     <button onClick={handleNextMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Selanjutnya">
-                       <ChevronRight className="w-5 h-5" />
-                     </button>
+                     <button onClick={handlePrevMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Sebelumnya"><ChevronLeft className="w-5 h-5" /></button>
+                     <button onClick={handleNextMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Selanjutnya"><ChevronRight className="w-5 h-5" /></button>
                    </div>
                  </div>
 
@@ -768,18 +556,15 @@ export default function App() {
                      <div key={d} className="bg-white py-2 text-center text-xs font-bold text-slate-600">{d}</div>
                    ))}
 
-                   {/* Kotak kosong untuk offset awal bulan */}
-                   {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-                     <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>
-                   ))}
+                   {Array.from({ length: firstDayOfMonth }).map((_, i) => <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>)}
 
-                   {/* Kotak tanggal sebenarnya */}
                    {Array.from({ length: daysInMonth }).map((_, i) => {
                      const dateNum = i + 1;
                      const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
                      
                      const events = [];
-                     locations.forEach(loc => {
+                     // Filter Kalender juga pakai data hasil search!
+                     filteredLocations.forEach(loc => {
                        ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
                           if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
                              events.push({ locName: loc.lokasi, stageName: stage });
@@ -789,12 +574,7 @@ export default function App() {
 
                      return (
                        <div key={i} className="bg-white min-h-[100px] p-2">
-                         <span className={`text-xs font-bold block text-right ${
-                           // Highlight tanggal hari ini kalau bulannya sama dengan hari ini di dunia nyata
-                           new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year 
-                           ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' 
-                           : 'text-slate-400'
-                         }`}>
+                         <span className={`text-xs font-bold block text-right ${new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' : 'text-slate-400'}`}>
                            {dateNum}
                          </span>
                          <div className="mt-1 space-y-1">
