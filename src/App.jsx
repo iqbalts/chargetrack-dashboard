@@ -554,16 +554,15 @@ export default function App() {
                        <th className="py-3 px-3">PKS</th>
                        <th className="py-3 px-3">PROSES INSTALASI</th>
                        <th className="py-3 px-3">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center sticky right-0 bg-slate-50 z-10 border-l border-slate-100">AKSI</th>
+                       <th className="py-3 px-3 text-center sticky right-0 bg-slate-50 z-20 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-slate-200">AKSI</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
                      {locations.map(item => {
                        const isEditing = editingIds.includes(item.id);
                        return (
-                       <tr key={item.id} className="hover:bg-slate-50 align-top">
+                       <tr key={item.id} className="group hover:bg-slate-50 align-top">
                          
-                         {/* Edit Lokasi */}
                          <td className="py-3 px-3">
                            {isEditing ? (
                               <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." />
@@ -572,7 +571,6 @@ export default function App() {
                            )}
                          </td>
 
-                         {/* Edit Chargers dengan Dropdown (Select) */}
                          <td className="py-3 px-3">
                            {isEditing ? (
                              <div className="space-y-2">
@@ -610,7 +608,6 @@ export default function App() {
                            )}
                          </td>
 
-                         {/* Edit PIC */}
                          <td className="py-3 px-3">
                            {isEditing ? (
                              <div className="space-y-2">
@@ -632,7 +629,6 @@ export default function App() {
                            )}
                          </td>
 
-                         {/* Edit Keterangan */}
                          <td className="py-3 px-3">
                            {isEditing ? (
                              <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." />
@@ -641,7 +637,6 @@ export default function App() {
                            )}
                          </td>
 
-                         {/* Edit 8 Status Progress */}
                          {['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
                              {isEditing ? (
@@ -652,8 +647,7 @@ export default function App() {
                            </td>
                          ))}
                          
-                         {/* Aksi Kolom (Edit/Simpan & Hapus) */}
-                         <td className="py-3 px-3 text-center sticky right-0 bg-slate-50/90 backdrop-blur border-l border-slate-100">
+                         <td className="py-3 px-3 text-center sticky right-0 z-10 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
                                <button onClick={() => toggleEdit(item.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan">
