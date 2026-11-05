@@ -15,6 +15,8 @@ const LogOut = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width=
 const Lock = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>;
 const Mail = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>;
 const Key = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="m21 2-9.6 9.6"></path><path d="m15.5 7.5 3 3L22 7l-3-3"></path></svg>;
+const Edit2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>;
+const Check = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>;
 
 // --- Firebase Initialization ---
 const firebaseConfig = {
@@ -87,6 +89,9 @@ export default function App() {
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
 
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
+
+  // STATE BARU: Melacak baris mana yang sedang dalam mode edit
+  const [editingIds, setEditingIds] = useState([]);
 
   // 1. Initialize Firebase Auth
   useEffect(() => {
@@ -203,6 +208,10 @@ export default function App() {
   };
 
   // --- HANDLERS LOKASI & ARRAY ---
+  const toggleEdit = (id) => {
+    setEditingIds(prev => prev.includes(id) ? prev.filter(eId => eId !== id) : [...prev, id]);
+  };
+
   const handleAddLocation = async () => {
     if (!firebaseUser) return;
     const newId = Date.now().toString();
@@ -212,6 +221,8 @@ export default function App() {
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum'
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
+    // Buka otomatis mode edit untuk lokasi yang baru ditambah
+    setEditingIds(prev => [...prev, newId]);
   };
 
   const handleDeleteLocation = async (id) => {
@@ -543,84 +554,123 @@ export default function App() {
                        <th className="py-3 px-3">PKS</th>
                        <th className="py-3 px-3">PROSES INSTALASI</th>
                        <th className="py-3 px-3">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center">AKSI</th>
+                       <th className="py-3 px-3 text-center sticky right-0 bg-slate-50 z-10 border-l border-slate-100">AKSI</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
-                     {locations.map(item => (
+                     {locations.map(item => {
+                       const isEditing = editingIds.includes(item.id);
+                       return (
                        <tr key={item.id} className="hover:bg-slate-50 align-top">
                          
                          {/* Edit Lokasi */}
                          <td className="py-3 px-3">
-                            <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none w-full pb-1" placeholder="Nama Lokasi..." />
+                           {isEditing ? (
+                              <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." />
+                           ) : (
+                              <span className="font-bold text-slate-800 block pt-1.5">{item.lokasi}</span>
+                           )}
                          </td>
 
-                         {/* BAGIAN YANG DIRUBAH: Edit Chargers dengan Dropdown (Select) */}
+                         {/* Edit Chargers dengan Dropdown (Select) */}
                          <td className="py-3 px-3">
-                            <div className="space-y-2">
-                              {(item.chargers || []).map((chg, idx) => (
-                                <div key={idx} className="flex gap-1 items-center">
-                                  <select value={chg.jenis || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
-                                    <option value="" disabled>- Jenis -</option>
-                                    <option value="7kW AC">7kW AC</option>
-                                    <option value="22kW AC">22kW AC</option>
-                                    <option value="30kW DC">30kW DC</option>
-                                    <option value="60kW DC">60kW DC</option>
-                                    <option value="120kW DC">120kW DC</option>
-                                    <option value="240kW DC">240kW DC</option>
-                                  </select>
-                                  <select value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
-                                    <option value="" disabled>- Brand -</option>
-                                    <option value="TIDE">TIDE</option>
-                                    <option value="Moderntec">Moderntec</option>
-                                    <option value="Teison">Teison</option>
-                                    <option value="Starcharge">Starcharge</option>
-                                  </select>
-                                  <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
-                                  <button onClick={() => handleArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                                </div>
-                              ))}
-                              <button onClick={() => handleArrayAdd(item.id, 'chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah Charger</button>
-                            </div>
+                           {isEditing ? (
+                             <div className="space-y-2">
+                               {(item.chargers || []).map((chg, idx) => (
+                                 <div key={idx} className="flex gap-1 items-center">
+                                   <select value={chg.jenis || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
+                                     <option value="" disabled>- Jenis -</option>
+                                     <option value="7kW AC">7kW AC</option>
+                                     <option value="22kW AC">22kW AC</option>
+                                     <option value="30kW DC">30kW DC</option>
+                                     <option value="60kW DC">60kW DC</option>
+                                     <option value="120kW DC">120kW DC</option>
+                                     <option value="240kW DC">240kW DC</option>
+                                   </select>
+                                   <select value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
+                                     <option value="" disabled>- Brand -</option>
+                                     <option value="TIDE">TIDE</option>
+                                     <option value="Moderntec">Moderntec</option>
+                                     <option value="Teison">Teison</option>
+                                     <option value="Starcharge">Starcharge</option>
+                                   </select>
+                                   <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                   <button onClick={() => handleArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                                 </div>
+                               ))}
+                               <button onClick={() => handleArrayAdd(item.id, 'chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah Charger</button>
+                             </div>
+                           ) : (
+                             <div className="space-y-1 pt-1">
+                               {(item.chargers || []).map((c, i) => (
+                                 <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>
+                               ))}
+                               {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                             </div>
+                           )}
                          </td>
 
                          {/* Edit PIC */}
                          <td className="py-3 px-3">
-                            <div className="space-y-2">
-                              {(item.pics || []).map((pic, idx) => (
-                                <div key={idx} className="flex gap-1 items-center">
-                                  <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
-                                  <button onClick={() => handleArrayRemove(item.id, 'pics', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                                </div>
-                              ))}
-                              <button onClick={() => handleArrayAdd(item.id, 'pics', '')} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah PIC</button>
-                            </div>
+                           {isEditing ? (
+                             <div className="space-y-2">
+                               {(item.pics || []).map((pic, idx) => (
+                                 <div key={idx} className="flex gap-1 items-center">
+                                   <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                   <button onClick={() => handleArrayRemove(item.id, 'pics', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                                 </div>
+                               ))}
+                               <button onClick={() => handleArrayAdd(item.id, 'pics', '')} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah PIC</button>
+                             </div>
+                           ) : (
+                             <div className="space-y-1 pt-1">
+                               {(item.pics || []).map((p, i) => (
+                                 <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
+                               ))}
+                               {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                             </div>
+                           )}
                          </td>
 
                          {/* Edit Keterangan */}
                          <td className="py-3 px-3">
-                            <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." />
+                           {isEditing ? (
+                             <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." />
+                           ) : (
+                             <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>
+                           )}
                          </td>
 
                          {/* Edit 8 Status Progress */}
                          {['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
-                              <EditableStatus loc={item} stage={stage} updateLocationStatus={updateLocationStatus} />
+                             {isEditing ? (
+                               <EditableStatus loc={item} stage={stage} updateLocationStatus={updateLocationStatus} />
+                             ) : (
+                               <div className="pt-1"><StatusBadge status={item[stage]} /></div>
+                             )}
                            </td>
                          ))}
                          
-                         {/* Hapus Lokasi */}
-                         <td className="py-3 px-3 text-center">
-                           <button 
-                             onClick={() => handleDeleteLocation(item.id)} 
-                             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" 
-                             title="Hapus Lokasi"
-                           >
-                             <Trash2 className="w-4 h-4" />
-                           </button>
+                         {/* Aksi Kolom (Edit/Simpan & Hapus) */}
+                         <td className="py-3 px-3 text-center sticky right-0 bg-slate-50/90 backdrop-blur border-l border-slate-100">
+                           <div className="flex gap-2 justify-center items-center h-full pt-1">
+                             {isEditing ? (
+                               <button onClick={() => toggleEdit(item.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan">
+                                 <Check className="w-3.5 h-3.5" /> Simpan
+                               </button>
+                             ) : (
+                               <button onClick={() => toggleEdit(item.id)} className="p-2 text-blue-500 hover:bg-blue-100 rounded transition-colors" title="Edit Baris">
+                                 <Edit2 className="w-4 h-4" />
+                               </button>
+                             )}
+                             <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi">
+                               <Trash2 className="w-4 h-4" />
+                             </button>
+                           </div>
                          </td>
                        </tr>
-                     ))}
+                     )})}
                    </tbody>
                  </table>
                </div>
@@ -728,18 +778,16 @@ export default function App() {
 
 function StatusBadge({ status }) {
   if (!status) return null;
-  if (status === 'Selesai') return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full">Selesai</span>;
-  if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full">Proses</span>;
-  if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-50 text-slate-400 border border-slate-200 block text-center w-full">Belum</span>;
+  if (status === 'Selesai') return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm">Selesai</span>;
+  if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full shadow-sm">Proses</span>;
+  if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full">Belum</span>;
   if (status.startsWith('Jadwal')) {
     const dateStr = status.replace('Jadwal ', '');
     const day = dateStr.split('-')[2];
     return (
-      <div className="flex flex-col w-full text-center">
+      <div className="flex flex-col w-full text-center shadow-sm">
         <span className="bg-blue-100 text-blue-700 border border-blue-200 border-b-0 rounded-t py-1">Jadwal</span>
-        <span className="bg-white text-slate-500 border border-blue-200 rounded-b py-1 flex items-center justify-center gap-1">
-          <Calendar className="w-3 h-3" /> {day} Nov
-        </span>
+        <span className="bg-white text-slate-600 border border-blue-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium"><Calendar className="w-3 h-3" /> {day} Nov</span>
       </div>
     );
   }
@@ -748,27 +796,13 @@ function StatusBadge({ status }) {
 
 function EditableStatus({ loc, stage, updateLocationStatus }) {
   const isJadwal = loc[stage]?.startsWith('Jadwal');
-  
   return (
     <div className="flex flex-col gap-1 w-full">
-      <select 
-        value={isJadwal ? 'Jadwal' : loc[stage]} 
-        onChange={(e) => updateLocationStatus(loc.id, stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)}
-        className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white"
-      >
-        <option value="Belum">Belum</option>
-        <option value="Proses">Proses</option>
-        <option value="Selesai">Selesai</option>
-        <option value="Jadwal">Jadwal</option>
+      <select value={isJadwal ? 'Jadwal' : loc[stage]} onChange={(e) => updateLocationStatus(loc.id, stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
+        <option value="Belum">Belum</option><option value="Proses">Proses</option><option value="Selesai">Selesai</option><option value="Jadwal">Jadwal</option>
       </select>
-      
       {isJadwal && (
-        <input 
-          type="date"
-          value={loc[stage].replace('Jadwal ', '')}
-          onChange={(e) => updateLocationStatus(loc.id, stage, `Jadwal ${e.target.value}`)}
-          className="w-full p-1 border border-slate-200 rounded text-slate-500 [&::-webkit-calendar-picker-indicator]:cursor-pointer bg-white"
-        />
+        <input type="date" value={loc[stage].replace('Jadwal ', '')} onChange={(e) => updateLocationStatus(loc.id, stage, `Jadwal ${e.target.value}`)} className="w-full p-1 border border-slate-200 rounded text-slate-600 [&::-webkit-calendar-picker-indicator]:cursor-pointer bg-white shadow-sm" />
       )}
     </div>
   );
