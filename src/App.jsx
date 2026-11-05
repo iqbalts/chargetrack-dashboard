@@ -202,24 +202,14 @@ export default function App() {
     });
   };
 
-  // --- FITUR BARU: Tambah & Hapus Lokasi ---
+  // --- HANDLERS LOKASI & ARRAY ---
   const handleAddLocation = async () => {
     if (!firebaseUser) return;
     const newId = Date.now().toString();
     const newLocation = {
-      id: newId, 
-      lokasi: 'Lokasi Baru',
-      chargers: [], 
-      pics: [],
-      survey: 'Belum', 
-      teknis: 'Belum', 
-      pln: 'Belum', 
-      izin: 'Belum',
-      vendor: 'Belum', 
-      pks: 'Belum', 
-      instalasi: 'Belum', 
-      testing: 'Belum',
-      keterangan: ''
+      id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
+      survey: 'Belum', teknis: 'Belum', pln: 'Belum', izin: 'Belum',
+      vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum'
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
   };
@@ -229,6 +219,36 @@ export default function App() {
     if (window.confirm("Yakin bray mau ngapus lokasi ini secara permanen?")) {
       await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()));
     }
+  };
+
+  const handleArrayAdd = async (locId, field, defaultItem) => {
+    if (!firebaseUser) return;
+    const loc = locations.find(l => l.id === locId);
+    const newArray = [...(loc[field] || []), defaultItem];
+    await updateLocationStatus(locId, field, newArray);
+  };
+
+  const handleArrayRemove = async (locId, field, index) => {
+    if (!firebaseUser) return;
+    const loc = locations.find(l => l.id === locId);
+    const newArray = (loc[field] || []).filter((_, i) => i !== index);
+    await updateLocationStatus(locId, field, newArray);
+  };
+
+  const handleArrayUpdate = async (locId, field, index, key, value) => {
+    if (!firebaseUser) return;
+    const loc = locations.find(l => l.id === locId);
+    const newArray = [...(loc[field] || [])];
+    newArray[index] = { ...newArray[index], [key]: value };
+    await updateLocationStatus(locId, field, newArray);
+  };
+
+  const handleArrayUpdateString = async (locId, field, index, value) => {
+    if (!firebaseUser) return;
+    const loc = locations.find(l => l.id === locId);
+    const newArray = [...(loc[field] || [])];
+    newArray[index] = value;
+    await updateLocationStatus(locId, field, newArray);
   };
 
   if (!isFirebaseLoaded) {
@@ -445,18 +465,18 @@ export default function App() {
                       const statusAkhir = getStatusAkhir(progress);
                       return (
                       <tr key={item.id} className="hover:bg-slate-50/50">
-                        <td className="py-4 px-4 text-slate-400">{index + 1}</td>
-                        <td className="py-4 px-4 font-bold text-slate-800">{item.lokasi}</td>
-                        <td className="py-4 px-4 space-y-1">
+                        <td className="py-4 px-4 text-slate-400 align-top">{index + 1}</td>
+                        <td className="py-4 px-4 font-bold text-slate-800 align-top">{item.lokasi}</td>
+                        <td className="py-4 px-4 space-y-1 align-top">
                           {item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}
                         </td>
-                        <td className="py-4 px-4 space-y-2 font-semibold">
+                        <td className="py-4 px-4 space-y-2 font-semibold align-top">
                           {item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}
                         </td>
-                        <td className="py-4 px-4 space-y-2 text-slate-500">
+                        <td className="py-4 px-4 space-y-2 text-slate-500 align-top">
                           {item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}
                         </td>
-                        <td className="py-4 px-4 space-y-1">
+                        <td className="py-4 px-4 space-y-1 align-top">
                           {item.pics?.map((p, i) => (
                             <div key={i} className="flex items-center gap-2">
                               <span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span>
@@ -464,7 +484,7 @@ export default function App() {
                             </div>
                           ))}
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-4 align-top">
                           <div className="flex items-center gap-2">
                             <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                               <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
@@ -472,20 +492,22 @@ export default function App() {
                             <span className="font-bold text-slate-700">{progress}%</span>
                           </div>
                         </td>
-                        <td className="py-4 px-4"><StatusBadge status={item.survey} /></td>
-                        <td className="py-4 px-4"><StatusBadge status={item.teknis} /></td>
-                        <td className="py-4 px-4"><StatusBadge status={item.pln} /></td>
-                        <td className="py-4 px-4"><StatusBadge status={item.izin} /></td>
-                        <td className="py-4 px-4"><StatusBadge status={item.vendor} /></td>
-                        <td className="py-4 px-4"><StatusBadge status={item.pks} /></td>
-                        <td className="py-4 px-4"><StatusBadge status={item.instalasi} /></td>
-                        <td className="py-4 px-4"><StatusBadge status={item.testing} /></td>
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.survey} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.teknis} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.pln} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.izin} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.vendor} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.pks} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.instalasi} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.testing} /></td>
+                        <td className="py-4 px-4 align-top">
                           <div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}>
                             <span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}
                           </div>
                         </td>
-                        <td className="py-4 px-4 text-slate-500 truncate max-w-[200px]" title={item.keterangan}>{item.keterangan}</td>
+                        <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top">
+                          <p className="whitespace-normal break-words">{item.keterangan}</p>
+                        </td>
                       </tr>
                     )})}
                   </tbody>
@@ -497,7 +519,7 @@ export default function App() {
           {activeTab === 'update' && (
              <div className="space-y-4">
                {/* BAGIAN BARU: Tombol Tambah Lokasi */}
-               <div className="flex justify-end">
+               <div className="flex justify-end mb-4">
                  <button 
                    onClick={handleAddLocation} 
                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors"
@@ -506,11 +528,15 @@ export default function App() {
                  </button>
                </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto p-4">
+               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto p-4 pb-8">
                  <table className="w-max min-w-full text-xs text-left">
                    <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
                      <tr>
-                       <th className="py-3 px-3">LOKASI</th>
+                       <th className="py-3 px-3 min-w-[200px]">LOKASI</th>
+                       {/* BAGIAN BARU: Header Kolom Charger, PIC & Keterangan */}
+                       <th className="py-3 px-3 min-w-[280px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                       <th className="py-3 px-3 min-w-[180px]">PIC</th>
+                       <th className="py-3 px-3 min-w-[200px]">KETERANGAN</th>
                        <th className="py-3 px-3">EARLY SURVEY</th>
                        <th className="py-3 px-3">SURVEY TEKNIS</th>
                        <th className="py-3 px-3">SURVEY PLN</th>
@@ -519,21 +545,59 @@ export default function App() {
                        <th className="py-3 px-3">PKS</th>
                        <th className="py-3 px-3">PROSES INSTALASI</th>
                        <th className="py-3 px-3">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center">AKSI</th> {/* BAGIAN BARU: Header Aksi */}
+                       <th className="py-3 px-3 text-center">AKSI</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
                      {locations.map(item => (
-                       <tr key={item.id} className="hover:bg-slate-50">
+                       <tr key={item.id} className="hover:bg-slate-50 align-top">
+                         
+                         {/* Edit Lokasi */}
                          <td className="py-3 px-3">
-                            <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none w-full" />
+                            <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none w-full pb-1" placeholder="Nama Lokasi..." />
                          </td>
+
+                         {/* BAGIAN BARU: Edit Chargers */}
+                         <td className="py-3 px-3">
+                            <div className="space-y-2">
+                              {(item.chargers || []).map((chg, idx) => (
+                                <div key={idx} className="flex gap-1 items-center">
+                                  <input type="text" placeholder="Jenis" value={chg.jenis || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-20 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                  <input type="text" placeholder="Brand" value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-20 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                  <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                  <button onClick={() => handleArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                                </div>
+                              ))}
+                              <button onClick={() => handleArrayAdd(item.id, 'chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah Charger</button>
+                            </div>
+                         </td>
+
+                         {/* BAGIAN BARU: Edit PIC */}
+                         <td className="py-3 px-3">
+                            <div className="space-y-2">
+                              {(item.pics || []).map((pic, idx) => (
+                                <div key={idx} className="flex gap-1 items-center">
+                                  <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                  <button onClick={() => handleArrayRemove(item.id, 'pics', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                                </div>
+                              ))}
+                              <button onClick={() => handleArrayAdd(item.id, 'pics', '')} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah PIC</button>
+                            </div>
+                         </td>
+
+                         {/* BAGIAN BARU: Edit Keterangan */}
+                         <td className="py-3 px-3">
+                            <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." />
+                         </td>
+
+                         {/* Edit 8 Status Progress */}
                          {['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
                               <EditableStatus loc={item} stage={stage} updateLocationStatus={updateLocationStatus} />
                            </td>
                          ))}
-                         {/* BAGIAN BARU: Tombol Hapus Lokasi */}
+                         
+                         {/* Hapus Lokasi */}
                          <td className="py-3 px-3 text-center">
                            <button 
                              onClick={() => handleDeleteLocation(item.id)} 
