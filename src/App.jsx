@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection } from 'firebase/firestore';
 
-// --- Custom Icons (Replacing lucide-react to fix React version element mismatch) ---
+// --- Custom Icons ---
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
@@ -17,6 +17,8 @@ const Mail = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="2
 const Key = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="m21 2-9.6 9.6"></path><path d="m15.5 7.5 3 3L22 7l-3-3"></path></svg>;
 const Edit2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>;
 const Check = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>;
+const ChevronLeft = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"></path></svg>;
+const ChevronRight = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"></path></svg>;
 
 // --- Firebase Initialization ---
 const firebaseConfig = {
@@ -89,9 +91,10 @@ export default function App() {
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
 
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
-
-  // STATE BARU: Melacak baris mana yang sedang dalam mode edit
   const [editingIds, setEditingIds] = useState([]);
+  
+  // STATE BARU: Melacak bulan kalender yang lagi dilihat (default hari ini)
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   // 1. Initialize Firebase Auth
   useEffect(() => {
@@ -176,7 +179,6 @@ export default function App() {
     return { text: 'Proses', color: 'text-amber-600', dot: 'bg-amber-500' };
   };
 
-  // --- Database Mutators ---
   const handleAddUser = async (e) => {
     e.preventDefault();
     if (!firebaseUser) return;
@@ -207,7 +209,6 @@ export default function App() {
     });
   };
 
-  // --- HANDLERS LOKASI & ARRAY ---
   const toggleEdit = (id) => {
     setEditingIds(prev => prev.includes(id) ? prev.filter(eId => eId !== id) : [...prev, id]);
   };
@@ -221,7 +222,6 @@ export default function App() {
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum'
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
-    // Buka otomatis mode edit untuk lokasi yang baru ditambah
     setEditingIds(prev => [...prev, newId]);
   };
 
@@ -260,6 +260,15 @@ export default function App() {
     const newArray = [...(loc[field] || [])];
     newArray[index] = value;
     await updateLocationStatus(locId, field, newArray);
+  };
+
+  // HANDLER KALENDER
+  const handlePrevMonth = () => {
+    setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
+  };
+  
+  const handleNextMonth = () => {
+    setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
   };
 
   if (!isFirebaseLoaded) {
@@ -554,7 +563,7 @@ export default function App() {
                        <th className="py-3 px-3">PKS</th>
                        <th className="py-3 px-3">PROSES INSTALASI</th>
                        <th className="py-3 px-3">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center sticky right-0 bg-slate-50 z-20 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-slate-200">AKSI</th>
+                       <th className="py-3 px-3 text-center">AKSI</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
@@ -647,7 +656,7 @@ export default function App() {
                            </td>
                          ))}
                          
-                         <td className="py-3 px-3 text-center sticky right-0 z-10 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
+                         <td className="py-3 px-3 text-center">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
                                <button onClick={() => toggleEdit(item.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan">
@@ -729,41 +738,80 @@ export default function App() {
             </div>
           )}
 
-          {activeTab === 'calendar' && (
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-               <h3 className="text-xl font-bold text-slate-800 mb-6">Jadwal November 2026</h3>
-               <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-                 {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => <div key={d} className="bg-white py-2 text-center text-xs font-bold text-slate-600">{d}</div>)}
-                 {Array.from({length: 30}).map((_, i) => {
-                   const dateNum = i + 1;
-                   const fullDateStr = `2026-11-${dateNum.toString().padStart(2, '0')}`;
-                   
-                   const events = [];
-                   locations.forEach(loc => {
-                     ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
-                        if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
-                           events.push({ locName: loc.lokasi, stageName: stage });
-                        }
-                     });
-                   });
+          {activeTab === 'calendar' && (() => {
+            // Logika penghitungan kalender dinamis
+            const year = calendarMonth.getFullYear();
+            const month = calendarMonth.getMonth();
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 (Minggu) sampe 6 (Sabtu)
 
-                   return (
-                     <div key={i} className="bg-white min-h-[100px] p-2">
-                       <span className="text-xs text-slate-400 font-bold block text-right">{dateNum}</span>
-                       <div className="mt-1 space-y-1">
-                         {events.map((ev, idx) => (
-                           <div key={idx} className="bg-blue-50 border border-blue-100 p-1.5 rounded text-[10px]">
-                              <div className="font-bold text-blue-700 capitalize">{ev.stageName}</div>
-                              <div className="text-slate-500 truncate">{ev.locName}</div>
-                           </div>
-                         ))}
+            return (
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                 <div className="flex justify-between items-center mb-6">
+                   <h3 className="text-xl font-bold text-slate-800">
+                     Jadwal {monthNames[month]} {year}
+                   </h3>
+                   <div className="flex gap-2">
+                     <button onClick={handlePrevMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Sebelumnya">
+                       <ChevronLeft className="w-5 h-5" />
+                     </button>
+                     <button onClick={handleNextMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Selanjutnya">
+                       <ChevronRight className="w-5 h-5" />
+                     </button>
+                   </div>
+                 </div>
+
+                 <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden">
+                   {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => (
+                     <div key={d} className="bg-white py-2 text-center text-xs font-bold text-slate-600">{d}</div>
+                   ))}
+
+                   {/* Kotak kosong untuk offset awal bulan */}
+                   {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+                     <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>
+                   ))}
+
+                   {/* Kotak tanggal sebenarnya */}
+                   {Array.from({ length: daysInMonth }).map((_, i) => {
+                     const dateNum = i + 1;
+                     const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
+                     
+                     const events = [];
+                     locations.forEach(loc => {
+                       ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+                          if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
+                             events.push({ locName: loc.lokasi, stageName: stage });
+                          }
+                       });
+                     });
+
+                     return (
+                       <div key={i} className="bg-white min-h-[100px] p-2">
+                         <span className={`text-xs font-bold block text-right ${
+                           // Highlight tanggal hari ini kalau bulannya sama dengan hari ini di dunia nyata
+                           new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year 
+                           ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' 
+                           : 'text-slate-400'
+                         }`}>
+                           {dateNum}
+                         </span>
+                         <div className="mt-1 space-y-1">
+                           {events.map((ev, idx) => (
+                             <div key={idx} className="bg-blue-50 border border-blue-100 p-1.5 rounded text-[10px]">
+                                <div className="font-bold text-blue-700 capitalize">{ev.stageName}</div>
+                                <div className="text-slate-500 truncate">{ev.locName}</div>
+                             </div>
+                           ))}
+                         </div>
                        </div>
-                     </div>
-                   );
-                 })}
-               </div>
-            </div>
-          )}
+                     );
+                   })}
+                 </div>
+              </div>
+            );
+          })()}
         </div>
       </main>
     </div>
@@ -781,7 +829,7 @@ function StatusBadge({ status }) {
     return (
       <div className="flex flex-col w-full text-center shadow-sm">
         <span className="bg-blue-100 text-blue-700 border border-blue-200 border-b-0 rounded-t py-1">Jadwal</span>
-        <span className="bg-white text-slate-600 border border-blue-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium"><Calendar className="w-3 h-3" /> {day} Nov</span>
+        <span className="bg-white text-slate-600 border border-blue-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium"><Calendar className="w-3 h-3" /> {day}</span>
       </div>
     );
   }
