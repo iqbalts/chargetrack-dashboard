@@ -518,7 +518,6 @@ export default function App() {
 
           {activeTab === 'update' && (
              <div className="space-y-4">
-               {/* BAGIAN BARU: Tombol Tambah Lokasi */}
                <div className="flex justify-end mb-4">
                  <button 
                    onClick={handleAddLocation} 
@@ -533,8 +532,7 @@ export default function App() {
                    <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
                      <tr>
                        <th className="py-3 px-3 min-w-[200px]">LOKASI</th>
-                       {/* BAGIAN BARU: Header Kolom Charger, PIC & Keterangan */}
-                       <th className="py-3 px-3 min-w-[280px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                       <th className="py-3 px-3 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
                        <th className="py-3 px-3 min-w-[180px]">PIC</th>
                        <th className="py-3 px-3 min-w-[200px]">KETERANGAN</th>
                        <th className="py-3 px-3">EARLY SURVEY</th>
@@ -557,13 +555,27 @@ export default function App() {
                             <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none w-full pb-1" placeholder="Nama Lokasi..." />
                          </td>
 
-                         {/* BAGIAN BARU: Edit Chargers */}
+                         {/* BAGIAN YANG DIRUBAH: Edit Chargers dengan Dropdown (Select) */}
                          <td className="py-3 px-3">
                             <div className="space-y-2">
                               {(item.chargers || []).map((chg, idx) => (
                                 <div key={idx} className="flex gap-1 items-center">
-                                  <input type="text" placeholder="Jenis" value={chg.jenis || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-20 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
-                                  <input type="text" placeholder="Brand" value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-20 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                  <select value={chg.jenis || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
+                                    <option value="" disabled>- Jenis -</option>
+                                    <option value="7kW AC">7kW AC</option>
+                                    <option value="22kW AC">22kW AC</option>
+                                    <option value="30kW DC">30kW DC</option>
+                                    <option value="60kW DC">60kW DC</option>
+                                    <option value="120kW DC">120kW DC</option>
+                                    <option value="240kW DC">240kW DC</option>
+                                  </select>
+                                  <select value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
+                                    <option value="" disabled>- Brand -</option>
+                                    <option value="TIDE">TIDE</option>
+                                    <option value="Moderntec">Moderntec</option>
+                                    <option value="Teison">Teison</option>
+                                    <option value="Starcharge">Starcharge</option>
+                                  </select>
                                   <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
                                   <button onClick={() => handleArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                                 </div>
@@ -572,7 +584,7 @@ export default function App() {
                             </div>
                          </td>
 
-                         {/* BAGIAN BARU: Edit PIC */}
+                         {/* Edit PIC */}
                          <td className="py-3 px-3">
                             <div className="space-y-2">
                               {(item.pics || []).map((pic, idx) => (
@@ -585,7 +597,7 @@ export default function App() {
                             </div>
                          </td>
 
-                         {/* BAGIAN BARU: Edit Keterangan */}
+                         {/* Edit Keterangan */}
                          <td className="py-3 px-3">
                             <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." />
                          </td>
