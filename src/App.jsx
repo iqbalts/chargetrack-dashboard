@@ -76,24 +76,34 @@ export default function App() {
 
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
   const [editingIds, setEditingIds] = useState([]);
+  
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-
-  // STATE BARU: Untuk nangkep input pencarian
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 1. Initialize Firebase Auth
   useEffect(() => {
     const initAuth = async () => {
-      try { await signInAnonymously(auth); } catch (err) { console.error(err); }
+      try {
+        await signInAnonymously(auth);
+      } catch (err) {
+        console.error("Auth init error:", err);
+      }
     };
     initAuth();
-    const unsubscribe = onAuthStateChanged(auth, setFirebaseUser);
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+    });
     return () => unsubscribe();
   }, []);
 
+  // 2. Fetch Users & Locations from Firestore
   useEffect(() => {
     if (!firebaseUser) return;
+
     const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
     const locsRef = collection(db, 'artifacts', appId, 'public', 'data', 'locations');
+
     let seededUsers = false;
     let seededLocs = false;
 
@@ -102,28 +112,43 @@ export default function App() {
         seededUsers = true;
         defaultUsers.forEach(u => setDoc(doc(usersRef, u.id), u));
       } else {
-        setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        setUsers(data);
       }
-    });
+    }, (err) => console.error(err));
 
     const unsubLocs = onSnapshot(locsRef, (snapshot) => {
       if (snapshot.empty && !seededLocs) {
         seededLocs = true;
         defaultLocations.forEach(l => setDoc(doc(locsRef, l.id), l));
       } else {
-        setLocations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(a.id) - parseInt(b.id)));
+        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(a.id) - parseInt(b.id));
+        setLocations(data);
         setIsFirebaseLoaded(true);
       }
-    });
+    }, (err) => console.error(err));
 
-    return () => { unsubUsers(); unsubLocs(); };
+    return () => {
+      unsubUsers();
+      unsubLocs();
+    };
   }, [firebaseUser]);
 
   const handleLogin = (e) => {
     e.preventDefault();
     const user = users.find(u => u.email === loginForm.email && u.password === loginForm.password);
-    if (user) { setCurrentUser(user); setLoginError(''); setActiveTab('dashboard'); } 
-    else { setLoginError('Email atau password salah!'); }
+    if (user) {
+      setCurrentUser(user);
+      setLoginError('');
+      setActiveTab('dashboard'); 
+    } else {
+      setLoginError('Email atau password salah!');
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setLoginForm({ email: '', password: '' });
   };
 
   const calculateProgress = (loc) => {
@@ -154,7 +179,9 @@ export default function App() {
 
   const saveNewPassword = async () => {
     if (!firebaseUser || !resetModal.userId || !resetModal.newPassword) return;
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', resetModal.userId.toString()), { password: resetModal.newPassword });
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', resetModal.userId.toString()), { 
+      password: resetModal.newPassword 
+    });
     setResetModal({ isOpen: false, userId: null, newPassword: '' });
   };
 
@@ -262,7 +289,6 @@ export default function App() {
     { id: 'settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['Admin'] },
   ];
 
-  // Hitungan metrik disesuaikan dengan hasil filter pencarian
   const totalTitik = filteredLocations.length;
   const selesai = filteredLocations.filter(l => calculateProgress(l) === 100).length;
   const proses = filteredLocations.filter(l => calculateProgress(l) > 0 && calculateProgress(l) < 100).length;
@@ -270,7 +296,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
-      {/* Sidebar & Modal (Sama persis) */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -315,22 +340,23 @@ export default function App() {
               <p className="text-slate-500 mt-1">Pantau progres deployment titik charging station.</p>
             </div>
             
-            {/* SEARCH BAR SEKARANG BERFUNGSI */}
-            <div className="relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input 
-                type="text" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari lokasi atau PIC..." 
-                className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-              />
-            </div>
+            {/* SEARCH BAR DISEMBUNYIKAN KALAU DI TAB SETTINGS */}
+            {activeTab !== 'settings' && (
+              <div className="relative">
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Cari lokasi atau PIC..." 
+                  className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                />
+              </div>
+            )}
           </div>
 
           {activeTab === 'dashboard' && (
             <>
-              {/* Summary Cards ikut ter-update berdasarkan pencarian */}
               <div className="grid grid-cols-4 gap-6 mb-8">
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600"><Home className="w-5 h-5" /></div></div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Selesai Beroperasi</p><p className="text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Activity className="w-5 h-5" /></div></div>
@@ -338,7 +364,6 @@ export default function App() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              {/* Tabel Dashboard Menggunakan filteredLocations */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
@@ -383,11 +408,25 @@ export default function App() {
                  </button>
                </div>
 
-               {/* Tabel Update Menggunakan filteredLocations */}
                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto p-4 pb-8">
-                 <table className="w-max min-w-full text-xs text-left">
-                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
-                     <tr><th className="py-3 px-3 min-w-[200px]">LOKASI</th><th className="py-3 px-3 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th><th className="py-3 px-3 min-w-[180px]">PIC</th><th className="py-3 px-3 min-w-[200px]">KETERANGAN</th><th className="py-3 px-3">EARLY SURVEY</th><th className="py-3 px-3">SURVEY TEKNIS</th><th className="py-3 px-3">SURVEY PLN</th><th className="py-3 px-3">PERIZINAN</th><th className="py-3 px-3">PENAWARAN VENDOR</th><th className="py-3 px-3">PKS</th><th className="py-3 px-3">PROSES INSTALASI</th><th className="py-3 px-3">TESTING & COMM.</th><th className="py-3 px-3 text-center border-l border-slate-100">AKSI</th></tr>
+                 <table className="w-max min-w-full text-xs text-left relative">
+                   <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                     <tr>
+                       <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">LOKASI</th>
+                       <th className="py-3 px-3 min-w-[300px] border-b border-slate-100">CHARGERS (JENIS, BRAND, QTY)</th>
+                       <th className="py-3 px-3 min-w-[180px] border-b border-slate-100">PIC</th>
+                       <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">KETERANGAN</th>
+                       <th className="py-3 px-3 border-b border-slate-100">EARLY SURVEY</th>
+                       <th className="py-3 px-3 border-b border-slate-100">SURVEY TEKNIS</th>
+                       <th className="py-3 px-3 border-b border-slate-100">SURVEY PLN</th>
+                       <th className="py-3 px-3 border-b border-slate-100">PERIZINAN</th>
+                       <th className="py-3 px-3 border-b border-slate-100">PENAWARAN VENDOR</th>
+                       <th className="py-3 px-3 border-b border-slate-100">PKS</th>
+                       <th className="py-3 px-3 border-b border-slate-100">PROSES INSTALASI</th>
+                       <th className="py-3 px-3 border-b border-slate-100">TESTING & COMM.</th>
+                       {/* EFEK STICKY DIBALIKIN DENGAN Z-INDEX DAN SOLID BACKGROUND */}
+                       <th className="py-3 px-3 text-center sticky right-0 bg-slate-50 z-20 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI</th>
+                     </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
                      {filteredLocations.map(item => {
@@ -410,7 +449,7 @@ export default function App() {
                                    <select value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
                                      <option value="" disabled>- Brand -</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
                                    </select>
-                                   <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                   <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
                                    <button onClick={() => handleArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                                  </div>
                                ))}
@@ -429,7 +468,7 @@ export default function App() {
                              <div className="space-y-2">
                                {(item.pics || []).map((pic, idx) => (
                                  <div key={idx} className="flex gap-1 items-center">
-                                   <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs" />
+                                   <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
                                    <button onClick={() => handleArrayRemove(item.id, 'pics', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                                  </div>
                                ))}
@@ -444,7 +483,7 @@ export default function App() {
                          </td>
 
                          <td className="py-3 px-3">
-                           {isEditing ? <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px]" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
+                           {isEditing ? <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
                          {['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
@@ -453,7 +492,8 @@ export default function App() {
                            </td>
                          ))}
                          
-                         <td className="py-3 px-3 text-center bg-white group-hover:bg-slate-50 border-l border-slate-200 transition-colors">
+                         {/* EFEK STICKY DIBALIKIN DENGAN Z-INDEX DAN SOLID BACKGROUND */}
+                         <td className="py-3 px-3 text-center sticky right-0 z-10 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
                                <button onClick={() => toggleEdit(item.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan"><Check className="w-3.5 h-3.5" /> Simpan</button>
@@ -563,7 +603,6 @@ export default function App() {
                      const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
                      
                      const events = [];
-                     // Filter Kalender juga pakai data hasil search!
                      filteredLocations.forEach(loc => {
                        ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
                           if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
