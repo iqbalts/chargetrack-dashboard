@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -22,6 +22,10 @@ const ChevronRight = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" 
 const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>;
 const X = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
 const Clock = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+// Ikon Sort Baru
+const ArrowUpDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>;
+const ArrowUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>;
+const ArrowDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 12-7 7-7-7"/><path d="M12 5v14"/></svg>;
 
 // --- Firebase Initialization ---
 const firebaseConfig = {
@@ -59,6 +63,9 @@ export default function App() {
   
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // STATE BARU: Konfigurasi Sorting di Dashboard
+  const [sortConfig, setSortConfig] = useState({ key: 'no', direction: 'asc' });
 
   const getFormattedTime = () => {
     return new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
@@ -172,7 +179,6 @@ export default function App() {
   };
 
   const calculateProgress = (loc) => {
-    // Non PLN dihitung sama sebagai progres 'Selesai'
     const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.pks, loc.instalasi, loc.testing];
     const completed = stages.filter(s => s === 'Selesai' || s === 'Non PLN').length;
     return Math.round((completed / 9) * 100);
@@ -327,6 +333,59 @@ export default function App() {
     return matchLokasi || matchPic;
   });
 
+  // --- LOGIKA SORTING DASHBOARD ---
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedLocations = () => {
+    // Tambahin 'originalNo' buat ngunci urutan asli submit
+    let sortableItems = filteredLocations.map((loc, idx) => ({ ...loc, originalNo: idx + 1 }));
+
+    sortableItems.sort((a, b) => {
+      let valA, valB;
+      if (sortConfig.key === 'no') {
+        valA = a.originalNo;
+        valB = b.originalNo;
+      } else if (sortConfig.key === 'lokasi') {
+        valA = a.lokasi?.toLowerCase() || '';
+        valB = b.lokasi?.toLowerCase() || '';
+      } else if (sortConfig.key === 'jumlah') {
+        valA = (a.chargers || []).reduce((sum, c) => sum + (parseInt(c.jumlah) || 0), 0);
+        valB = (b.chargers || []).reduce((sum, c) => sum + (parseInt(c.jumlah) || 0), 0);
+      } else if (sortConfig.key === 'progress') {
+        valA = calculateProgress(a);
+        valB = calculateProgress(b);
+      }
+
+      if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sortableItems;
+  };
+
+  const sortedDashboardLocations = getSortedLocations();
+
+  // Komponen Helper untuk Header Sort
+  const SortHeader = ({ label, sortKey }) => {
+    const isActive = sortConfig.key === sortKey;
+    return (
+      <th className="py-4 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none group" onClick={() => requestSort(sortKey)}>
+        <div className="flex items-center gap-1">
+          {label}
+          {isActive ? (
+            sortConfig.direction === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-blue-600" /> : <ArrowDown className="w-3.5 h-3.5 text-blue-600" />
+          ) : (
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+          )}
+        </div>
+      </th>
+    );
+  };
+
   if (!isFirebaseLoaded) return <div className="flex h-screen bg-slate-900 items-center justify-center font-sans text-white">Memuat Database...</div>;
 
   if (!currentUser) {
@@ -480,17 +539,36 @@ export default function App() {
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
-                    <tr><th className="py-4 px-4">NO</th><th className="py-4 px-4">LOKASI</th><th className="py-4 px-4">JENIS CHARGER</th><th className="py-4 px-4">BRAND</th><th className="py-4 px-4">JUMLAH</th><th className="py-4 px-4">PIC</th><th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th><th className="py-4 px-4">EARLY SURVEY</th><th className="py-4 px-4">SURVEY TEKNIS</th><th className="py-4 px-4">DOKUMEN TEKNIS</th><th className="py-4 px-4">SURVEY PLN</th><th className="py-4 px-4">PERIZINAN</th><th className="py-4 px-4">PENAWARAN VENDOR</th><th className="py-4 px-4">PKS</th><th className="py-4 px-4">PROSES INSTALASI</th><th className="py-4 px-4">TESTING & COMM.</th><th className="py-4 px-4">STATUS AKHIR</th><th className="py-4 px-4">KETERANGAN</th>
-                    <th className="py-4 px-4 text-center sticky right-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">HISTORY</th>
+                    <tr>
+                      <SortHeader label="NO" sortKey="no" />
+                      <SortHeader label="LOKASI" sortKey="lokasi" />
+                      <th className="py-4 px-4">JENIS CHARGER</th>
+                      <th className="py-4 px-4">BRAND</th>
+                      <SortHeader label="JUMLAH" sortKey="jumlah" />
+                      <th className="py-4 px-4">PIC</th>
+                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" />
+                      <th className="py-4 px-4">EARLY SURVEY</th>
+                      <th className="py-4 px-4">SURVEY TEKNIS</th>
+                      <th className="py-4 px-4">DOKUMEN TEKNIS</th>
+                      <th className="py-4 px-4">SURVEY PLN</th>
+                      <th className="py-4 px-4">PERIZINAN</th>
+                      <th className="py-4 px-4">PENAWARAN VENDOR</th>
+                      <th className="py-4 px-4">PKS</th>
+                      <th className="py-4 px-4">PROSES INSTALASI</th>
+                      <th className="py-4 px-4">TESTING & COMM.</th>
+                      <th className="py-4 px-4">STATUS AKHIR</th>
+                      <th className="py-4 px-4">KETERANGAN</th>
+                      <th className="py-4 px-4 text-center sticky right-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">HISTORY</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredLocations.map((item, index) => {
+                    {sortedDashboardLocations.map((item) => {
                       const progress = calculateProgress(item);
                       const statusAkhir = getStatusAkhir(progress);
                       return (
                       <tr key={item.id} className="hover:bg-slate-50/50 group">
-                        <td className="py-4 px-4 text-slate-400 align-top">{index + 1}</td>
+                        {/* NO SEKARANG MENGIKUTI ORIGINAL INDEX BIAR BISA DIKEMBALIKAN */}
+                        <td className="py-4 px-4 text-slate-400 align-top font-bold">{item.originalNo}</td>
                         <td className="py-4 px-4 font-bold text-slate-800 align-top">{item.lokasi}</td>
                         <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
                         <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
@@ -629,7 +707,7 @@ export default function App() {
                        </tr>
                      )})}
                      {filteredLocations.length === 0 && (
-                       <tr><td colSpan="14" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                       <tr><td colSpan="13" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                      )}
                    </tbody>
                  </table>
