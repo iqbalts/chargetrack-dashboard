@@ -34,30 +34,10 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = 'caztrack-v1';
 
-// Default Data Seeders
 const defaultUsers = [
   { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
   { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
   { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
-];
-
-const defaultLocations = [
-  {
-    id: '1', lokasi: 'Mall Grand Indonesia',
-    chargers: [{ jenis: '7kW AC', brand: 'TIDE', jumlah: 2 }, { jenis: '30kW DC', brand: 'Starcharge', jumlah: 1 }],
-    pics: ['Andi S.'],
-    survey: 'Selesai', teknis: 'Selesai', pln: 'Selesai', izin: 'Proses',
-    vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
-    keterangan: 'Menunggu tanda tangan izin manajemen'
-  },
-  {
-    id: '2', lokasi: 'Rest Area KM 57',
-    chargers: [{ jenis: '120kW DC', brand: 'Moderntec', jumlah: 2 }],
-    pics: ['Budi P.', 'Siti A.'],
-    survey: 'Selesai', teknis: 'Selesai', pln: 'Jadwal 2026-11-10', izin: 'Selesai',
-    vendor: 'Selesai', pks: 'Proses', instalasi: 'Belum', testing: 'Belum',
-    keterangan: 'Draft PKS direview legal'
-  }
 ];
 
 export default function App() {
@@ -80,24 +60,71 @@ export default function App() {
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. Initialize Firebase Auth
+  // --- SESI & AUTO LOGOUT LOGIC ---
+  useEffect(() => {
+    const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 Menit
+
+    // 1. Cek sesi saat pertama kali load / refresh
+    const storedUser = localStorage.getItem('caztrack_user');
+    const lastActivity = localStorage.getItem('caztrack_lastActivity');
+
+    if (storedUser && lastActivity) {
+      if (Date.now() - parseInt(lastActivity) < INACTIVITY_LIMIT) {
+        setCurrentUser(JSON.parse(storedUser));
+        localStorage.setItem('caztrack_lastActivity', Date.now().toString());
+      } else {
+        localStorage.removeItem('caztrack_user');
+        localStorage.removeItem('caztrack_lastActivity');
+      }
+    }
+
+    // 2. Fungsi update waktu aktivitas (di-throttle biar performa tetap ringan)
+    let throttleTimer;
+    const handleUserActivity = () => {
+      if (throttleTimer) return;
+      throttleTimer = setTimeout(() => {
+        localStorage.setItem('caztrack_lastActivity', Date.now().toString());
+        throttleTimer = null;
+      }, 1000); // 1 detik jeda
+    };
+
+    // Deteksi pergerakan user
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('keydown', handleUserActivity);
+    window.addEventListener('click', handleUserActivity);
+    window.addEventListener('scroll', handleUserActivity);
+
+    // 3. Cek otomatis tiap 1 menit apakah udah lewat 30 menit
+    const interval = setInterval(() => {
+      const currentLastActivity = localStorage.getItem('caztrack_lastActivity');
+      if (currentLastActivity && (Date.now() - parseInt(currentLastActivity) >= INACTIVITY_LIMIT)) {
+        setCurrentUser(null);
+        localStorage.removeItem('caztrack_user');
+        localStorage.removeItem('caztrack_lastActivity');
+      }
+    }, 60000);
+
+    return () => {
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+      window.removeEventListener('click', handleUserActivity);
+      window.removeEventListener('scroll', handleUserActivity);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // --- FIREBASE INIT ---
   useEffect(() => {
     const initAuth = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (err) {
-        console.error("Auth init error:", err);
-      }
+      try { await signInAnonymously(auth); } catch (err) { console.error("Auth init error:", err); }
     };
     initAuth();
     
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-    });
+    const unsubscribe = onAuthStateChanged(auth, (user) => { setFirebaseUser(user); });
     return () => unsubscribe();
   }, []);
 
-  // 2. Fetch Users & Locations from Firestore
+  // --- FETCH DATA ---
   useEffect(() => {
     if (!firebaseUser) return;
 
@@ -105,33 +132,22 @@ export default function App() {
     const locsRef = collection(db, 'artifacts', appId, 'public', 'data', 'locations');
 
     let seededUsers = false;
-    let seededLocs = false;
 
     const unsubUsers = onSnapshot(usersRef, (snapshot) => {
       if (snapshot.empty && !seededUsers) {
         seededUsers = true;
         defaultUsers.forEach(u => setDoc(doc(usersRef, u.id), u));
       } else {
-        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        setUsers(data);
+        setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
       }
-    }, (err) => console.error(err));
+    });
 
     const unsubLocs = onSnapshot(locsRef, (snapshot) => {
-      if (snapshot.empty && !seededLocs) {
-        seededLocs = true;
-        defaultLocations.forEach(l => setDoc(doc(locsRef, l.id), l));
-      } else {
-        const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(a.id) - parseInt(b.id));
-        setLocations(data);
-        setIsFirebaseLoaded(true);
-      }
-    }, (err) => console.error(err));
+      setLocations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(a.id) - parseInt(b.id)));
+      setIsFirebaseLoaded(true);
+    });
 
-    return () => {
-      unsubUsers();
-      unsubLocs();
-    };
+    return () => { unsubUsers(); unsubLocs(); };
   }, [firebaseUser]);
 
   const handleLogin = (e) => {
@@ -139,6 +155,9 @@ export default function App() {
     const user = users.find(u => u.email === loginForm.email && u.password === loginForm.password);
     if (user) {
       setCurrentUser(user);
+      // Simpan ke sesi
+      localStorage.setItem('caztrack_user', JSON.stringify(user));
+      localStorage.setItem('caztrack_lastActivity', Date.now().toString());
       setLoginError('');
       setActiveTab('dashboard'); 
     } else {
@@ -149,6 +168,9 @@ export default function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     setLoginForm({ email: '', password: '' });
+    // Hapus sesi
+    localStorage.removeItem('caztrack_user');
+    localStorage.removeItem('caztrack_lastActivity');
   };
 
   const calculateProgress = (loc) => {
@@ -179,9 +201,7 @@ export default function App() {
 
   const saveNewPassword = async () => {
     if (!firebaseUser || !resetModal.userId || !resetModal.newPassword) return;
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', resetModal.userId.toString()), { 
-      password: resetModal.newPassword 
-    });
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', resetModal.userId.toString()), { password: resetModal.newPassword });
     setResetModal({ isOpen: false, userId: null, newPassword: '' });
   };
 
@@ -240,7 +260,6 @@ export default function App() {
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
-  // --- LOGIKA FILTER PENCARIAN ---
   const filteredLocations = locations.filter(loc => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -296,7 +315,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
-      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -327,7 +345,7 @@ export default function App() {
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">{currentUser?.name.charAt(0)}</div>
             <div className="text-left"><p className="text-sm font-semibold">{currentUser?.name}</p><p className="text-xs text-slate-400">{currentUser?.role}</p></div>
           </div>
-          <button onClick={() => setCurrentUser(null)} className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-slate-800 rounded-lg"><LogOut className="w-4 h-4" /> Keluar</button>
+          <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-slate-800 rounded-lg"><LogOut className="w-4 h-4" /> Keluar</button>
         </div>
       </aside>
 
