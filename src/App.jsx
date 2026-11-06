@@ -37,32 +37,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = 'caztrack-v1';
 
-// Default Data Seeders
-const defaultUsers = [
-  { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
-  { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
-  { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
-];
-
-const defaultLocations = [
-  {
-    id: '1', lokasi: 'Mall Grand Indonesia',
-    chargers: [{ jenis: '7kW AC', brand: 'TIDE', jumlah: 2 }, { jenis: '30kW DC', brand: 'Starcharge', jumlah: 1 }],
-    pics: ['Andi S.'],
-    survey: 'Selesai', teknis: 'Selesai', pln: 'Selesai', izin: 'Proses',
-    vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
-    keterangan: 'Menunggu tanda tangan izin manajemen'
-  },
-  {
-    id: '2', lokasi: 'Rest Area KM 57',
-    chargers: [{ jenis: '120kW DC', brand: 'Moderntec', jumlah: 2 }],
-    pics: ['Budi P.', 'Siti A.'],
-    survey: 'Selesai', teknis: 'Selesai', pln: 'Jadwal 2026-11-10', izin: 'Selesai',
-    vendor: 'Selesai', pks: 'Proses', instalasi: 'Belum', testing: 'Belum',
-    keterangan: 'Draft PKS direview legal'
-  }
-];
-
 export default function App() {
   const [firebaseUser, setFirebaseUser] = useState(null);
   const [isFirebaseLoaded, setIsFirebaseLoaded] = useState(false);
@@ -80,7 +54,9 @@ export default function App() {
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
-  const [editingIds, setEditingIds] = useState([]);
+  // STATE BARU: Menyimpan draft perubahan (biar gak nge-log tiap huruf)
+  const [editDrafts, setEditDrafts] = useState({});
+  
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -91,7 +67,6 @@ export default function App() {
   // --- SESI & AUTO LOGOUT LOGIC ---
   useEffect(() => {
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
-
     const storedUser = localStorage.getItem('caztrack_user');
     const lastActivity = localStorage.getItem('caztrack_lastActivity');
 
@@ -137,29 +112,30 @@ export default function App() {
     };
   }, []);
 
-  // --- FIREBASE INIT ---
+  // --- FIREBASE INIT & FETCH DATA ---
   useEffect(() => {
     const initAuth = async () => {
       try { await signInAnonymously(auth); } catch (err) { console.error("Auth init error:", err); }
     };
     initAuth();
-    
     const unsubscribe = onAuthStateChanged(auth, (user) => { setFirebaseUser(user); });
     return () => unsubscribe();
   }, []);
 
-  // --- FETCH DATA ---
   useEffect(() => {
     if (!firebaseUser) return;
-
     const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
     const locsRef = collection(db, 'artifacts', appId, 'public', 'data', 'locations');
-
     let seededUsers = false;
 
     const unsubUsers = onSnapshot(usersRef, (snapshot) => {
       if (snapshot.empty && !seededUsers) {
         seededUsers = true;
+        const defaultUsers = [
+          { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
+          { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
+          { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
+        ];
         defaultUsers.forEach(u => setDoc(doc(usersRef, u.id), u));
       } else {
         setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -227,27 +203,11 @@ export default function App() {
     setResetModal({ isOpen: false, userId: null, newPassword: '' });
   };
 
-  const updateLocationStatus = async (id, field, value) => {
-    if (!firebaseUser) return;
-    const loc = locations.find(l => l.id === id);
-    if (!loc || loc[field] === value) return; 
-
-    const fieldNameMap = {
-      lokasi: 'Nama Lokasi', keterangan: 'Keterangan', survey: 'Early Survey',
-      teknis: 'Survey Teknis', pln: 'Survey PLN', izin: 'Perizinan',
-      vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'
-    };
-
-    const actionText = `Mengubah ${fieldNameMap[field] || field} dari "${loc[field] || '-'}" menjadi "${value}"`;
-    const newLog = { user: currentUser.name, action: actionText, time: getFormattedTime() };
-
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()), { 
-      [field]: value,
-      logs: [...(loc.logs || []), newLog]
-    });
+  const handleDeleteLocation = async (id) => {
+    if (firebaseUser && window.confirm("Yakin bray mau ngapus lokasi ini secara permanen?")) {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()));
+    }
   };
-
-  const toggleEdit = (id) => setEditingIds(prev => prev.includes(id) ? prev.filter(eId => eId !== id) : [...prev, id]);
 
   const handleAddLocation = async () => {
     if (!firebaseUser) return;
@@ -260,54 +220,93 @@ export default function App() {
       logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
-    setEditingIds(prev => [...prev, newId]);
+    // Masuk mode draft edit otomatis
+    setEditDrafts(prev => ({ ...prev, [newId]: JSON.parse(JSON.stringify(newLocation)) }));
   };
 
-  const handleDeleteLocation = async (id) => {
-    if (firebaseUser && window.confirm("Yakin bray mau ngapus lokasi ini secara permanen?")) {
-      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()));
+  // --- SMART DRAFTING SYSTEM ---
+  const handleEditClick = (loc) => {
+    // Copy data aktual ke draft
+    setEditDrafts(prev => ({ ...prev, [loc.id]: JSON.parse(JSON.stringify(loc)) }));
+  };
+
+  const updateDraftField = (locId, field, value) => {
+    setEditDrafts(prev => ({ ...prev, [locId]: { ...prev[locId], [field]: value } }));
+  };
+
+  const handleDraftArrayAdd = (locId, field, defaultItem) => {
+    setEditDrafts(prev => ({ ...prev, [locId]: { ...prev[locId], [field]: [...(prev[locId][field] || []), defaultItem] } }));
+  };
+
+  const handleDraftArrayRemove = (locId, field, index) => {
+    setEditDrafts(prev => {
+      const newArr = [...(prev[locId][field] || [])];
+      newArr.splice(index, 1);
+      return { ...prev, [locId]: { ...prev[locId], [field]: newArr } };
+    });
+  };
+
+  const handleDraftArrayUpdate = (locId, field, index, key, value) => {
+    setEditDrafts(prev => {
+      const newArr = [...(prev[locId][field] || [])];
+      newArr[index] = { ...newArr[index], [key]: value };
+      return { ...prev, [locId]: { ...prev[locId], [field]: newArr } };
+    });
+  };
+
+  const handleDraftArrayUpdateString = (locId, field, index, value) => {
+    setEditDrafts(prev => {
+      const newArr = [...(prev[locId][field] || [])];
+      newArr[index] = value;
+      return { ...prev, [locId]: { ...prev[locId], [field]: newArr } };
+    });
+  };
+
+  const handleSaveClick = async (originalLoc) => {
+    if (!firebaseUser) return;
+    const draft = editDrafts[originalLoc.id];
+    if (!draft) return;
+
+    const updates = {};
+    const newLogs = [];
+
+    // Perbandingan (Diffing) untuk bikin Smart Log
+    if (originalLoc.lokasi !== draft.lokasi) {
+      updates.lokasi = draft.lokasi;
+      newLogs.push({ user: currentUser.name, action: `Mengubah Nama Lokasi dari "${originalLoc.lokasi}" menjadi "${draft.lokasi}"`, time: getFormattedTime() });
     }
-  };
+    if (originalLoc.keterangan !== draft.keterangan) {
+      updates.keterangan = draft.keterangan;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui Keterangan`, time: getFormattedTime() });
+    }
+    if (JSON.stringify(originalLoc.chargers) !== JSON.stringify(draft.chargers)) {
+      updates.chargers = draft.chargers;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui daftar Charger`, time: getFormattedTime() });
+    }
+    if (JSON.stringify(originalLoc.pics) !== JSON.stringify(draft.pics)) {
+      updates.pics = draft.pics;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui daftar tim PIC`, time: getFormattedTime() });
+    }
 
-  const handleArrayAdd = async (locId, field, defaultItem) => {
-    if (!firebaseUser) return;
-    const loc = locations.find(l => l.id === locId);
-    const newArray = [...(loc[field] || []), defaultItem];
-    const newLog = { user: currentUser.name, action: `Menambahkan baris data baru ke daftar ${field.toUpperCase()}`, time: getFormattedTime() };
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
-      [field]: newArray, logs: [...(loc.logs || []), newLog] 
+    const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
+    ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+      if (originalLoc[stage] !== draft[stage]) {
+        updates[stage] = draft[stage];
+        newLogs.push({ user: currentUser.name, action: `Mengubah status ${stageNameMap[stage]} menjadi "${draft[stage]}"`, time: getFormattedTime() });
+      }
     });
-  };
 
-  const handleArrayRemove = async (locId, field, index) => {
-    if (!firebaseUser) return;
-    const loc = locations.find(l => l.id === locId);
-    const newArray = (loc[field] || []).filter((_, i) => i !== index);
-    const newLog = { user: currentUser.name, action: `Menghapus salah satu data dari daftar ${field.toUpperCase()}`, time: getFormattedTime() };
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
-      [field]: newArray, logs: [...(loc.logs || []), newLog] 
-    });
-  };
+    // Kalau ada perubahan, kirim ke database sekalian
+    if (Object.keys(updates).length > 0) {
+      updates.logs = [...(originalLoc.logs || []), ...newLogs];
+      await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', originalLoc.id.toString()), updates);
+    }
 
-  const handleArrayUpdate = async (locId, field, index, key, value) => {
-    if (!firebaseUser) return;
-    const loc = locations.find(l => l.id === locId);
-    const newArray = [...(loc[field] || [])];
-    newArray[index] = { ...newArray[index], [key]: value };
-    const newLog = { user: currentUser.name, action: `Memperbarui rincian data ${field.toUpperCase()} (Baris ${index + 1})`, time: getFormattedTime() };
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
-      [field]: newArray, logs: [...(loc.logs || []), newLog] 
-    });
-  };
-
-  const handleArrayUpdateString = async (locId, field, index, value) => {
-    if (!firebaseUser) return;
-    const loc = locations.find(l => l.id === locId);
-    const newArray = [...(loc[field] || [])];
-    newArray[index] = value;
-    const newLog = { user: currentUser.name, action: `Memperbarui rincian data ${field.toUpperCase()} menjadi "${value}"`, time: getFormattedTime() };
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
-      [field]: newArray, logs: [...(loc.logs || []), newLog] 
+    // Keluar dari mode draft/edit
+    setEditDrafts(prev => {
+      const newDrafts = { ...prev };
+      delete newDrafts[originalLoc.id];
+      return newDrafts;
     });
   };
 
@@ -524,7 +523,6 @@ export default function App() {
                  </button>
                </div>
 
-               {/* KODE P-4 PADA WRAPPER DIHILANGKAN DI SINI */}
                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                  <table className="w-max min-w-full text-xs text-left relative">
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
@@ -546,35 +544,39 @@ export default function App() {
                    </thead>
                    <tbody className="divide-y divide-slate-100">
                      {filteredLocations.map(item => {
-                       const isEditing = editingIds.includes(item.id);
+                       // Ambil data draft jika ada (mode edit), kalau gaada pake data asli (mode view)
+                       const draftItem = editDrafts[item.id];
+                       const isEditing = !!draftItem;
+                       const displayItem = isEditing ? draftItem : item;
+
                        return (
                        <tr key={item.id} className="group hover:bg-slate-50 align-top">
                          
                          <td className="py-3 px-3">
-                           {isEditing ? <input type="text" value={item.lokasi} onChange={(e) => updateLocationStatus(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{item.lokasi}</span>}
+                           {isEditing ? <input type="text" value={displayItem.lokasi} onChange={(e) => updateDraftField(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{displayItem.lokasi}</span>}
                          </td>
 
                          <td className="py-3 px-3">
                            {isEditing ? (
                              <div className="space-y-2">
-                               {(item.chargers || []).map((chg, idx) => (
+                               {(displayItem.chargers || []).map((chg, idx) => (
                                  <div key={idx} className="flex gap-1 items-center">
-                                   <select value={chg.jenis || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
+                                   <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
                                      <option value="" disabled>- Jenis -</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
                                    </select>
-                                   <select value={chg.brand || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
+                                   <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
                                      <option value="" disabled>- Brand -</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
                                    </select>
-                                   <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
-                                   <button onClick={() => handleArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                                   <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
+                                   <button onClick={() => handleDraftArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                                  </div>
                                ))}
-                               <button onClick={() => handleArrayAdd(item.id, 'chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah Charger</button>
+                               <button onClick={() => handleDraftArrayAdd(item.id, 'chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah Charger</button>
                              </div>
                            ) : (
                              <div className="space-y-1 pt-1">
-                               {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
-                               {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                               {(displayItem.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
+                               {(!displayItem.chargers || displayItem.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                              </div>
                            )}
                          </td>
@@ -582,38 +584,38 @@ export default function App() {
                          <td className="py-3 px-3">
                            {isEditing ? (
                              <div className="space-y-2">
-                               {(item.pics || []).map((pic, idx) => (
+                               {(displayItem.pics || []).map((pic, idx) => (
                                  <div key={idx} className="flex gap-1 items-center">
-                                   <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
-                                   <button onClick={() => handleArrayRemove(item.id, 'pics', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                                   <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleDraftArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
+                                   <button onClick={() => handleDraftArrayRemove(item.id, 'pics', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                                  </div>
                                ))}
-                               <button onClick={() => handleArrayAdd(item.id, 'pics', '')} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah PIC</button>
+                               <button onClick={() => handleDraftArrayAdd(item.id, 'pics', '')} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah PIC</button>
                              </div>
                            ) : (
                              <div className="space-y-1 pt-1">
-                               {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
-                               {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                               {(displayItem.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
+                               {(!displayItem.pics || displayItem.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                              </div>
                            )}
                          </td>
 
                          <td className="py-3 px-3">
-                           {isEditing ? <textarea value={item.keterangan || ''} onChange={(e) => updateLocationStatus(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
+                           {isEditing ? <textarea value={displayItem.keterangan || ''} onChange={(e) => updateDraftField(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{displayItem.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
                          {['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
-                             {isEditing ? <EditableStatus loc={item} stage={stage} updateLocationStatus={updateLocationStatus} /> : <div className="pt-1"><StatusBadge status={item[stage]} /></div>}
+                             {isEditing ? <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} /> : <div className="pt-1"><StatusBadge status={displayItem[stage]} /></div>}
                            </td>
                          ))}
                          
                          <td className="py-3 px-3 text-center sticky right-0 z-10 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
-                               <button onClick={() => toggleEdit(item.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan"><Check className="w-3.5 h-3.5" /> Simpan</button>
+                               <button onClick={() => handleSaveClick(item)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan"><Check className="w-3.5 h-3.5" /> Simpan</button>
                              ) : (
-                               <button onClick={() => toggleEdit(item.id)} className="p-2 text-blue-500 hover:bg-blue-100 rounded transition-colors" title="Edit Baris"><Edit2 className="w-4 h-4" /></button>
+                               <button onClick={() => handleEditClick(item)} className="p-2 text-blue-500 hover:bg-blue-100 rounded transition-colors" title="Edit Baris"><Edit2 className="w-4 h-4" /></button>
                              )}
                              <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
                            </div>
@@ -773,15 +775,15 @@ function StatusBadge({ status }) {
   return <span>{status}</span>;
 }
 
-function EditableStatus({ loc, stage, updateLocationStatus }) {
+function EditableStatus({ loc, stage, updateDraftField }) {
   const isJadwal = loc[stage]?.startsWith('Jadwal');
   return (
     <div className="flex flex-col gap-1 w-full">
-      <select value={isJadwal ? 'Jadwal' : loc[stage]} onChange={(e) => updateLocationStatus(loc.id, stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
+      <select value={isJadwal ? 'Jadwal' : loc[stage]} onChange={(e) => updateDraftField(loc.id, stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
         <option value="Belum">Belum</option><option value="Proses">Proses</option><option value="Selesai">Selesai</option><option value="Jadwal">Jadwal</option>
       </select>
       {isJadwal && (
-        <input type="date" value={loc[stage].replace('Jadwal ', '')} onChange={(e) => updateLocationStatus(loc.id, stage, `Jadwal ${e.target.value}`)} className="w-full p-1 border border-slate-200 rounded text-slate-600 [&::-webkit-calendar-picker-indicator]:cursor-pointer bg-white shadow-sm" />
+        <input type="date" value={loc[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(loc.id, stage, `Jadwal ${e.target.value}`)} className="w-full p-1 border border-slate-200 rounded text-slate-600 [&::-webkit-calendar-picker-indicator]:cursor-pointer bg-white shadow-sm" />
       )}
     </div>
   );
