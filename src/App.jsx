@@ -1,14 +1,3 @@
-Wah, sori bro! Kemarin gua pakai logika perbandingan generik (kurang dari / lebih dari), ternyata buat teks dan angka di JavaScript kadang suka bentrok kalau nggak dibikin spesifik.
-
-Gua udah rombak **Algoritma Sorting-nya jadi jauh lebih solid dan spesifik**:
-
-1. **Lokasi**: Sekarang murni pakai `localeCompare` biar pengurutan abjad A-Z dan Z-A nya akurat 100%.
-2. **Jumlah & Progress**: Murni pakai perhitungan Matematika (pengurangan angka) biar ke-baca sebagai *integer*, dari terkecil ke terbesar & sebaliknya.
-3. **No**: Tetap ngunci ke urutan *submit* awal. Jadi kalau lo mau balikin ke posisi aslinya, tinggal klik ikon *sort* di kolom **NO** lagi.
-
-Langsung sikat bro, **Copy-Paste** *full code* pamungkas ini ke `src/App.jsx` lo. Semua masalah *sorting* kelar!
-
-```jsx
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -896,5 +885,3 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     </div>
   );
 }
-
-```
