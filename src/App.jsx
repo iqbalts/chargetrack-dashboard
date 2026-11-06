@@ -54,7 +54,7 @@ export default function App() {
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
-  // STATE BARU: Menyimpan draft perubahan (biar gak nge-log tiap huruf)
+  const [editingIds, setEditingIds] = useState([]);
   const [editDrafts, setEditDrafts] = useState({});
   
   const [calendarMonth, setCalendarMonth] = useState(new Date());
@@ -220,13 +220,13 @@ export default function App() {
       logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
-    // Masuk mode draft edit otomatis
     setEditDrafts(prev => ({ ...prev, [newId]: JSON.parse(JSON.stringify(newLocation)) }));
+    setEditingIds(prev => [...prev, newId]);
   };
 
   // --- SMART DRAFTING SYSTEM ---
   const handleEditClick = (loc) => {
-    // Copy data aktual ke draft
+    setEditingIds(prev => [...prev, loc.id]);
     setEditDrafts(prev => ({ ...prev, [loc.id]: JSON.parse(JSON.stringify(loc)) }));
   };
 
@@ -270,39 +270,49 @@ export default function App() {
     const updates = {};
     const newLogs = [];
 
-    // Perbandingan (Diffing) untuk bikin Smart Log
+    // Diffing Keterangan
+    if (originalLoc.keterangan !== draft.keterangan) {
+      updates.keterangan = draft.keterangan;
+      newLogs.push({ user: currentUser.name, action: `Mengubah Keterangan dari "${originalLoc.keterangan || 'Kosong'}" menjadi "${draft.keterangan || 'Kosong'}"`, time: getFormattedTime() });
+    }
+
+    // Diffing Lokasi
     if (originalLoc.lokasi !== draft.lokasi) {
       updates.lokasi = draft.lokasi;
       newLogs.push({ user: currentUser.name, action: `Mengubah Nama Lokasi dari "${originalLoc.lokasi}" menjadi "${draft.lokasi}"`, time: getFormattedTime() });
     }
-    if (originalLoc.keterangan !== draft.keterangan) {
-      updates.keterangan = draft.keterangan;
-      newLogs.push({ user: currentUser.name, action: `Memperbarui Keterangan`, time: getFormattedTime() });
-    }
+
+    // Diffing Chargers (Format: Jenis Brand (Qty Unit))
     if (JSON.stringify(originalLoc.chargers) !== JSON.stringify(draft.chargers)) {
       updates.chargers = draft.chargers;
-      newLogs.push({ user: currentUser.name, action: `Memperbarui daftar Charger`, time: getFormattedTime() });
-    }
-    if (JSON.stringify(originalLoc.pics) !== JSON.stringify(draft.pics)) {
-      updates.pics = draft.pics;
-      newLogs.push({ user: currentUser.name, action: `Memperbarui daftar tim PIC`, time: getFormattedTime() });
+      const oldStr = (originalLoc.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
+      const newStr = (draft.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
+      newLogs.push({ user: currentUser.name, action: `Mengubah daftar Charger dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
     }
 
+    // Diffing PICs
+    if (JSON.stringify(originalLoc.pics) !== JSON.stringify(draft.pics)) {
+      updates.pics = draft.pics;
+      const oldStr = (originalLoc.pics || []).join(', ') || 'Kosong';
+      const newStr = (draft.pics || []).join(', ') || 'Kosong';
+      newLogs.push({ user: currentUser.name, action: `Mengubah daftar tim PIC dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
+    }
+
+    // Diffing Status Stages
     const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
     ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
       if (originalLoc[stage] !== draft[stage]) {
         updates[stage] = draft[stage];
-        newLogs.push({ user: currentUser.name, action: `Mengubah status ${stageNameMap[stage]} menjadi "${draft[stage]}"`, time: getFormattedTime() });
+        newLogs.push({ user: currentUser.name, action: `Mengubah ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
       }
     });
 
-    // Kalau ada perubahan, kirim ke database sekalian
     if (Object.keys(updates).length > 0) {
       updates.logs = [...(originalLoc.logs || []), ...newLogs];
       await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', originalLoc.id.toString()), updates);
     }
 
-    // Keluar dari mode draft/edit
+    setEditingIds(prev => prev.filter(eId => eId !== originalLoc.id));
     setEditDrafts(prev => {
       const newDrafts = { ...prev };
       delete newDrafts[originalLoc.id];
@@ -523,7 +533,7 @@ export default function App() {
                  </button>
                </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
+               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto p-4 pb-8">
                  <table className="w-max min-w-full text-xs text-left relative">
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                      <tr>
@@ -544,7 +554,6 @@ export default function App() {
                    </thead>
                    <tbody className="divide-y divide-slate-100">
                      {filteredLocations.map(item => {
-                       // Ambil data draft jika ada (mode edit), kalau gaada pake data asli (mode view)
                        const draftItem = editDrafts[item.id];
                        const isEditing = !!draftItem;
                        const displayItem = isEditing ? draftItem : item;
