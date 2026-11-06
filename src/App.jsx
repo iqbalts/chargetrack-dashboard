@@ -19,6 +19,9 @@ const Edit2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="
 const Check = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>;
 const ChevronLeft = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"></path></svg>;
 const ChevronRight = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"></path></svg>;
+const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>;
+const X = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+const Clock = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
 
 // --- Firebase Initialization ---
 const firebaseConfig = {
@@ -34,6 +37,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = 'caztrack-v1';
 
+// Default Data Seeders
 const defaultUsers = [
   { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
   { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
@@ -55,16 +59,21 @@ export default function App() {
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
 
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
-  const [editingIds, setEditingIds] = useState([]);
+  const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); // State baru buat Modal Log History
   
+  const [editingIds, setEditingIds] = useState([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Helper pencatat waktu
+  const getFormattedTime = () => {
+    return new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+  };
 
   // --- SESI & AUTO LOGOUT LOGIC ---
   useEffect(() => {
     const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 Menit
 
-    // 1. Cek sesi saat pertama kali load / refresh
     const storedUser = localStorage.getItem('caztrack_user');
     const lastActivity = localStorage.getItem('caztrack_lastActivity');
 
@@ -78,23 +87,20 @@ export default function App() {
       }
     }
 
-    // 2. Fungsi update waktu aktivitas (di-throttle biar performa tetap ringan)
     let throttleTimer;
     const handleUserActivity = () => {
       if (throttleTimer) return;
       throttleTimer = setTimeout(() => {
         localStorage.setItem('caztrack_lastActivity', Date.now().toString());
         throttleTimer = null;
-      }, 1000); // 1 detik jeda
+      }, 1000);
     };
 
-    // Deteksi pergerakan user
     window.addEventListener('mousemove', handleUserActivity);
     window.addEventListener('keydown', handleUserActivity);
     window.addEventListener('click', handleUserActivity);
     window.addEventListener('scroll', handleUserActivity);
 
-    // 3. Cek otomatis tiap 1 menit apakah udah lewat 30 menit
     const interval = setInterval(() => {
       const currentLastActivity = localStorage.getItem('caztrack_lastActivity');
       if (currentLastActivity && (Date.now() - parseInt(currentLastActivity) >= INACTIVITY_LIMIT)) {
@@ -155,7 +161,6 @@ export default function App() {
     const user = users.find(u => u.email === loginForm.email && u.password === loginForm.password);
     if (user) {
       setCurrentUser(user);
-      // Simpan ke sesi
       localStorage.setItem('caztrack_user', JSON.stringify(user));
       localStorage.setItem('caztrack_lastActivity', Date.now().toString());
       setLoginError('');
@@ -168,7 +173,6 @@ export default function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     setLoginForm({ email: '', password: '' });
-    // Hapus sesi
     localStorage.removeItem('caztrack_user');
     localStorage.removeItem('caztrack_lastActivity');
   };
@@ -205,8 +209,26 @@ export default function App() {
     setResetModal({ isOpen: false, userId: null, newPassword: '' });
   };
 
+  // --- HANDLERS LOKASI YANG SUDAH DITAMBAHKAN AUTO-LOG HISTORY ---
   const updateLocationStatus = async (id, field, value) => {
-    if (firebaseUser) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()), { [field]: value });
+    if (!firebaseUser) return;
+    const loc = locations.find(l => l.id === id);
+    if (!loc || loc[field] === value) return; // Mencegah log ganda jika isi tidak berubah
+
+    // Map nama field biar rapi di audit log
+    const fieldNameMap = {
+      lokasi: 'Nama Lokasi', keterangan: 'Keterangan', survey: 'Early Survey',
+      teknis: 'Survey Teknis', pln: 'Survey PLN', izin: 'Perizinan',
+      vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'
+    };
+
+    const actionText = `Mengubah ${fieldNameMap[field] || field} dari "${loc[field] || '-'}" menjadi "${value}"`;
+    const newLog = { user: currentUser.name, action: actionText, time: getFormattedTime() };
+
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', id.toString()), { 
+      [field]: value,
+      logs: [...(loc.logs || []), newLog]
+    });
   };
 
   const toggleEdit = (id) => setEditingIds(prev => prev.includes(id) ? prev.filter(eId => eId !== id) : [...prev, id]);
@@ -214,10 +236,12 @@ export default function App() {
   const handleAddLocation = async () => {
     if (!firebaseUser) return;
     const newId = Date.now().toString();
+    const newLog = { user: currentUser.name, action: "Membuat data lokasi baru", time: getFormattedTime() };
     const newLocation = {
       id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', pln: 'Belum', izin: 'Belum',
-      vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum'
+      vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
+      logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
     setEditingIds(prev => [...prev, newId]);
@@ -232,13 +256,21 @@ export default function App() {
   const handleArrayAdd = async (locId, field, defaultItem) => {
     if (!firebaseUser) return;
     const loc = locations.find(l => l.id === locId);
-    await updateLocationStatus(locId, field, [...(loc[field] || []), defaultItem]);
+    const newArray = [...(loc[field] || []), defaultItem];
+    const newLog = { user: currentUser.name, action: `Menambahkan baris data baru ke daftar ${field.toUpperCase()}`, time: getFormattedTime() };
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
+      [field]: newArray, logs: [...(loc.logs || []), newLog] 
+    });
   };
 
   const handleArrayRemove = async (locId, field, index) => {
     if (!firebaseUser) return;
     const loc = locations.find(l => l.id === locId);
-    await updateLocationStatus(locId, field, (loc[field] || []).filter((_, i) => i !== index));
+    const newArray = (loc[field] || []).filter((_, i) => i !== index);
+    const newLog = { user: currentUser.name, action: `Menghapus salah satu data dari daftar ${field.toUpperCase()}`, time: getFormattedTime() };
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
+      [field]: newArray, logs: [...(loc.logs || []), newLog] 
+    });
   };
 
   const handleArrayUpdate = async (locId, field, index, key, value) => {
@@ -246,7 +278,10 @@ export default function App() {
     const loc = locations.find(l => l.id === locId);
     const newArray = [...(loc[field] || [])];
     newArray[index] = { ...newArray[index], [key]: value };
-    await updateLocationStatus(locId, field, newArray);
+    const newLog = { user: currentUser.name, action: `Memperbarui rincian data ${field.toUpperCase()} (Baris ${index + 1})`, time: getFormattedTime() };
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
+      [field]: newArray, logs: [...(loc.logs || []), newLog] 
+    });
   };
 
   const handleArrayUpdateString = async (locId, field, index, value) => {
@@ -254,7 +289,10 @@ export default function App() {
     const loc = locations.find(l => l.id === locId);
     const newArray = [...(loc[field] || [])];
     newArray[index] = value;
-    await updateLocationStatus(locId, field, newArray);
+    const newLog = { user: currentUser.name, action: `Memperbarui rincian data ${field.toUpperCase()} menjadi "${value}"`, time: getFormattedTime() };
+    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locId.toString()), { 
+      [field]: newArray, logs: [...(loc.logs || []), newLog] 
+    });
   };
 
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
@@ -315,6 +353,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
+      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -326,6 +365,41 @@ export default function App() {
             <div className="flex justify-end gap-3">
               <button onClick={() => setResetModal({ isOpen: false, userId: null, newPassword: '' })} className="px-4 py-2 text-slate-500 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
               <button onClick={saveNewPassword} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Simpan</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POP UP HISTORY LOG */}
+      {historyModal.isOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">History Perubahan</h3>
+                <p className="text-xs text-slate-500 mt-1">Audit Trail untuk lokasi: <span className="font-bold text-blue-600">{historyModal.location?.lokasi}</span></p>
+              </div>
+              <button onClick={() => setHistoryModal({ isOpen: false, location: null })} className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-lg transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1 space-y-3">
+              {historyModal.location?.logs && historyModal.location.logs.length > 0 ? (
+                [...historyModal.location.logs].reverse().map((log, idx) => (
+                  <div key={idx} className="flex gap-4 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
+                      {log.user?.charAt(0) || '?'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-700">{log.user}</p>
+                      <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{log.action}</p>
+                      <p className="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1"><Clock className="w-3 h-3" /> {log.time}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-slate-500 text-sm">Belum ada catatan aktivitas untuk lokasi ini.</div>
+              )}
             </div>
           </div>
         </div>
@@ -385,14 +459,17 @@ export default function App() {
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
-                    <tr><th className="py-4 px-4">NO</th><th className="py-4 px-4">LOKASI</th><th className="py-4 px-4">JENIS CHARGER</th><th className="py-4 px-4">BRAND</th><th className="py-4 px-4">JUMLAH</th><th className="py-4 px-4">PIC</th><th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th><th className="py-4 px-4">EARLY SURVEY</th><th className="py-4 px-4">SURVEY TEKNIS</th><th className="py-4 px-4">SURVEY PLN</th><th className="py-4 px-4">PERIZINAN</th><th className="py-4 px-4">PENAWARAN VENDOR</th><th className="py-4 px-4">PKS</th><th className="py-4 px-4">PROSES INSTALASI</th><th className="py-4 px-4">TESTING & COMM.</th><th className="py-4 px-4">STATUS AKHIR</th><th className="py-4 px-4">KETERANGAN</th></tr>
+                    <tr><th className="py-4 px-4">NO</th><th className="py-4 px-4">LOKASI</th><th className="py-4 px-4">JENIS CHARGER</th><th className="py-4 px-4">BRAND</th><th className="py-4 px-4">JUMLAH</th><th className="py-4 px-4">PIC</th><th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th><th className="py-4 px-4">EARLY SURVEY</th><th className="py-4 px-4">SURVEY TEKNIS</th><th className="py-4 px-4">SURVEY PLN</th><th className="py-4 px-4">PERIZINAN</th><th className="py-4 px-4">PENAWARAN VENDOR</th><th className="py-4 px-4">PKS</th><th className="py-4 px-4">PROSES INSTALASI</th><th className="py-4 px-4">TESTING & COMM.</th><th className="py-4 px-4">STATUS AKHIR</th><th className="py-4 px-4">KETERANGAN</th>
+                    {/* BAGIAN BARU: Kolom History di Dashboard */}
+                    <th className="py-4 px-4 text-center sticky right-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">HISTORY</th>
+                    </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {filteredLocations.map((item, index) => {
                       const progress = calculateProgress(item);
                       const statusAkhir = getStatusAkhir(progress);
                       return (
-                      <tr key={item.id} className="hover:bg-slate-50/50">
+                      <tr key={item.id} className="hover:bg-slate-50/50 group">
                         <td className="py-4 px-4 text-slate-400 align-top">{index + 1}</td>
                         <td className="py-4 px-4 font-bold text-slate-800 align-top">{item.lokasi}</td>
                         <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
@@ -407,10 +484,17 @@ export default function App() {
                         <td className="py-4 px-4 align-top"><StatusBadge status={item.survey} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.teknis} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pln} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.izin} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.vendor} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pks} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.instalasi} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.testing} /></td>
                         <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
                         <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
+                        
+                        {/* BAGIAN BARU: Tombol Trigger History */}
+                        <td className="py-4 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
+                           <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
+                             <Info className="w-5 h-5" />
+                           </button>
+                        </td>
                       </tr>
                     )})}
                     {filteredLocations.length === 0 && (
-                      <tr><td colSpan="17" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                      <tr><td colSpan="18" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                     )}
                   </tbody>
                 </table>
