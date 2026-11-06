@@ -37,7 +37,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = 'caztrack-v1';
 
-// Default Data Seeders
 const defaultUsers = [
   { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
   { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
@@ -59,13 +58,12 @@ export default function App() {
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
 
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
-  const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); // State baru buat Modal Log History
+  const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
   const [editingIds, setEditingIds] = useState([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Helper pencatat waktu
   const getFormattedTime = () => {
     return new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
   };
@@ -209,13 +207,11 @@ export default function App() {
     setResetModal({ isOpen: false, userId: null, newPassword: '' });
   };
 
-  // --- HANDLERS LOKASI YANG SUDAH DITAMBAHKAN AUTO-LOG HISTORY ---
   const updateLocationStatus = async (id, field, value) => {
     if (!firebaseUser) return;
     const loc = locations.find(l => l.id === id);
-    if (!loc || loc[field] === value) return; // Mencegah log ganda jika isi tidak berubah
+    if (!loc || loc[field] === value) return; 
 
-    // Map nama field biar rapi di audit log
     const fieldNameMap = {
       lokasi: 'Nama Lokasi', keterangan: 'Keterangan', survey: 'Early Survey',
       teknis: 'Survey Teknis', pln: 'Survey PLN', izin: 'Perizinan',
@@ -460,7 +456,6 @@ export default function App() {
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
                     <tr><th className="py-4 px-4">NO</th><th className="py-4 px-4">LOKASI</th><th className="py-4 px-4">JENIS CHARGER</th><th className="py-4 px-4">BRAND</th><th className="py-4 px-4">JUMLAH</th><th className="py-4 px-4">PIC</th><th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th><th className="py-4 px-4">EARLY SURVEY</th><th className="py-4 px-4">SURVEY TEKNIS</th><th className="py-4 px-4">SURVEY PLN</th><th className="py-4 px-4">PERIZINAN</th><th className="py-4 px-4">PENAWARAN VENDOR</th><th className="py-4 px-4">PKS</th><th className="py-4 px-4">PROSES INSTALASI</th><th className="py-4 px-4">TESTING & COMM.</th><th className="py-4 px-4">STATUS AKHIR</th><th className="py-4 px-4">KETERANGAN</th>
-                    {/* BAGIAN BARU: Kolom History di Dashboard */}
                     <th className="py-4 px-4 text-center sticky right-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">HISTORY</th>
                     </tr>
                   </thead>
@@ -485,7 +480,6 @@ export default function App() {
                         <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
                         <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                         
-                        {/* BAGIAN BARU: Tombol Trigger History */}
                         <td className="py-4 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
                            <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
                              <Info className="w-5 h-5" />
