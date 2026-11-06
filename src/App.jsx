@@ -37,10 +37,30 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = 'caztrack-v1';
 
+// Default Data Seeders
 const defaultUsers = [
   { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
   { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
   { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
+];
+
+const defaultLocations = [
+  {
+    id: '1', lokasi: 'Mall Grand Indonesia',
+    chargers: [{ jenis: '7kW AC', brand: 'TIDE', jumlah: 2 }, { jenis: '30kW DC', brand: 'Starcharge', jumlah: 1 }],
+    pics: ['Andi S.'],
+    survey: 'Selesai', teknis: 'Selesai', pln: 'Selesai', izin: 'Proses',
+    vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
+    keterangan: 'Menunggu tanda tangan izin manajemen'
+  },
+  {
+    id: '2', lokasi: 'Rest Area KM 57',
+    chargers: [{ jenis: '120kW DC', brand: 'Moderntec', jumlah: 2 }],
+    pics: ['Budi P.', 'Siti A.'],
+    survey: 'Selesai', teknis: 'Selesai', pln: 'Jadwal 2026-11-10', izin: 'Selesai',
+    vendor: 'Selesai', pks: 'Proses', instalasi: 'Belum', testing: 'Belum',
+    keterangan: 'Draft PKS direview legal'
+  }
 ];
 
 export default function App() {
@@ -70,7 +90,7 @@ export default function App() {
 
   // --- SESI & AUTO LOGOUT LOGIC ---
   useEffect(() => {
-    const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 Menit
+    const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
     const storedUser = localStorage.getItem('caztrack_user');
     const lastActivity = localStorage.getItem('caztrack_lastActivity');
@@ -504,7 +524,8 @@ export default function App() {
                  </button>
                </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto p-4 pb-8">
+               {/* KODE P-4 PADA WRAPPER DIHILANGKAN DI SINI */}
+               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                  <table className="w-max min-w-full text-xs text-left relative">
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                      <tr>
