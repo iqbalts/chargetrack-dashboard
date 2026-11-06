@@ -37,32 +37,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = 'caztrack-v1';
 
-// Default Data Seeders (Diperbarui dengan field dokumen)
-const defaultUsers = [
-  { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
-  { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
-  { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
-];
-
-const defaultLocations = [
-  {
-    id: '1', lokasi: 'Mall Grand Indonesia',
-    chargers: [{ jenis: '7kW AC', brand: 'TIDE', jumlah: 2 }, { jenis: '30kW DC', brand: 'Starcharge', jumlah: 1 }],
-    pics: ['Andi S.'],
-    survey: 'Selesai', teknis: 'Selesai', dokumen: 'Selesai', pln: 'Selesai', izin: 'Proses',
-    vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
-    keterangan: 'Menunggu tanda tangan izin manajemen'
-  },
-  {
-    id: '2', lokasi: 'Rest Area KM 57',
-    chargers: [{ jenis: '120kW DC', brand: 'Moderntec', jumlah: 2 }],
-    pics: ['Budi P.', 'Siti A.'],
-    survey: 'Selesai', teknis: 'Selesai', dokumen: 'Proses', pln: 'Jadwal 2026-11-10', izin: 'Selesai',
-    vendor: 'Selesai', pks: 'Proses', instalasi: 'Belum', testing: 'Belum',
-    keterangan: 'Draft PKS direview legal'
-  }
-];
-
 export default function App() {
   const [firebaseUser, setFirebaseUser] = useState(null);
   const [isFirebaseLoaded, setIsFirebaseLoaded] = useState(false);
@@ -157,6 +131,11 @@ export default function App() {
     const unsubUsers = onSnapshot(usersRef, (snapshot) => {
       if (snapshot.empty && !seededUsers) {
         seededUsers = true;
+        const defaultUsers = [
+          { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
+          { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
+          { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
+        ];
         defaultUsers.forEach(u => setDoc(doc(usersRef, u.id), u));
       } else {
         setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -193,9 +172,9 @@ export default function App() {
   };
 
   const calculateProgress = (loc) => {
-    // TAMBAH 'dokumen' ke dalam perhitungan total (sekarang 9 stages)
+    // Non PLN dihitung sama sebagai progres 'Selesai'
     const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.pks, loc.instalasi, loc.testing];
-    const completed = stages.filter(s => s === 'Selesai').length;
+    const completed = stages.filter(s => s === 'Selesai' || s === 'Non PLN').length;
     return Math.round((completed / 9) * 100);
   };
 
@@ -237,7 +216,7 @@ export default function App() {
     const newLog = { user: currentUser.name, action: "Membuat data lokasi baru", time: getFormattedTime() };
     const newLocation = {
       id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
-      survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', // Ditambah dokumen: 'Belum'
+      survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       logs: [newLog]
     };
@@ -292,19 +271,16 @@ export default function App() {
     const updates = {};
     const newLogs = [];
 
-    // Diffing Keterangan
     if (originalLoc.keterangan !== draft.keterangan) {
       updates.keterangan = draft.keterangan;
       newLogs.push({ user: currentUser.name, action: `Mengubah Keterangan dari "${originalLoc.keterangan || 'Kosong'}" menjadi "${draft.keterangan || 'Kosong'}"`, time: getFormattedTime() });
     }
 
-    // Diffing Lokasi
     if (originalLoc.lokasi !== draft.lokasi) {
       updates.lokasi = draft.lokasi;
       newLogs.push({ user: currentUser.name, action: `Mengubah Nama Lokasi dari "${originalLoc.lokasi}" menjadi "${draft.lokasi}"`, time: getFormattedTime() });
     }
 
-    // Diffing Chargers
     if (JSON.stringify(originalLoc.chargers) !== JSON.stringify(draft.chargers)) {
       updates.chargers = draft.chargers;
       const oldStr = (originalLoc.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
@@ -312,7 +288,6 @@ export default function App() {
       newLogs.push({ user: currentUser.name, action: `Mengubah daftar Charger dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
     }
 
-    // Diffing PICs
     if (JSON.stringify(originalLoc.pics) !== JSON.stringify(draft.pics)) {
       updates.pics = draft.pics;
       const oldStr = (originalLoc.pics || []).join(', ') || 'Kosong';
@@ -320,7 +295,6 @@ export default function App() {
       newLogs.push({ user: currentUser.name, action: `Mengubah daftar tim PIC dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
     }
 
-    // Diffing Status Stages (Diperbarui dengan 'dokumen')
     const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
     ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
       if (originalLoc[stage] !== draft[stage]) {
@@ -636,7 +610,6 @@ export default function App() {
                            {isEditing ? <textarea value={displayItem.keterangan || ''} onChange={(e) => updateDraftField(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{displayItem.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
-                         {/* DITAMBAH: Loop Update Progress kini mencakup 'dokumen' */}
                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
                              {isEditing ? <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} /> : <div className="pt-1"><StatusBadge status={displayItem[stage]} /></div>}
@@ -656,7 +629,7 @@ export default function App() {
                        </tr>
                      )})}
                      {filteredLocations.length === 0 && (
-                       <tr><td colSpan="13" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                       <tr><td colSpan="14" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                      )}
                    </tbody>
                  </table>
@@ -753,7 +726,6 @@ export default function App() {
                      const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
                      
                      const events = [];
-                     // DITAMBAH: Loop Pencarian Jadwal di Kalender kini mencakup 'dokumen'
                      filteredLocations.forEach(loc => {
                        ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
                           if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
@@ -791,6 +763,7 @@ export default function App() {
 function StatusBadge({ status }) {
   if (!status) return null;
   if (status === 'Selesai') return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm">Selesai</span>;
+  if (status === 'Non PLN') return <span className="px-3 py-1 rounded bg-teal-100 text-teal-700 border border-teal-200 block text-center w-full shadow-sm">Non PLN</span>;
   if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full shadow-sm">Proses</span>;
   if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full">Belum</span>;
   if (status.startsWith('Jadwal')) {
@@ -814,7 +787,11 @@ function EditableStatus({ loc, stage, updateDraftField }) {
   return (
     <div className="flex flex-col gap-1 w-full">
       <select value={isJadwal ? 'Jadwal' : loc[stage]} onChange={(e) => updateDraftField(loc.id, stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
-        <option value="Belum">Belum</option><option value="Proses">Proses</option><option value="Selesai">Selesai</option><option value="Jadwal">Jadwal</option>
+        <option value="Belum">Belum</option>
+        <option value="Proses">Proses</option>
+        <option value="Selesai">Selesai</option>
+        {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
+        <option value="Jadwal">Jadwal</option>
       </select>
       {isJadwal && (
         <input type="date" value={loc[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(loc.id, stage, `Jadwal ${e.target.value}`)} className="w-full p-1 border border-slate-200 rounded text-slate-600 [&::-webkit-calendar-picker-indicator]:cursor-pointer bg-white shadow-sm" />
