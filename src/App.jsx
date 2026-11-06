@@ -37,6 +37,32 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = 'caztrack-v1';
 
+// Default Data Seeders (Diperbarui dengan field dokumen)
+const defaultUsers = [
+  { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
+  { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
+  { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
+];
+
+const defaultLocations = [
+  {
+    id: '1', lokasi: 'Mall Grand Indonesia',
+    chargers: [{ jenis: '7kW AC', brand: 'TIDE', jumlah: 2 }, { jenis: '30kW DC', brand: 'Starcharge', jumlah: 1 }],
+    pics: ['Andi S.'],
+    survey: 'Selesai', teknis: 'Selesai', dokumen: 'Selesai', pln: 'Selesai', izin: 'Proses',
+    vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
+    keterangan: 'Menunggu tanda tangan izin manajemen'
+  },
+  {
+    id: '2', lokasi: 'Rest Area KM 57',
+    chargers: [{ jenis: '120kW DC', brand: 'Moderntec', jumlah: 2 }],
+    pics: ['Budi P.', 'Siti A.'],
+    survey: 'Selesai', teknis: 'Selesai', dokumen: 'Proses', pln: 'Jadwal 2026-11-10', izin: 'Selesai',
+    vendor: 'Selesai', pks: 'Proses', instalasi: 'Belum', testing: 'Belum',
+    keterangan: 'Draft PKS direview legal'
+  }
+];
+
 export default function App() {
   const [firebaseUser, setFirebaseUser] = useState(null);
   const [isFirebaseLoaded, setIsFirebaseLoaded] = useState(false);
@@ -131,11 +157,6 @@ export default function App() {
     const unsubUsers = onSnapshot(usersRef, (snapshot) => {
       if (snapshot.empty && !seededUsers) {
         seededUsers = true;
-        const defaultUsers = [
-          { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
-          { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
-          { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
-        ];
         defaultUsers.forEach(u => setDoc(doc(usersRef, u.id), u));
       } else {
         setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -172,9 +193,10 @@ export default function App() {
   };
 
   const calculateProgress = (loc) => {
-    const stages = [loc.survey, loc.teknis, loc.pln, loc.izin, loc.vendor, loc.pks, loc.instalasi, loc.testing];
+    // TAMBAH 'dokumen' ke dalam perhitungan total (sekarang 9 stages)
+    const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.pks, loc.instalasi, loc.testing];
     const completed = stages.filter(s => s === 'Selesai').length;
-    return Math.round((completed / 8) * 100);
+    return Math.round((completed / 9) * 100);
   };
 
   const getStatusAkhir = (progress) => {
@@ -215,7 +237,7 @@ export default function App() {
     const newLog = { user: currentUser.name, action: "Membuat data lokasi baru", time: getFormattedTime() };
     const newLocation = {
       id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
-      survey: 'Belum', teknis: 'Belum', pln: 'Belum', izin: 'Belum',
+      survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', // Ditambah dokumen: 'Belum'
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       logs: [newLog]
     };
@@ -282,7 +304,7 @@ export default function App() {
       newLogs.push({ user: currentUser.name, action: `Mengubah Nama Lokasi dari "${originalLoc.lokasi}" menjadi "${draft.lokasi}"`, time: getFormattedTime() });
     }
 
-    // Diffing Chargers (Format: Jenis Brand (Qty Unit))
+    // Diffing Chargers
     if (JSON.stringify(originalLoc.chargers) !== JSON.stringify(draft.chargers)) {
       updates.chargers = draft.chargers;
       const oldStr = (originalLoc.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
@@ -298,9 +320,9 @@ export default function App() {
       newLogs.push({ user: currentUser.name, action: `Mengubah daftar tim PIC dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
     }
 
-    // Diffing Status Stages
-    const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
-    ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+    // Diffing Status Stages (Diperbarui dengan 'dokumen')
+    const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
+    ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
       if (originalLoc[stage] !== draft[stage]) {
         updates[stage] = draft[stage];
         newLogs.push({ user: currentUser.name, action: `Mengubah ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
@@ -484,7 +506,7 @@ export default function App() {
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
-                    <tr><th className="py-4 px-4">NO</th><th className="py-4 px-4">LOKASI</th><th className="py-4 px-4">JENIS CHARGER</th><th className="py-4 px-4">BRAND</th><th className="py-4 px-4">JUMLAH</th><th className="py-4 px-4">PIC</th><th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th><th className="py-4 px-4">EARLY SURVEY</th><th className="py-4 px-4">SURVEY TEKNIS</th><th className="py-4 px-4">SURVEY PLN</th><th className="py-4 px-4">PERIZINAN</th><th className="py-4 px-4">PENAWARAN VENDOR</th><th className="py-4 px-4">PKS</th><th className="py-4 px-4">PROSES INSTALASI</th><th className="py-4 px-4">TESTING & COMM.</th><th className="py-4 px-4">STATUS AKHIR</th><th className="py-4 px-4">KETERANGAN</th>
+                    <tr><th className="py-4 px-4">NO</th><th className="py-4 px-4">LOKASI</th><th className="py-4 px-4">JENIS CHARGER</th><th className="py-4 px-4">BRAND</th><th className="py-4 px-4">JUMLAH</th><th className="py-4 px-4">PIC</th><th className="py-4 px-4 min-w-[150px]">PROGRESS KESELURUHAN</th><th className="py-4 px-4">EARLY SURVEY</th><th className="py-4 px-4">SURVEY TEKNIS</th><th className="py-4 px-4">DOKUMEN TEKNIS</th><th className="py-4 px-4">SURVEY PLN</th><th className="py-4 px-4">PERIZINAN</th><th className="py-4 px-4">PENAWARAN VENDOR</th><th className="py-4 px-4">PKS</th><th className="py-4 px-4">PROSES INSTALASI</th><th className="py-4 px-4">TESTING & COMM.</th><th className="py-4 px-4">STATUS AKHIR</th><th className="py-4 px-4">KETERANGAN</th>
                     <th className="py-4 px-4 text-center sticky right-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">HISTORY</th>
                     </tr>
                   </thead>
@@ -505,7 +527,7 @@ export default function App() {
                           ))}
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.survey} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.teknis} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pln} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.izin} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.vendor} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pks} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.instalasi} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.testing} /></td>
+                        <td className="py-4 px-4 align-top"><StatusBadge status={item.survey} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.teknis} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.dokumen} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pln} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.izin} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.vendor} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pks} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.instalasi} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.testing} /></td>
                         <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
                         <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                         
@@ -543,6 +565,7 @@ export default function App() {
                        <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">KETERANGAN</th>
                        <th className="py-3 px-3 border-b border-slate-100">EARLY SURVEY</th>
                        <th className="py-3 px-3 border-b border-slate-100">SURVEY TEKNIS</th>
+                       <th className="py-3 px-3 border-b border-slate-100">DOKUMEN TEKNIS</th>
                        <th className="py-3 px-3 border-b border-slate-100">SURVEY PLN</th>
                        <th className="py-3 px-3 border-b border-slate-100">PERIZINAN</th>
                        <th className="py-3 px-3 border-b border-slate-100">PENAWARAN VENDOR</th>
@@ -613,7 +636,8 @@ export default function App() {
                            {isEditing ? <textarea value={displayItem.keterangan || ''} onChange={(e) => updateDraftField(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{displayItem.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
-                         {['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
+                         {/* DITAMBAH: Loop Update Progress kini mencakup 'dokumen' */}
+                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
                              {isEditing ? <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} /> : <div className="pt-1"><StatusBadge status={displayItem[stage]} /></div>}
                            </td>
@@ -729,8 +753,9 @@ export default function App() {
                      const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
                      
                      const events = [];
+                     // DITAMBAH: Loop Pencarian Jadwal di Kalender kini mencakup 'dokumen'
                      filteredLocations.forEach(loc => {
-                       ['survey', 'teknis', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+                       ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
                           if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
                              events.push({ locName: loc.lokasi, stageName: stage });
                           }
