@@ -251,7 +251,6 @@ export default function App() {
     setEditingIds(prev => [...prev, newId]);
   };
 
-  // --- SMART DRAFTING SYSTEM ---
   const handleEditClick = (loc) => {
     setEditingIds(prev => [...prev, loc.id]);
     setEditDrafts(prev => ({ ...prev, [loc.id]: JSON.parse(JSON.stringify(loc)) }));
@@ -335,7 +334,7 @@ export default function App() {
     ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
       if (originalLoc[stage] !== draft[stage]) {
         updates[stage] = draft[stage];
-        newLogs.push({ user: currentUser.name, action: `Mengubah ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
+        newLogs.push({ user: currentUser.name, action: `Mengubah status ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
       }
     });
 
@@ -464,7 +463,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
-      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -481,7 +479,6 @@ export default function App() {
         </div>
       )}
 
-      {/* POP UP HISTORY LOG */}
       {historyModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
@@ -610,7 +607,6 @@ export default function App() {
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                         
-                        {/* UPDATE KOLOM STATUS (Checklist Badge) */}
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-4 px-4 align-top min-w-[140px]">
                              {stage === 'dokumen' || stage === 'izin' ? (
@@ -902,39 +898,38 @@ function StatusBadge({ status }) {
   return <span>{status}</span>;
 }
 
-// KOMPONEN: CHECKLIST BADGE (Untuk Dokumen Teknis & Perizinan di Dashboard)
+// KOMPONEN: CHECKLIST BADGE (Untuk Dokumen Teknis & Perizinan di Dashboard - Hover Enabled)
 function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
   
-  // Safe initialization
   const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {});
   const safeChecklist = checklist || defaultChecklist;
 
   return (
-    <div className="relative flex flex-col w-full text-center cursor-pointer group" onClick={() => setIsOpen(!isOpen)}>
+    <div 
+      className="relative flex flex-col w-full text-center cursor-pointer group" 
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
         <StatusBadge status={status} />
       </div>
       
       {isOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}></div>
-          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-max max-w-xs bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4 text-left cursor-default" onClick={e => e.stopPropagation()}>
-            <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex justify-between items-center whitespace-nowrap gap-4">
-              {type === 'dokumen' ? 'Detail Dokumen Teknis' : 'Detail Perizinan'}
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
-            </p>
-            <div className="space-y-2.5">
-              {ITEMS.map(item => (
-                <div key={item.key} className="flex items-start gap-2 text-xs">
-                  {safeChecklist[item.key] ? <Check className="w-4 h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-4 h-4 text-red-400 shrink-0 mt-px" />}
-                  <span className={`whitespace-normal leading-tight ${safeChecklist[item.key] ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>{item.label}</span>
-                </div>
-              ))}
-            </div>
+        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-max max-w-xs bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4 text-left cursor-default">
+          <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 whitespace-nowrap">
+            {type === 'dokumen' ? 'Detail Dokumen Teknis' : 'Detail Perizinan'}
+          </p>
+          <div className="space-y-2.5">
+            {ITEMS.map(item => (
+              <div key={item.key} className="flex items-start gap-2 text-xs">
+                {safeChecklist[item.key] ? <Check className="w-4 h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-4 h-4 text-red-400 shrink-0 mt-px" />}
+                <span className={`whitespace-normal leading-tight ${safeChecklist[item.key] ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>{item.label}</span>
+              </div>
+            ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
