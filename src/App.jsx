@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -222,7 +222,7 @@ export default function App() {
       id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
-      dokumenChecklist: { sld: false, panel: false, layout: false }, // Default checklist
+      dokumenChecklist: { sld: false, panel: false, layout: false },
       logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
@@ -438,7 +438,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
-      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -455,7 +454,6 @@ export default function App() {
         </div>
       )}
 
-      {/* POP UP HISTORY LOG */}
       {historyModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
@@ -541,7 +539,8 @@ export default function App() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
+              {/* TINGGI TABEL DITAMBAHKAN BIAR DROPDOWN GAK KEPOTONG */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto min-h-[40vh]">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
                     <tr>
@@ -583,7 +582,18 @@ export default function App() {
                           ))}
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                        <td className="py-4 px-4 align-top"><StatusBadge status={item.survey} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.teknis} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.dokumen} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pln} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.izin} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.vendor} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.pks} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.instalasi} /></td><td className="py-4 px-4 align-top"><StatusBadge status={item.testing} /></td>
+                        
+                        {/* UPDATE KOLOM STATUS (Dokumen Teknis jadi Interaktif) */}
+                        {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
+                           <td key={stage} className="py-4 px-4 align-top min-w-[140px]">
+                             {stage === 'dokumen' ? (
+                               <DokumenBadge status={item.dokumen} checklist={item.dokumenChecklist} />
+                             ) : (
+                               <StatusBadge status={item[stage]} />
+                             )}
+                           </td>
+                        ))}
+
                         <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
                         <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                         
@@ -611,7 +621,8 @@ export default function App() {
                  </button>
                </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
+               {/* TINGGI TABEL DITAMBAHKAN JUGA DI SINI */}
+               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto min-h-[60vh]">
                  <table className="w-max min-w-full text-xs text-left relative">
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                      <tr>
@@ -694,7 +705,17 @@ export default function App() {
 
                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
-                             {isEditing ? <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} /> : <div className="pt-1"><StatusBadge status={displayItem[stage]} /></div>}
+                             {isEditing ? (
+                               <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} />
+                             ) : (
+                               <div className="pt-1">
+                                 {stage === 'dokumen' ? (
+                                   <DokumenBadge status={displayItem.dokumen} checklist={displayItem.dokumenChecklist} />
+                                 ) : (
+                                   <StatusBadge status={displayItem[stage]} />
+                                 )}
+                               </div>
+                             )}
                            </td>
                          ))}
                          
@@ -842,6 +863,7 @@ export default function App() {
   );
 }
 
+// --- KOMPONEN BANTUAN ---
 function StatusBadge({ status }) {
   if (!status) return null;
   if (status === 'Selesai') return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm">Selesai</span>;
@@ -853,7 +875,6 @@ function StatusBadge({ status }) {
     const [year, month, day] = dateStr.split('-');
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     const displayDate = `${day} ${monthNames[parseInt(month, 10) - 1]} ${year}`;
-    
     return (
       <div className="flex flex-col w-full text-center shadow-sm">
         <span className="bg-blue-100 text-blue-700 border border-blue-200 border-b-0 rounded-t py-1">Jadwal</span>
@@ -864,8 +885,47 @@ function StatusBadge({ status }) {
   return <span>{status}</span>;
 }
 
+// KOMPONEN BARU: DOKUMEN BADGE
+function DokumenBadge({ status, checklist }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const safeChecklist = checklist || { sld: false, panel: false, layout: false };
+
+  return (
+    <div className="relative flex flex-col w-full text-center cursor-pointer group" onClick={() => setIsOpen(!isOpen)}>
+      <div className="relative z-10 w-full hover:brightness-95 transition-all">
+        <StatusBadge status={status} />
+      </div>
+      
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}></div>
+          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-44 bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default" onClick={e => e.stopPropagation()}>
+            <p className="text-xs font-bold text-slate-700 mb-2 border-b border-slate-100 pb-1.5 flex justify-between items-center">
+              Detail Dokumen
+              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
+            </p>
+            <div className="space-y-2 mt-2">
+              <div className="flex items-center gap-2 text-xs">
+                {safeChecklist.sld ? <Check className="w-3.5 h-3.5 text-green-500 shrink-0" /> : <X className="w-3.5 h-3.5 text-red-400 shrink-0" />}
+                <span className={safeChecklist.sld ? 'text-slate-700 font-medium' : 'text-slate-400'}>SLD</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                {safeChecklist.panel ? <Check className="w-3.5 h-3.5 text-green-500 shrink-0" /> : <X className="w-3.5 h-3.5 text-red-400 shrink-0" />}
+                <span className={safeChecklist.panel ? 'text-slate-700 font-medium' : 'text-slate-400'}>Diagram Panel</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                {safeChecklist.layout ? <Check className="w-3.5 h-3.5 text-green-500 shrink-0" /> : <X className="w-3.5 h-3.5 text-red-400 shrink-0" />}
+                <span className={safeChecklist.layout ? 'text-slate-700 font-medium' : 'text-slate-400'}>Layout</span>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function EditableStatus({ loc, stage, updateDraftField }) {
-  // KHUSUS MENU DOKUMEN TEKNIS
   if (stage === 'dokumen') {
     const checklist = loc.dokumenChecklist || { sld: false, panel: false, layout: false };
     
@@ -913,7 +973,6 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     );
   }
 
-  // --- MENU LAINNYA ---
   const isJadwal = loc[stage]?.startsWith('Jadwal');
   return (
     <div className="flex flex-col gap-1 w-full">
