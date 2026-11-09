@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -435,10 +435,10 @@ export default function App() {
 
   const sortedDashboardLocations = getSortedLocations();
 
-  const SortHeader = ({ label, sortKey }) => {
+  const SortHeader = ({ label, sortKey, className = "" }) => {
     const isActive = sortConfig.key === sortKey;
     return (
-      <th className="py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none group" onClick={() => requestSort(sortKey)}>
+      <th className={`py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none group sticky top-0 bg-slate-50 ${className || 'z-20'}`} onClick={() => requestSort(sortKey)}>
         <div className="flex items-center gap-1">
           {label}
           <div className="flex items-center justify-center w-4 h-4">
@@ -601,29 +601,30 @@ export default function App() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto min-h-[40vh]">
+              {/* OVERFLOW-AUTO & MAX-H untuk scroll horizontal dinamis */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
                 <table className="w-max min-w-full text-xs text-left">
-                  <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
+                  <thead className="text-slate-500 font-semibold uppercase tracking-wider">
                     <tr>
-                      <SortHeader label="NO" sortKey="no" />
-                      <SortHeader label="LOKASI" sortKey="lokasi" />
-                      <th className="py-4 px-4">JENIS CHARGER</th>
-                      <th className="py-4 px-4">BRAND</th>
-                      <SortHeader label="JUMLAH" sortKey="jumlah" />
-                      <th className="py-4 px-4">PIC</th>
-                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" />
-                      <th className="py-4 px-4">EARLY SURVEY</th>
-                      <th className="py-4 px-4">SURVEY TEKNIS</th>
-                      <th className="py-4 px-4">DOKUMEN TEKNIS</th>
-                      <th className="py-4 px-4">SURVEY PLN</th>
-                      <th className="py-4 px-4">PERIZINAN</th>
-                      <th className="py-4 px-4">PENAWARAN VENDOR</th>
-                      <th className="py-4 px-4">PKS</th>
-                      <th className="py-4 px-4">PROSES INSTALASI</th>
-                      <th className="py-4 px-4">TESTING & COMM.</th>
-                      <th className="py-4 px-4">STATUS AKHIR</th>
-                      <th className="py-4 px-4">KETERANGAN</th>
-                      <th className="py-4 px-4 text-center sticky right-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">HISTORY</th>
+                      <SortHeader label="NO" sortKey="no" className="sticky left-0 z-30 w-[60px] min-w-[60px] max-w-[60px]" />
+                      <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-30 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
+                      <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
+                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">STATUS AKHIR</th>
+                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
+                      <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-30">HISTORY</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -632,8 +633,8 @@ export default function App() {
                       const statusAkhir = getStatusAkhir(progress);
                       return (
                       <tr key={item.id} className="hover:bg-slate-50/50 group">
-                        <td className="py-4 px-4 text-slate-400 align-top font-bold">{item.originalNo}</td>
-                        <td className="py-4 px-4 font-bold text-slate-800 align-top">
+                        <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-10 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
+                        <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-10 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                           {item.gmapsLink ? (
                             <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
                               <span className="group-hover/link:underline">{item.lokasi}</span>
@@ -678,7 +679,7 @@ export default function App() {
                       </tr>
                     )})}
                     {filteredLocations.length === 0 && (
-                      <tr><td colSpan="19" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                      <tr><td colSpan="20" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -694,29 +695,31 @@ export default function App() {
                  </button>
                </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto min-h-[60vh]">
+               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
                  <table className="w-max min-w-full text-xs text-left relative">
-                   <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                   <thead className="text-slate-500 font-semibold uppercase tracking-wider">
                      <tr>
-                       <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">LOKASI</th>
-                       <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">LINK GMAPS</th>
-                       <th className="py-3 px-3 min-w-[300px] border-b border-slate-100">CHARGERS (JENIS, BRAND, QTY)</th>
-                       <th className="py-3 px-3 min-w-[180px] border-b border-slate-100">PIC</th>
-                       <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">KETERANGAN</th>
-                       <th className="py-3 px-3 border-b border-slate-100">EARLY SURVEY</th>
-                       <th className="py-3 px-3 border-b border-slate-100">SURVEY TEKNIS</th>
-                       <th className="py-3 px-3 border-b border-slate-100">DOKUMEN TEKNIS</th>
-                       <th className="py-3 px-3 border-b border-slate-100">SURVEY PLN</th>
-                       <th className="py-3 px-3 border-b border-slate-100">PERIZINAN</th>
-                       <th className="py-3 px-3 border-b border-slate-100">PENAWARAN VENDOR</th>
-                       <th className="py-3 px-3 border-b border-slate-100">PKS</th>
-                       <th className="py-3 px-3 border-b border-slate-100">PROSES INSTALASI</th>
-                       <th className="py-3 px-3 border-b border-slate-100">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center sticky right-0 bg-slate-50 z-20 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI</th>
+                       {/* DITAMBAHKAN: Kolom No di Update Progress biar simetris */}
+                       <th className="py-3 px-3 sticky top-0 left-0 z-30 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
+                       <th className="py-3 px-3 sticky top-0 left-[60px] z-30 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">EARLY SURVEY</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">SURVEY TEKNIS</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">DOKUMEN TEKNIS</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">SURVEY PLN</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PERIZINAN</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PENAWARAN VENDOR</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PKS</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROSES INSTALASI</th>
+                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">TESTING & COMM.</th>
+                       <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-30 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
-                     {filteredLocations.map(item => {
+                     {filteredLocations.map((item, index) => {
                        const draftItem = editDrafts[item.id];
                        const isEditing = !!draftItem;
                        const displayItem = isEditing ? draftItem : item;
@@ -724,7 +727,9 @@ export default function App() {
                        return (
                        <tr key={item.id} className="group hover:bg-slate-50 align-top">
                          
-                         <td className="py-3 px-3">
+                         <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-10 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{index + 1}</td>
+                         
+                         <td className="py-3 px-3 align-top sticky left-[60px] z-10 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                            {isEditing ? <input type="text" value={displayItem.lokasi} onChange={(e) => updateDraftField(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{displayItem.lokasi}</span>}
                          </td>
                          
@@ -990,13 +995,11 @@ function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
-  const timeoutRef = useRef(null); // Tambahan Delay
   
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
   const safeChecklist = checklist || {};
 
   const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 300) {
@@ -1008,22 +1011,12 @@ function ChecklistBadge({ status, checklist, type }) {
     setIsOpen(true);
   };
 
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 300); // Tahan pop-up selama 300ms 
-  };
-
-  useEffect(() => {
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
-  }, []);
-
   return (
     <div 
       ref={badgeRef}
       className="relative flex flex-col w-full text-center cursor-pointer group" 
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setIsOpen(false)}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
         <StatusBadge status={status} />
@@ -1070,7 +1063,6 @@ function MediaBadge({ status, links, folderLink, title }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
-  const timeoutRef = useRef(null); // Tambahan Delay
   const safeLinks = links || [];
 
   const getGDriveThumbnailUrl = (url) => {
@@ -1083,7 +1075,6 @@ function MediaBadge({ status, links, folderLink, title }) {
   };
 
   const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 250) {
@@ -1094,16 +1085,6 @@ function MediaBadge({ status, links, folderLink, title }) {
     }
     setIsOpen(true);
   };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 300); // Tahan pop-up selama 300ms
-  };
-
-  useEffect(() => {
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
-  }, []);
 
   const handleClick = (e) => {
     if (folderLink) {
@@ -1117,7 +1098,7 @@ function MediaBadge({ status, links, folderLink, title }) {
       ref={badgeRef}
       className={`relative flex flex-col w-full text-center ${folderLink ? 'cursor-pointer' : 'cursor-default'} group`} 
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setIsOpen(false)}
       onClick={handleClick}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
