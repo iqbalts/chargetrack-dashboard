@@ -26,6 +26,26 @@ const ArrowUpDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" w
 const ArrowUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>;
 const ArrowDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 12-7 7-7-7"/><path d="M12 5v14"/></svg>;
 
+// --- KONFIGURASI CHECKLIST ---
+const DOKUMEN_ITEMS = [
+  { key: 'sld', label: 'SLD' },
+  { key: 'panel', label: 'Diagram Panel' },
+  { key: 'layout', label: 'Layout' },
+  { key: 'slo', label: 'SLO & NIDI' },
+  { key: 'proyeksi3d', label: 'Gambar Proyeksi 3D' }
+];
+
+const IZIN_ITEMS = [
+  { key: 'suratPemrakarsa', label: 'Surat Pemrakarsa' },
+  { key: 'petaTapak', label: 'Peta Tapak Proyek' },
+  { key: 'shp', label: 'SHP Polygon' },
+  { key: 'perjanjianSewa', label: 'Perjanjian Sewa / Pinjam Pakai Lahan' },
+  { key: 'ossDasar', label: 'Persyaratan Dasar (OSS)' },
+  { key: 'amdalnet', label: 'AMDALNET' },
+  { key: 'ossBerusaha', label: 'Perizinan Berusaha (OSS)' },
+  { key: 'iuptl', label: 'IUPTL' }
+];
+
 // --- Firebase Initialization ---
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -222,7 +242,8 @@ export default function App() {
       id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
-      dokumenChecklist: { sld: false, panel: false, layout: false },
+      dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
+      izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
       logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
@@ -304,12 +325,17 @@ export default function App() {
       updates.dokumenChecklist = draft.dokumenChecklist;
       newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Dokumen Teknis`, time: getFormattedTime() });
     }
+    
+    if (JSON.stringify(originalLoc.izinChecklist) !== JSON.stringify(draft.izinChecklist)) {
+      updates.izinChecklist = draft.izinChecklist;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Perizinan`, time: getFormattedTime() });
+    }
 
     const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
     ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
       if (originalLoc[stage] !== draft[stage]) {
         updates[stage] = draft[stage];
-        newLogs.push({ user: currentUser.name, action: `Mengubah status ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
+        newLogs.push({ user: currentUser.name, action: `Mengubah ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
       }
     });
 
@@ -438,6 +464,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
+      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -454,6 +481,7 @@ export default function App() {
         </div>
       )}
 
+      {/* POP UP HISTORY LOG */}
       {historyModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
@@ -539,7 +567,6 @@ export default function App() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              {/* TINGGI TABEL DITAMBAHKAN BIAR DROPDOWN GAK KEPOTONG */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto min-h-[40vh]">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100 uppercase tracking-wider">
@@ -583,11 +610,11 @@ export default function App() {
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                         
-                        {/* UPDATE KOLOM STATUS (Dokumen Teknis jadi Interaktif) */}
+                        {/* UPDATE KOLOM STATUS (Checklist Badge) */}
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-4 px-4 align-top min-w-[140px]">
-                             {stage === 'dokumen' ? (
-                               <DokumenBadge status={item.dokumen} checklist={item.dokumenChecklist} />
+                             {stage === 'dokumen' || stage === 'izin' ? (
+                               <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
                              ) : (
                                <StatusBadge status={item[stage]} />
                              )}
@@ -621,7 +648,6 @@ export default function App() {
                  </button>
                </div>
 
-               {/* TINGGI TABEL DITAMBAHKAN JUGA DI SINI */}
                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto min-h-[60vh]">
                  <table className="w-max min-w-full text-xs text-left relative">
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
@@ -705,17 +731,7 @@ export default function App() {
 
                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px]">
-                             {isEditing ? (
-                               <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} />
-                             ) : (
-                               <div className="pt-1">
-                                 {stage === 'dokumen' ? (
-                                   <DokumenBadge status={displayItem.dokumen} checklist={displayItem.dokumenChecklist} />
-                                 ) : (
-                                   <StatusBadge status={displayItem[stage]} />
-                                 )}
-                               </div>
-                             )}
+                             {isEditing ? <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} /> : <div className="pt-1"><StatusBadge status={displayItem[stage]} /></div>}
                            </td>
                          ))}
                          
@@ -875,6 +891,7 @@ function StatusBadge({ status }) {
     const [year, month, day] = dateStr.split('-');
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     const displayDate = `${day} ${monthNames[parseInt(month, 10) - 1]} ${year}`;
+    
     return (
       <div className="flex flex-col w-full text-center shadow-sm">
         <span className="bg-blue-100 text-blue-700 border border-blue-200 border-b-0 rounded-t py-1">Jadwal</span>
@@ -885,10 +902,14 @@ function StatusBadge({ status }) {
   return <span>{status}</span>;
 }
 
-// KOMPONEN BARU: DOKUMEN BADGE
-function DokumenBadge({ status, checklist }) {
+// KOMPONEN: CHECKLIST BADGE (Untuk Dokumen Teknis & Perizinan di Dashboard)
+function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
-  const safeChecklist = checklist || { sld: false, panel: false, layout: false };
+  const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
+  
+  // Safe initialization
+  const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {});
+  const safeChecklist = checklist || defaultChecklist;
 
   return (
     <div className="relative flex flex-col w-full text-center cursor-pointer group" onClick={() => setIsOpen(!isOpen)}>
@@ -899,24 +920,18 @@ function DokumenBadge({ status, checklist }) {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}></div>
-          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-44 bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default" onClick={e => e.stopPropagation()}>
-            <p className="text-xs font-bold text-slate-700 mb-2 border-b border-slate-100 pb-1.5 flex justify-between items-center">
-              Detail Dokumen
+          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-max max-w-xs bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4 text-left cursor-default" onClick={e => e.stopPropagation()}>
+            <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex justify-between items-center whitespace-nowrap gap-4">
+              {type === 'dokumen' ? 'Detail Dokumen Teknis' : 'Detail Perizinan'}
               <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
             </p>
-            <div className="space-y-2 mt-2">
-              <div className="flex items-center gap-2 text-xs">
-                {safeChecklist.sld ? <Check className="w-3.5 h-3.5 text-green-500 shrink-0" /> : <X className="w-3.5 h-3.5 text-red-400 shrink-0" />}
-                <span className={safeChecklist.sld ? 'text-slate-700 font-medium' : 'text-slate-400'}>SLD</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                {safeChecklist.panel ? <Check className="w-3.5 h-3.5 text-green-500 shrink-0" /> : <X className="w-3.5 h-3.5 text-red-400 shrink-0" />}
-                <span className={safeChecklist.panel ? 'text-slate-700 font-medium' : 'text-slate-400'}>Diagram Panel</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                {safeChecklist.layout ? <Check className="w-3.5 h-3.5 text-green-500 shrink-0" /> : <X className="w-3.5 h-3.5 text-red-400 shrink-0" />}
-                <span className={safeChecklist.layout ? 'text-slate-700 font-medium' : 'text-slate-400'}>Layout</span>
-              </div>
+            <div className="space-y-2.5">
+              {ITEMS.map(item => (
+                <div key={item.key} className="flex items-start gap-2 text-xs">
+                  {safeChecklist[item.key] ? <Check className="w-4 h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-4 h-4 text-red-400 shrink-0 mt-px" />}
+                  <span className={`whitespace-normal leading-tight ${safeChecklist[item.key] ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>{item.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </>
@@ -926,27 +941,32 @@ function DokumenBadge({ status, checklist }) {
 }
 
 function EditableStatus({ loc, stage, updateDraftField }) {
-  if (stage === 'dokumen') {
-    const checklist = loc.dokumenChecklist || { sld: false, panel: false, layout: false };
+  if (stage === 'dokumen' || stage === 'izin') {
+    const isDokumen = stage === 'dokumen';
+    const checklistField = isDokumen ? 'dokumenChecklist' : 'izinChecklist';
+    const ITEMS = isDokumen ? DOKUMEN_ITEMS : IZIN_ITEMS;
+    
+    const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {});
+    const checklist = loc[checklistField] || defaultChecklist;
     
     const handleSelectChange = (e) => {
       const val = e.target.value;
       updateDraftField(loc.id, stage, val);
       if (val === 'Belum') {
-        updateDraftField(loc.id, 'dokumenChecklist', { sld: false, panel: false, layout: false });
+        updateDraftField(loc.id, checklistField, defaultChecklist);
       }
     };
 
     const handleCheck = (key, checked) => {
       const newChecklist = { ...checklist, [key]: checked };
-      const isAllChecked = newChecklist.sld && newChecklist.panel && newChecklist.layout;
+      const isAllChecked = ITEMS.every(item => newChecklist[item.key]);
       
-      updateDraftField(loc.id, 'dokumenChecklist', newChecklist);
+      updateDraftField(loc.id, checklistField, newChecklist);
       updateDraftField(loc.id, stage, isAllChecked ? 'Selesai' : 'Proses');
     };
 
     return (
-      <div className="flex flex-col gap-1 w-full">
+      <div className="flex flex-col gap-1 w-full min-w-[220px]">
         <select value={loc[stage]} onChange={handleSelectChange} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
           <option value="Belum">Belum</option>
           <option value="Proses">Proses</option>
@@ -954,19 +974,13 @@ function EditableStatus({ loc, stage, updateDraftField }) {
         </select>
         
         {(loc[stage] === 'Proses' || loc[stage] === 'Selesai') && (
-          <div className="flex flex-col gap-1.5 mt-1 p-2 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
-            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-              <input type="checkbox" checked={checklist.sld} onChange={(e) => handleCheck('sld', e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer" /> 
-              <span className="font-medium text-slate-700">SLD</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-              <input type="checkbox" checked={checklist.panel} onChange={(e) => handleCheck('panel', e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer" /> 
-              <span className="font-medium text-slate-700">Diagram Panel</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-              <input type="checkbox" checked={checklist.layout} onChange={(e) => handleCheck('layout', e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer" /> 
-              <span className="font-medium text-slate-700">Layout</span>
-            </label>
+          <div className="flex flex-col gap-2 mt-1.5 p-3 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
+            {ITEMS.map(item => (
+              <label key={item.key} className="flex items-start gap-2.5 cursor-pointer hover:text-blue-600 transition-colors group">
+                <input type="checkbox" checked={checklist[item.key] || false} onChange={(e) => handleCheck(item.key, e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer shrink-0 mt-0.5" /> 
+                <span className="font-medium text-slate-700 whitespace-normal leading-tight group-hover:text-blue-600 transition-colors">{item.label}</span>
+              </label>
+            ))}
           </div>
         )}
       </div>
