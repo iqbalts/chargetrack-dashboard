@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection } from 'firebase/firestore';
@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -477,6 +477,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
+      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -493,6 +494,7 @@ export default function App() {
         </div>
       )}
 
+      {/* POP UP HISTORY LOG */}
       {historyModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
@@ -630,7 +632,6 @@ export default function App() {
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                         
-                        {/* UPDATE: class relative hover:z-50 ditambahkan biar popup gak ketumpuk History */}
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-50">
                              {stage === 'survey' ? (
@@ -760,7 +761,6 @@ export default function App() {
                            {isEditing ? <textarea value={displayItem.keterangan || ''} onChange={(e) => updateDraftField(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{displayItem.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
-                         {/* UPDATE: class relative hover:z-50 ditambahkan di sini juga */}
                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-3 px-3 min-w-[140px] relative hover:z-50">
                              {isEditing ? (
@@ -948,15 +948,30 @@ function StatusBadge({ status }) {
 
 function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
-  const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
+  const [position, setPosition] = useState('bottom');
+  const badgeRef = useRef(null);
   
-  const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {});
-  const safeChecklist = checklist || defaultChecklist;
+  const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
+  const safeChecklist = checklist || {};
+
+  const handleMouseEnter = () => {
+    if (badgeRef.current) {
+      const rect = badgeRef.current.getBoundingClientRect();
+      // Kalau sisa ruang di bawah kurang dari 300px, pop-up ke atas
+      if (window.innerHeight - rect.bottom < 300) {
+        setPosition('top');
+      } else {
+        setPosition('bottom');
+      }
+    }
+    setIsOpen(true);
+  };
 
   return (
     <div 
+      ref={badgeRef}
       className="relative flex flex-col w-full text-center cursor-pointer group" 
-      onMouseEnter={() => setIsOpen(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsOpen(false)}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
@@ -964,7 +979,7 @@ function ChecklistBadge({ status, checklist, type }) {
       </div>
       
       {isOpen && (
-        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-max max-w-xs bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4 text-left cursor-default">
+        <div className={`absolute left-1/2 -translate-x-1/2 w-max max-w-xs bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4 text-left cursor-default ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}>
           <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 whitespace-nowrap">
             {type === 'dokumen' ? 'Detail Dokumen Teknis' : 'Detail Perizinan'}
           </p>
@@ -984,6 +999,8 @@ function ChecklistBadge({ status, checklist, type }) {
 
 function SurveyBadge({ status, links }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState('bottom');
+  const badgeRef = useRef(null);
   const safeLinks = links || [];
 
   const getGDriveThumbnailUrl = (url) => {
@@ -995,10 +1012,24 @@ function SurveyBadge({ status, links }) {
     return url;
   };
 
+  const handleMouseEnter = () => {
+    if (badgeRef.current) {
+      const rect = badgeRef.current.getBoundingClientRect();
+      // Kalau sisa ruang di bawah kurang dari 250px, pop-up ke atas
+      if (window.innerHeight - rect.bottom < 250) {
+        setPosition('top');
+      } else {
+        setPosition('bottom');
+      }
+    }
+    setIsOpen(true);
+  };
+
   return (
     <div 
+      ref={badgeRef}
       className="relative flex flex-col w-full text-center cursor-pointer group" 
-      onMouseEnter={() => setIsOpen(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsOpen(false)}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
@@ -1006,7 +1037,7 @@ function SurveyBadge({ status, links }) {
       </div>
       
       {isOpen && (
-        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-max max-w-[280px] bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default">
+        <div className={`absolute left-1/2 -translate-x-1/2 w-max max-w-[280px] bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}>
           <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex items-center gap-1.5 whitespace-nowrap">
             <ImageIcon className="w-4 h-4 text-blue-500" /> Lampiran Early Survey
           </p>
