@@ -1,14 +1,3 @@
-Ide gokil lagi nih bro! Dengan fitur ini, tim lapangan atau eksekutif yang lagi mantau *dashboard* tinggal klik nama lokasinya, dan *BAM!* langsung kebuka Google Maps di tab baru. Gak perlu repot nyari-nyari alamat manual.
-
-Sesuai *request* lo, gua udah nambahin fitur ini dengan UX yang super *clean*:
-
-1. Di **Menu Update Progress**: Ada tambahan 1 kolom baru bernama **LINK GMAPS** di sebelah kolom Lokasi buat masukin URL Google Maps-nya.
-2. Di **Menu Dashboard**: Kolom link GMAPS **nggak ditampilin**, tapi kalau lokasi itu udah diisi linknya, teks **nama lokasinya bisa diklik** (otomatis ada ikon eksternal link kecil di sebelahnya biar user tau itu bisa diklik).
-3. **Smart History**: Kalau lo masukin atau ngubah link GMAPS, perubahannya otomatis kerangkum di pop-up History.
-
-Tinggal **Copy-Paste** *full code* ini dan timpa ke `src/App.jsx`. Makin setara aplikasi *enterprise* triliunan nih! 🚀
-
-```jsx
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -1033,5 +1022,3 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     </div>
   );
 }
-
-```
