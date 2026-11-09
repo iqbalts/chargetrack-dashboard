@@ -1,3 +1,14 @@
+Ide gokil lagi nih bro! Dengan fitur ini, tim lapangan atau eksekutif yang lagi mantau *dashboard* tinggal klik nama lokasinya, dan *BAM!* langsung kebuka Google Maps di tab baru. Gak perlu repot nyari-nyari alamat manual.
+
+Sesuai *request* lo, gua udah nambahin fitur ini dengan UX yang super *clean*:
+
+1. Di **Menu Update Progress**: Ada tambahan 1 kolom baru bernama **LINK GMAPS** di sebelah kolom Lokasi buat masukin URL Google Maps-nya.
+2. Di **Menu Dashboard**: Kolom link GMAPS **nggak ditampilin**, tapi kalau lokasi itu udah diisi linknya, teks **nama lokasinya bisa diklik** (otomatis ada ikon eksternal link kecil di sebelahnya biar user tau itu bisa diklik).
+3. **Smart History**: Kalau lo masukin atau ngubah link GMAPS, perubahannya otomatis kerangkum di pop-up History.
+
+Tinggal **Copy-Paste** *full code* ini dan timpa ke `src/App.jsx`. Makin setara aplikasi *enterprise* triliunan nih! 🚀
+
+```jsx
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -25,6 +36,7 @@ const Clock = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="
 const ArrowUpDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>;
 const ArrowUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>;
 const ArrowDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 12-7 7-7-7"/><path d="M12 5v14"/></svg>;
+const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>;
 
 // --- KONFIGURASI CHECKLIST ---
 const DOKUMEN_ITEMS = [
@@ -239,7 +251,7 @@ export default function App() {
     const newId = Date.now().toString();
     const newLog = { user: currentUser.name, action: "Membuat data lokasi baru", time: getFormattedTime() };
     const newLocation = {
-      id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
+      id: newId, lokasi: 'Lokasi Baru', gmapsLink: '', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
@@ -251,6 +263,7 @@ export default function App() {
     setEditingIds(prev => [...prev, newId]);
   };
 
+  // --- SMART DRAFTING SYSTEM ---
   const handleEditClick = (loc) => {
     setEditingIds(prev => [...prev, loc.id]);
     setEditDrafts(prev => ({ ...prev, [loc.id]: JSON.parse(JSON.stringify(loc)) }));
@@ -304,6 +317,11 @@ export default function App() {
     if (originalLoc.lokasi !== draft.lokasi) {
       updates.lokasi = draft.lokasi;
       newLogs.push({ user: currentUser.name, action: `Mengubah Nama Lokasi dari "${originalLoc.lokasi}" menjadi "${draft.lokasi}"`, time: getFormattedTime() });
+    }
+    
+    if (originalLoc.gmapsLink !== draft.gmapsLink) {
+      updates.gmapsLink = draft.gmapsLink;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui Link Google Maps`, time: getFormattedTime() });
     }
 
     if (JSON.stringify(originalLoc.chargers) !== JSON.stringify(draft.chargers)) {
@@ -596,7 +614,16 @@ export default function App() {
                       return (
                       <tr key={item.id} className="hover:bg-slate-50/50 group">
                         <td className="py-4 px-4 text-slate-400 align-top font-bold">{item.originalNo}</td>
-                        <td className="py-4 px-4 font-bold text-slate-800 align-top">{item.lokasi}</td>
+                        <td className="py-4 px-4 font-bold text-slate-800 align-top">
+                          {item.gmapsLink ? (
+                            <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
+                              <span className="group-hover/link:underline">{item.lokasi}</span>
+                              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0" />
+                            </a>
+                          ) : (
+                            item.lokasi
+                          )}
+                        </td>
                         <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
                         <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
                         <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}</td>
@@ -649,6 +676,7 @@ export default function App() {
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                      <tr>
                        <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">LOKASI</th>
+                       <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">LINK GMAPS</th>
                        <th className="py-3 px-3 min-w-[300px] border-b border-slate-100">CHARGERS (JENIS, BRAND, QTY)</th>
                        <th className="py-3 px-3 min-w-[180px] border-b border-slate-100">PIC</th>
                        <th className="py-3 px-3 min-w-[200px] border-b border-slate-100">KETERANGAN</th>
@@ -675,6 +703,15 @@ export default function App() {
                          
                          <td className="py-3 px-3">
                            {isEditing ? <input type="text" value={displayItem.lokasi} onChange={(e) => updateDraftField(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{displayItem.lokasi}</span>}
+                         </td>
+                         
+                         {/* KOLOM BARU: LINK GMAPS */}
+                         <td className="py-3 px-3">
+                           {isEditing ? (
+                              <input type="text" value={displayItem.gmapsLink || ''} onChange={(e) => updateDraftField(item.id, 'gmapsLink', e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:border-blue-500 outline-none text-xs bg-white" placeholder="URL Google Maps..." />
+                           ) : (
+                              displayItem.gmapsLink ? <a href={displayItem.gmapsLink.startsWith('http') ? displayItem.gmapsLink : `https://${displayItem.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[11px] line-clamp-2 mt-1.5">{displayItem.gmapsLink}</a> : <span className="italic text-slate-400 mt-1.5 block">Kosong</span>
+                           )}
                          </td>
 
                          <td className="py-3 px-3">
@@ -875,7 +912,6 @@ export default function App() {
   );
 }
 
-// --- KOMPONEN BANTUAN ---
 function StatusBadge({ status }) {
   if (!status) return null;
   if (status === 'Selesai') return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm">Selesai</span>;
@@ -898,7 +934,6 @@ function StatusBadge({ status }) {
   return <span>{status}</span>;
 }
 
-// KOMPONEN: CHECKLIST BADGE (Untuk Dokumen Teknis & Perizinan di Dashboard - Hover Enabled)
 function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
@@ -998,3 +1033,5 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     </div>
   );
 }
+
+```
