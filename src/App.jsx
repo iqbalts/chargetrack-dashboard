@@ -26,6 +26,7 @@ const ArrowUpDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" w
 const ArrowUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>;
 const ArrowDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 12-7 7-7-7"/><path d="M12 5v14"/></svg>;
 const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>;
+const ImageIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>;
 
 // --- KONFIGURASI CHECKLIST ---
 const DOKUMEN_ITEMS = [
@@ -245,6 +246,7 @@ export default function App() {
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
       izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
+      surveyLinks: [], // Array untuk nyimpen link foto/video GDrive
       logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
@@ -335,6 +337,11 @@ export default function App() {
     if (JSON.stringify(originalLoc.izinChecklist) !== JSON.stringify(draft.izinChecklist)) {
       updates.izinChecklist = draft.izinChecklist;
       newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Perizinan`, time: getFormattedTime() });
+    }
+
+    if (JSON.stringify(originalLoc.surveyLinks) !== JSON.stringify(draft.surveyLinks)) {
+      updates.surveyLinks = draft.surveyLinks;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui lampiran foto/video Early Survey`, time: getFormattedTime() });
     }
 
     const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
@@ -625,7 +632,9 @@ export default function App() {
                         
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-4 px-4 align-top min-w-[140px]">
-                             {stage === 'dokumen' || stage === 'izin' ? (
+                             {stage === 'survey' ? (
+                               <SurveyBadge status={item.survey} links={item.surveyLinks} />
+                             ) : stage === 'dokumen' || stage === 'izin' ? (
                                <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
                              ) : (
                                <StatusBadge status={item[stage]} />
@@ -694,7 +703,6 @@ export default function App() {
                            {isEditing ? <input type="text" value={displayItem.lokasi} onChange={(e) => updateDraftField(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{displayItem.lokasi}</span>}
                          </td>
                          
-                         {/* KOLOM BARU: LINK GMAPS */}
                          <td className="py-3 px-3">
                            {isEditing ? (
                               <input type="text" value={displayItem.gmapsLink || ''} onChange={(e) => updateDraftField(item.id, 'gmapsLink', e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:border-blue-500 outline-none text-xs bg-white" placeholder="URL Google Maps..." />
@@ -901,6 +909,7 @@ export default function App() {
   );
 }
 
+// --- KOMPONEN BANTUAN ---
 function StatusBadge({ status }) {
   if (!status) return null;
   if (status === 'Selesai') return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm">Selesai</span>;
@@ -926,9 +935,7 @@ function StatusBadge({ status }) {
 function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
-  
-  const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {});
-  const safeChecklist = checklist || defaultChecklist;
+  const safeChecklist = checklist || {};
 
   return (
     <div 
@@ -953,6 +960,66 @@ function ChecklistBadge({ status, checklist, type }) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// KOMPONEN BARU: GDrive Magic Viewer untuk Early Survey
+function SurveyBadge({ status, links }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const safeLinks = links || [];
+
+  // Magic API Google Drive buat extract Thumbnail (Auto work buat image & video)
+  const getGDriveThumbnailUrl = (url) => {
+    if (!url) return '';
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w400-h400`; 
+    }
+    return url;
+  };
+
+  return (
+    <div 
+      className="relative flex flex-col w-full text-center cursor-pointer group" 
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <div className="relative z-10 w-full hover:brightness-95 transition-all">
+        <StatusBadge status={status} />
+      </div>
+      
+      {isOpen && (
+        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-max max-w-[280px] bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default">
+          <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex items-center gap-1.5 whitespace-nowrap">
+            <ImageIcon className="w-4 h-4 text-blue-500" /> Lampiran Early Survey
+          </p>
+          {safeLinks.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {safeLinks.map((link, idx) => (
+                <a key={idx} href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noreferrer" className="block relative group/img overflow-hidden rounded border border-slate-200 aspect-square bg-slate-50">
+                  <img 
+                    src={getGDriveThumbnailUrl(link)} 
+                    alt={`Bukti ${idx+1}`} 
+                    className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-300" 
+                    onError={(e) => { 
+                      e.target.onerror = null; 
+                      // Fallback icon kalo bukan format gambar standar
+                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2JkNWUxIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSI+PC9wb2x5bGluZT48L3N2Zz4='; 
+                      e.target.className = "w-full h-full p-4 object-contain opacity-50 group-hover/img:scale-100 transition-none";
+                    }} 
+                  />
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                    <ExternalLink className="w-5 h-5 text-white" />
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400 italic text-center py-3">Belum ada lampiran foto/video.</p>
+          )}
         </div>
       )}
     </div>
@@ -1000,6 +1067,48 @@ function EditableStatus({ loc, stage, updateDraftField }) {
                 <span className="font-medium text-slate-700 whitespace-normal leading-tight group-hover:text-blue-600 transition-colors">{item.label}</span>
               </label>
             ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // --- EDITABLE KHUSUS EARLY SURVEY (Dengan Lampiran GDrive) ---
+  if (stage === 'survey') {
+    const links = loc.surveyLinks || [];
+    
+    return (
+      <div className="flex flex-col gap-1 w-full min-w-[220px]">
+        <select value={loc[stage]} onChange={(e) => updateDraftField(loc.id, stage, e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+        
+        {(loc[stage] === 'Proses' || loc[stage] === 'Selesai') && (
+          <div className="flex flex-col gap-2 mt-1.5 p-2 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
+            <span className="font-bold text-slate-700 flex items-center gap-1"><ImageIcon className="w-3 h-3 text-blue-500"/> Lampiran GDrive</span>
+            {links.map((link, idx) => (
+              <div key={idx} className="flex items-center gap-1.5">
+                <input 
+                  type="text" 
+                  value={link} 
+                  onChange={(e) => {
+                    const newLinks = [...links];
+                    newLinks[idx] = e.target.value;
+                    updateDraftField(loc.id, 'surveyLinks', newLinks);
+                  }} 
+                  className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] bg-white" 
+                  placeholder="Paste link GDrive di sini..." 
+                />
+                <button onClick={() => {
+                  const newLinks = [...links];
+                  newLinks.splice(idx, 1);
+                  updateDraftField(loc.id, 'surveyLinks', newLinks);
+                }} className="text-slate-400 hover:text-red-500 transition-colors p-1 bg-white border border-slate-200 rounded"><Trash2 className="w-3.5 h-3.5"/></button>
+              </div>
+            ))}
+            <button onClick={() => updateDraftField(loc.id, 'surveyLinks', [...links, ''])} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center justify-center gap-1 hover:bg-blue-100 transition-colors w-full mt-1 border border-blue-100"><Plus className="w-3 h-3"/> Tambah Foto/Video</button>
           </div>
         )}
       </div>
