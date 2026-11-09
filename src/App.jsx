@@ -246,7 +246,7 @@ export default function App() {
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
       izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
-      surveyLinks: [], // Array untuk nyimpen link foto/video GDrive
+      surveyLinks: [], 
       logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
@@ -630,8 +630,9 @@ export default function App() {
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                         
+                        {/* UPDATE: class relative hover:z-50 ditambahkan biar popup gak ketumpuk History */}
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                           <td key={stage} className="py-4 px-4 align-top min-w-[140px]">
+                           <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-50">
                              {stage === 'survey' ? (
                                <SurveyBadge status={item.survey} links={item.surveyLinks} />
                              ) : stage === 'dokumen' || stage === 'izin' ? (
@@ -645,7 +646,7 @@ export default function App() {
                         <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
                         <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                         
-                        <td className="py-4 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
+                        <td className="py-4 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top z-10">
                            <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
                              <Info className="w-5 h-5" />
                            </button>
@@ -759,13 +760,26 @@ export default function App() {
                            {isEditing ? <textarea value={displayItem.keterangan || ''} onChange={(e) => updateDraftField(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{displayItem.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
+                         {/* UPDATE: class relative hover:z-50 ditambahkan di sini juga */}
                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                           <td key={stage} className="py-3 px-3 min-w-[140px]">
-                             {isEditing ? <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} /> : <div className="pt-1"><StatusBadge status={displayItem[stage]} /></div>}
+                           <td key={stage} className="py-3 px-3 min-w-[140px] relative hover:z-50">
+                             {isEditing ? (
+                               <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} />
+                             ) : (
+                               <div className="pt-1">
+                                 {stage === 'survey' ? (
+                                   <SurveyBadge status={displayItem.survey} links={displayItem.surveyLinks} />
+                                 ) : stage === 'dokumen' || stage === 'izin' ? (
+                                   <ChecklistBadge status={displayItem[stage]} checklist={stage === 'dokumen' ? displayItem.dokumenChecklist : displayItem.izinChecklist} type={stage} />
+                                 ) : (
+                                   <StatusBadge status={displayItem[stage]} />
+                                 )}
+                               </div>
+                             )}
                            </td>
                          ))}
                          
-                         <td className="py-3 px-3 text-center sticky right-0 z-10 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
+                         <td className="py-3 px-3 text-center sticky right-0 z-20 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
                                <button onClick={() => handleSaveClick(item)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan"><Check className="w-3.5 h-3.5" /> Simpan</button>
@@ -935,7 +949,9 @@ function StatusBadge({ status }) {
 function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
-  const safeChecklist = checklist || {};
+  
+  const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {});
+  const safeChecklist = checklist || defaultChecklist;
 
   return (
     <div 
@@ -966,12 +982,10 @@ function ChecklistBadge({ status, checklist, type }) {
   );
 }
 
-// KOMPONEN BARU: GDrive Magic Viewer untuk Early Survey
 function SurveyBadge({ status, links }) {
   const [isOpen, setIsOpen] = useState(false);
   const safeLinks = links || [];
 
-  // Magic API Google Drive buat extract Thumbnail (Auto work buat image & video)
   const getGDriveThumbnailUrl = (url) => {
     if (!url) return '';
     const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -1006,7 +1020,6 @@ function SurveyBadge({ status, links }) {
                     className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-300" 
                     onError={(e) => { 
                       e.target.onerror = null; 
-                      // Fallback icon kalo bukan format gambar standar
                       e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2JkNWUxIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSI+PC9wb2x5bGluZT48L3N2Zz4='; 
                       e.target.className = "w-full h-full p-4 object-contain opacity-50 group-hover/img:scale-100 transition-none";
                     }} 
@@ -1073,7 +1086,6 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     );
   }
 
-  // --- EDITABLE KHUSUS EARLY SURVEY (Dengan Lampiran GDrive) ---
   if (stage === 'survey') {
     const links = loc.surveyLinks || [];
     
