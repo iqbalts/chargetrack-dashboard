@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -28,6 +28,7 @@ const ArrowDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" wid
 const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>;
 const ImageIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>;
 const Folder = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>;
+const Save = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
 
 // --- KONFIGURASI CHECKLIST & STAGES ---
 const DOKUMEN_ITEMS = [
@@ -86,8 +87,8 @@ export default function App() {
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
-  const [editingIds, setEditingIds] = useState([]);
-  const [editDrafts, setEditDrafts] = useState({});
+  // STATE BARU: DEDICATED FORM DRAFT (Menggantikan inline editing)
+  const [formDraft, setFormDraft] = useState(null);
   
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
@@ -243,149 +244,151 @@ export default function App() {
     }
   };
 
-  const handleAddLocation = async () => {
-    if (!firebaseUser) return;
-    const newId = Date.now().toString();
-    const newLog = { user: currentUser.name, action: "Membuat data lokasi baru", time: getFormattedTime() };
-    const newLocation = {
-      id: newId, lokasi: 'Lokasi Baru', gmapsLink: '', chargers: [], pics: [], keterangan: '',
+  // --- DEDICATED FORM LOGIC ---
+  const handleOpenAddForm = () => {
+    setFormDraft({
+      isNew: true,
+      id: Date.now().toString(), 
+      lokasi: '', gmapsLink: '', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
       izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
-      logs: [newLog]
-    };
-    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
-    setEditDrafts(prev => ({ ...prev, [newId]: JSON.parse(JSON.stringify(newLocation)) }));
-    setEditingIds(prev => [...prev, newId]);
+      logs: []
+    });
   };
 
-  // --- SMART DRAFTING SYSTEM ---
-  const handleEditClick = (loc) => {
-    setEditingIds(prev => [...prev, loc.id]);
-    setEditDrafts(prev => ({ ...prev, [loc.id]: JSON.parse(JSON.stringify(loc)) }));
+  const handleOpenEditForm = (loc) => {
+    setFormDraft(JSON.parse(JSON.stringify(loc)));
   };
 
-  const updateDraftField = (locId, field, value) => {
-    setEditDrafts(prev => ({ ...prev, [locId]: { ...prev[locId], [field]: value } }));
+  const updateDraftField = (field, value) => {
+    setFormDraft(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleDraftArrayAdd = (locId, field, defaultItem) => {
-    setEditDrafts(prev => ({ ...prev, [locId]: { ...prev[locId], [field]: [...(prev[locId][field] || []), defaultItem] } }));
+  const handleDraftArrayAdd = (field, defaultItem) => {
+    setFormDraft(prev => ({ ...prev, [field]: [...(prev[field] || []), defaultItem] }));
   };
 
-  const handleDraftArrayRemove = (locId, field, index) => {
-    setEditDrafts(prev => {
-      const newArr = [...(prev[locId][field] || [])];
+  const handleDraftArrayRemove = (field, index) => {
+    setFormDraft(prev => {
+      const newArr = [...(prev[field] || [])];
       newArr.splice(index, 1);
-      return { ...prev, [locId]: { ...prev[locId], [field]: newArr } };
+      return { ...prev, [field]: newArr };
     });
   };
 
-  const handleDraftArrayUpdate = (locId, field, index, key, value) => {
-    setEditDrafts(prev => {
-      const newArr = [...(prev[locId][field] || [])];
+  const handleDraftArrayUpdate = (field, index, key, value) => {
+    setFormDraft(prev => {
+      const newArr = [...(prev[field] || [])];
       newArr[index] = { ...newArr[index], [key]: value };
-      return { ...prev, [locId]: { ...prev[locId], [field]: newArr } };
+      return { ...prev, [field]: newArr };
     });
   };
 
-  const handleDraftArrayUpdateString = (locId, field, index, value) => {
-    setEditDrafts(prev => {
-      const newArr = [...(prev[locId][field] || [])];
+  const handleDraftArrayUpdateString = (field, index, value) => {
+    setFormDraft(prev => {
+      const newArr = [...(prev[field] || [])];
       newArr[index] = value;
-      return { ...prev, [locId]: { ...prev[locId], [field]: newArr } };
+      return { ...prev, [field]: newArr };
     });
   };
 
-  const handleSaveClick = async (originalLoc) => {
-    if (!firebaseUser) return;
-    const draft = editDrafts[originalLoc.id];
-    if (!draft) return;
+  const handleSaveForm = async () => {
+    if (!firebaseUser || !formDraft) return;
 
-    const updates = {};
-    const newLogs = [];
+    if (formDraft.isNew) {
+      // Simpan data baru
+      const newLog = { user: currentUser.name, action: "Membuat data lokasi baru", time: getFormattedTime() };
+      const locationToSave = { ...formDraft, logs: [newLog] };
+      delete locationToSave.isNew;
+      
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locationToSave.id), locationToSave);
+    } else {
+      // Update data lama (Diffing)
+      const originalLoc = locations.find(l => l.id === formDraft.id);
+      if (!originalLoc) return;
 
-    if (originalLoc.keterangan !== draft.keterangan) {
-      updates.keterangan = draft.keterangan;
-      newLogs.push({ user: currentUser.name, action: `Mengubah Keterangan dari "${originalLoc.keterangan || 'Kosong'}" menjadi "${draft.keterangan || 'Kosong'}"`, time: getFormattedTime() });
-    }
+      const updates = {};
+      const newLogs = [];
 
-    if (originalLoc.lokasi !== draft.lokasi) {
-      updates.lokasi = draft.lokasi;
-      newLogs.push({ user: currentUser.name, action: `Mengubah Nama Lokasi dari "${originalLoc.lokasi}" menjadi "${draft.lokasi}"`, time: getFormattedTime() });
+      if (originalLoc.keterangan !== formDraft.keterangan) {
+        updates.keterangan = formDraft.keterangan;
+        newLogs.push({ user: currentUser.name, action: `Mengubah Keterangan dari "${originalLoc.keterangan || 'Kosong'}" menjadi "${formDraft.keterangan || 'Kosong'}"`, time: getFormattedTime() });
+      }
+
+      if (originalLoc.lokasi !== formDraft.lokasi) {
+        updates.lokasi = formDraft.lokasi;
+        newLogs.push({ user: currentUser.name, action: `Mengubah Nama Lokasi dari "${originalLoc.lokasi}" menjadi "${formDraft.lokasi}"`, time: getFormattedTime() });
+      }
+      
+      if (originalLoc.gmapsLink !== formDraft.gmapsLink) {
+        updates.gmapsLink = formDraft.gmapsLink;
+        newLogs.push({ user: currentUser.name, action: `Memperbarui Link Google Maps`, time: getFormattedTime() });
+      }
+
+      if (JSON.stringify(originalLoc.chargers) !== JSON.stringify(formDraft.chargers)) {
+        updates.chargers = formDraft.chargers;
+        const oldStr = (originalLoc.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
+        const newStr = (formDraft.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
+        newLogs.push({ user: currentUser.name, action: `Mengubah daftar Charger dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
+      }
+
+      if (JSON.stringify(originalLoc.pics) !== JSON.stringify(formDraft.pics)) {
+        updates.pics = formDraft.pics;
+        const oldStr = (originalLoc.pics || []).join(', ') || 'Kosong';
+        const newStr = (formDraft.pics || []).join(', ') || 'Kosong';
+        newLogs.push({ user: currentUser.name, action: `Mengubah daftar tim PIC dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
+      }
+
+      if (JSON.stringify(originalLoc.dokumenChecklist) !== JSON.stringify(formDraft.dokumenChecklist)) {
+        updates.dokumenChecklist = formDraft.dokumenChecklist;
+        newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Dokumen Teknis`, time: getFormattedTime() });
+      }
+      
+      if (JSON.stringify(originalLoc.izinChecklist) !== JSON.stringify(formDraft.izinChecklist)) {
+        updates.izinChecklist = formDraft.izinChecklist;
+        newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Perizinan`, time: getFormattedTime() });
+      }
+
+      const mediaStages = ['survey', 'teknis', 'pln', 'instalasi', 'testing'];
+      mediaStages.forEach(stg => {
+        const linkF = stg + 'Links';
+        const foldF = stg + 'FolderLink';
+        if (JSON.stringify(originalLoc[linkF]) !== JSON.stringify(formDraft[linkF])) {
+          updates[linkF] = formDraft[linkF];
+          newLogs.push({ user: currentUser.name, action: `Memperbarui lampiran foto/video ${STAGE_NAME_MAP[stg]}`, time: getFormattedTime() });
+        }
+        if (originalLoc[foldF] !== formDraft[foldF]) {
+          updates[foldF] = formDraft[foldF];
+          newLogs.push({ user: currentUser.name, action: `Memperbarui Link Folder GDrive ${STAGE_NAME_MAP[stg]}`, time: getFormattedTime() });
+        }
+      });
+
+      const folderStages = ['vendor', 'pks'];
+      folderStages.forEach(stg => {
+        const foldF = stg + 'FolderLink';
+        if (originalLoc[foldF] !== formDraft[foldF]) {
+          updates[foldF] = formDraft[foldF];
+          newLogs.push({ user: currentUser.name, action: `Memperbarui Link Folder GDrive ${STAGE_NAME_MAP[stg]}`, time: getFormattedTime() });
+        }
+      });
+
+      ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+        if (originalLoc[stage] !== formDraft[stage]) {
+          updates[stage] = formDraft[stage];
+          newLogs.push({ user: currentUser.name, action: `Mengubah status ${STAGE_NAME_MAP[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${formDraft[stage]}"`, time: getFormattedTime() });
+        }
+      });
+
+      if (Object.keys(updates).length > 0) {
+        updates.logs = [...(originalLoc.logs || []), ...newLogs];
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', originalLoc.id.toString()), updates);
+      }
     }
     
-    if (originalLoc.gmapsLink !== draft.gmapsLink) {
-      updates.gmapsLink = draft.gmapsLink;
-      newLogs.push({ user: currentUser.name, action: `Memperbarui Link Google Maps`, time: getFormattedTime() });
-    }
-
-    if (JSON.stringify(originalLoc.chargers) !== JSON.stringify(draft.chargers)) {
-      updates.chargers = draft.chargers;
-      const oldStr = (originalLoc.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
-      const newStr = (draft.chargers || []).map(c => `${c.jenis||'-'} ${c.brand||'-'} (${c.jumlah||0} Unit)`).join(', ') || 'Kosong';
-      newLogs.push({ user: currentUser.name, action: `Mengubah daftar Charger dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
-    }
-
-    if (JSON.stringify(originalLoc.pics) !== JSON.stringify(draft.pics)) {
-      updates.pics = draft.pics;
-      const oldStr = (originalLoc.pics || []).join(', ') || 'Kosong';
-      const newStr = (draft.pics || []).join(', ') || 'Kosong';
-      newLogs.push({ user: currentUser.name, action: `Mengubah daftar tim PIC dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
-    }
-
-    if (JSON.stringify(originalLoc.dokumenChecklist) !== JSON.stringify(draft.dokumenChecklist)) {
-      updates.dokumenChecklist = draft.dokumenChecklist;
-      newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Dokumen Teknis`, time: getFormattedTime() });
-    }
-    
-    if (JSON.stringify(originalLoc.izinChecklist) !== JSON.stringify(draft.izinChecklist)) {
-      updates.izinChecklist = draft.izinChecklist;
-      newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Perizinan`, time: getFormattedTime() });
-    }
-
-    const mediaStages = ['survey', 'teknis', 'pln', 'instalasi', 'testing'];
-    mediaStages.forEach(stg => {
-      const linkF = stg + 'Links';
-      const foldF = stg + 'FolderLink';
-      if (JSON.stringify(originalLoc[linkF]) !== JSON.stringify(draft[linkF])) {
-        updates[linkF] = draft[linkF];
-        newLogs.push({ user: currentUser.name, action: `Memperbarui lampiran foto/video ${STAGE_NAME_MAP[stg]}`, time: getFormattedTime() });
-      }
-      if (originalLoc[foldF] !== draft[foldF]) {
-        updates[foldF] = draft[foldF];
-        newLogs.push({ user: currentUser.name, action: `Memperbarui Link Folder GDrive ${STAGE_NAME_MAP[stg]}`, time: getFormattedTime() });
-      }
-    });
-
-    const folderStages = ['vendor', 'pks'];
-    folderStages.forEach(stg => {
-      const foldF = stg + 'FolderLink';
-      if (originalLoc[foldF] !== draft[foldF]) {
-        updates[foldF] = draft[foldF];
-        newLogs.push({ user: currentUser.name, action: `Memperbarui Link Folder GDrive ${STAGE_NAME_MAP[stg]}`, time: getFormattedTime() });
-      }
-    });
-
-    ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
-      if (originalLoc[stage] !== draft[stage]) {
-        updates[stage] = draft[stage];
-        newLogs.push({ user: currentUser.name, action: `Mengubah status ${STAGE_NAME_MAP[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
-      }
-    });
-
-    if (Object.keys(updates).length > 0) {
-      updates.logs = [...(originalLoc.logs || []), ...newLogs];
-      await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', originalLoc.id.toString()), updates);
-    }
-
-    setEditingIds(prev => prev.filter(eId => eId !== originalLoc.id));
-    setEditDrafts(prev => {
-      const newDrafts = { ...prev };
-      delete newDrafts[originalLoc.id];
-      return newDrafts;
-    });
+    // Tutup form setelah save
+    setFormDraft(null);
   };
 
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
@@ -500,7 +503,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
-      {/* Z-INDEX DIBESARIN BIAR GAK KALAH SAMA STICKY TABLE */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -555,7 +557,7 @@ export default function App() {
         <div className="p-6 mb-4"><h1 className="text-2xl font-bold tracking-wider text-green-400">CAZ<span className="text-white">TRACK</span></h1></div>
         <nav className="flex-1 space-y-1 px-3">
           {navItems.filter(i => !i.allowedRoles || i.allowedRoles.includes(currentUser.role)).map((item) => (
-            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <button key={item.id} onClick={() => { setActiveTab(item.id); setFormDraft(null); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
               <item.icon className="w-5 h-5" /> <span className="font-medium">{item.label}</span>
             </button>
           ))}
@@ -579,7 +581,7 @@ export default function App() {
               <p className="text-slate-500 mt-1">Pantau progres deployment titik charging station.</p>
             </div>
             
-            {activeTab !== 'settings' && (
+            {activeTab !== 'settings' && !formDraft && (
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <input 
@@ -654,7 +656,6 @@ export default function App() {
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                         
-                        {/* UPDATE HIERARKI Z-INDEX: Normal hover dibatasi ke z-30 */}
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-30">
                              {stage === 'dokumen' || stage === 'izin' ? (
@@ -690,143 +691,161 @@ export default function App() {
 
           {activeTab === 'update' && (
              <div className="space-y-4">
-               <div className="flex justify-end mb-4">
-                 <button onClick={handleAddLocation} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors">
-                   <Plus className="w-4 h-4" /> Tambah Lokasi
-                 </button>
-               </div>
+               
+               {/* KONDISI 1: JIKA LAGI GAK ADA YANG DIEDIT, TAMPILIN LIST LOKASI */}
+               {!formDraft && (
+                 <>
+                   <div className="flex justify-end mb-4">
+                     <button onClick={handleOpenAddForm} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors">
+                       <Plus className="w-4 h-4" /> Tambah Lokasi
+                     </button>
+                   </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
-                 <table className="w-max min-w-full text-xs text-left relative">
-                   <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                     <tr>
-                       <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
-                       <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">EARLY SURVEY</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">SURVEY TEKNIS</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">DOKUMEN TEKNIS</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">SURVEY PLN</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PERIZINAN</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PENAWARAN VENDOR</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PKS</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROSES INSTALASI</th>
-                       <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI</th>
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-slate-100">
-                     {filteredLocations.map((item, index) => {
-                       const draftItem = editDrafts[item.id];
-                       const isEditing = !!draftItem;
-                       const displayItem = isEditing ? draftItem : item;
-
-                       return (
-                       <tr key={item.id} className="group hover:bg-slate-50 align-top">
-                         
-                         <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{index + 1}</td>
-                         
-                         <td className="py-3 px-3 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
-                           {isEditing ? <input type="text" value={displayItem.lokasi} onChange={(e) => updateDraftField(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{displayItem.lokasi}</span>}
-                         </td>
-                         
-                         <td className="py-3 px-3 relative hover:z-30">
-                           {isEditing ? (
-                              <input type="text" value={displayItem.gmapsLink || ''} onChange={(e) => updateDraftField(item.id, 'gmapsLink', e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:border-blue-500 outline-none text-xs bg-white" placeholder="URL Google Maps..." />
-                           ) : (
-                              displayItem.gmapsLink ? <a href={displayItem.gmapsLink.startsWith('http') ? displayItem.gmapsLink : `https://${displayItem.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[11px] line-clamp-2 mt-1.5">{displayItem.gmapsLink}</a> : <span className="italic text-slate-400 mt-1.5 block">Kosong</span>
-                           )}
-                         </td>
-
-                         <td className="py-3 px-3 relative hover:z-30">
-                           {isEditing ? (
-                             <div className="space-y-2">
-                               {(displayItem.chargers || []).map((chg, idx) => (
-                                 <div key={idx} className="flex gap-1 items-center">
-                                   <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate(item.id, 'chargers', idx, 'jenis', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
-                                     <option value="" disabled>- Jenis -</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
-                                   </select>
-                                   <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate(item.id, 'chargers', idx, 'brand', e.target.value)} className="w-24 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white">
-                                     <option value="" disabled>- Brand -</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
-                                   </select>
-                                   <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate(item.id, 'chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-12 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
-                                   <button onClick={() => handleDraftArrayRemove(item.id, 'chargers', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                                 </div>
-                               ))}
-                               <button onClick={() => handleDraftArrayAdd(item.id, 'chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah Charger</button>
-                             </div>
-                           ) : (
-                             <div className="space-y-1 pt-1">
-                               {(displayItem.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
-                               {(!displayItem.chargers || displayItem.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                             </div>
-                           )}
-                         </td>
-
-                         <td className="py-3 px-3 relative hover:z-30">
-                           {isEditing ? (
-                             <div className="space-y-2">
-                               {(displayItem.pics || []).map((pic, idx) => (
-                                 <div key={idx} className="flex gap-1 items-center">
-                                   <input type="text" placeholder="Nama PIC" value={pic || ''} onChange={e => handleDraftArrayUpdateString(item.id, 'pics', idx, e.target.value)} className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" />
-                                   <button onClick={() => handleDraftArrayRemove(item.id, 'pics', idx)} className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                                 </div>
-                               ))}
-                               <button onClick={() => handleDraftArrayAdd(item.id, 'pics', '')} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center gap-1 hover:bg-blue-100 transition-colors w-max"><Plus className="w-3 h-3"/> Tambah PIC</button>
-                             </div>
-                           ) : (
-                             <div className="space-y-1 pt-1">
-                               {(displayItem.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
-                               {(!displayItem.pics || displayItem.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                             </div>
-                           )}
-                         </td>
-
-                         <td className="py-3 px-3 relative hover:z-30">
-                           {isEditing ? <textarea value={displayItem.keterangan || ''} onChange={(e) => updateDraftField(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{displayItem.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
-                         </td>
-
-                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                           <td key={stage} className="py-3 px-3 min-w-[140px] relative hover:z-30">
-                             {isEditing ? (
-                               <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} />
-                             ) : (
-                               <div className="pt-1">
-                                 {stage === 'dokumen' || stage === 'izin' ? (
-                                   <ChecklistBadge status={displayItem[stage]} checklist={stage === 'dokumen' ? displayItem.dokumenChecklist : displayItem.izinChecklist} type={stage} />
-                                 ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
-                                   <MediaBadge status={displayItem[stage]} links={displayItem[`${stage}Links`]} folderLink={displayItem[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
-                                 ) : ['vendor', 'pks'].includes(stage) ? (
-                                   <FolderBadge status={displayItem[stage]} folderLink={displayItem[`${stage}FolderLink`]} />
-                                 ) : (
-                                   <StatusBadge status={displayItem[stage]} />
-                                 )}
+                   <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
+                     <table className="w-max min-w-full text-xs text-left relative">
+                       <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                         <tr>
+                           <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
+                           <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
+                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROGRESS KESELURUHAN</th>
+                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
+                           <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
+                         </tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100">
+                         {filteredLocations.map((item, index) => {
+                           const progress = calculateProgress(item);
+                           return (
+                           <tr key={item.id} className="group hover:bg-slate-50 align-top">
+                             <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{index + 1}</td>
+                             <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
+                             <td className="py-3 px-3">
+                                <div className="space-y-1">
+                                   {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
+                                   {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                                </div>
+                             </td>
+                             <td className="py-3 px-3">
+                               <div className="space-y-1">
+                                 {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
+                                 {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                                </div>
-                             )}
-                           </td>
-                         ))}
-                         
-                         <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
-                           <div className="flex gap-2 justify-center items-center h-full pt-1">
-                             {isEditing ? (
-                               <button onClick={() => handleSaveClick(item)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan"><Check className="w-3.5 h-3.5" /> Simpan</button>
-                             ) : (
-                               <button onClick={() => handleEditClick(item)} className="p-2 text-blue-500 hover:bg-blue-100 rounded transition-colors" title="Edit Baris"><Edit2 className="w-4 h-4" /></button>
-                             )}
-                             <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
+                             </td>
+                             <td className="py-3 px-3"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                             <td className="py-3 px-3"><p className="whitespace-normal break-words max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
+                             
+                             <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
+                               <div className="flex gap-2 justify-center items-center h-full">
+                                 <button onClick={() => handleOpenEditForm(item)} className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> Edit</button>
+                                 <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
+                               </div>
+                             </td>
+                           </tr>
+                         )})}
+                         {filteredLocations.length === 0 && (
+                           <tr><td colSpan="7" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                         )}
+                       </tbody>
+                     </table>
+                   </div>
+                 </>
+               )}
+
+               {/* KONDISI 2: JIKA LAGI NGEDIT (MUNCUL HALAMAN FORM PENUH) */}
+               {formDraft && (
+                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 animate-fade-in pb-12">
+                   {/* HEADER FORM */}
+                   <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                     <div className="flex items-center gap-4">
+                       <button onClick={() => setFormDraft(null)} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors" title="Kembali"><ChevronLeft className="w-5 h-5"/></button>
+                       <div>
+                          <h3 className="text-xl font-bold text-slate-800">{formDraft.isNew ? 'Tambah Lokasi Baru' : 'Edit Progress Lokasi'}</h3>
+                          <p className="text-xs text-slate-500 mt-1">{formDraft.isNew ? 'Isi data awal lokasi baru' : `Update progres pengerjaan untuk ${formDraft.lokasi}`}</p>
+                       </div>
+                     </div>
+                     <div className="flex gap-3">
+                       <button onClick={() => setFormDraft(null)} className="px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
+                       <button onClick={handleSaveForm} className="px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg flex items-center gap-2 shadow-sm transition-colors"><Save className="w-4 h-4"/> Simpan Perubahan</button>
+                     </div>
+                   </div>
+
+                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                     
+                     {/* KOLOM KIRI: INFO UTAMA & HARDWARE */}
+                     <div className="lg:col-span-1 space-y-6">
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                           <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
+                           <div className="space-y-4">
+                              <div>
+                                 <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lokasi</label>
+                                 <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none" placeholder="Masukkan nama lokasi..." />
+                              </div>
+                              <div>
+                                 <label className="block text-xs font-bold text-slate-600 mb-1">Link Google Maps (Opsional)</label>
+                                 <input type="text" value={formDraft.gmapsLink || ''} onChange={(e) => updateDraftField('gmapsLink', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs" placeholder="https://maps.google.com/..." />
+                              </div>
+                              <div>
+                                 <label className="block text-xs font-bold text-slate-600 mb-1">Keterangan / Catatan Tambahan</label>
+                                 <textarea value={formDraft.keterangan} onChange={(e) => updateDraftField('keterangan', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs min-h-[80px]" placeholder="Keterangan kondisi lapangan..."></textarea>
+                              </div>
                            </div>
-                         </td>
-                       </tr>
-                     )})}
-                     {filteredLocations.length === 0 && (
-                       <tr><td colSpan="16" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
-                     )}
-                   </tbody>
-                 </table>
-               </div>
+                        </div>
+
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                           <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-blue-500"/> Hardware & Tim</h4>
+                           
+                           <div className="mb-5">
+                              <label className="block text-xs font-bold text-slate-600 mb-2">Daftar Charger</label>
+                              <div className="space-y-2">
+                                {(formDraft.chargers || []).map((chg, idx) => (
+                                  <div key={idx} className="flex gap-1.5 items-center">
+                                    <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jenis', e.target.value)} className="flex-1 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                      <option value="" disabled>Jenis</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
+                                    </select>
+                                    <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'brand', e.target.value)} className="flex-1 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                      <option value="" disabled>Brand</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
+                                    </select>
+                                    <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-14 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white" />
+                                    <button onClick={() => handleDraftArrayRemove('chargers', idx)} className="text-slate-400 hover:text-red-500 p-1.5 rounded transition-colors bg-white border border-slate-300"><Trash2 className="w-3.5 h-3.5" /></button>
+                                  </div>
+                                ))}
+                                <button onClick={() => handleDraftArrayAdd('chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full"><Plus className="w-3 h-3"/> Tambah Mesin Charger</button>
+                              </div>
+                           </div>
+
+                           <div>
+                              <label className="block text-xs font-bold text-slate-600 mb-2">Tim PIC Lapangan</label>
+                              <div className="space-y-2">
+                                {(formDraft.pics || []).map((pic, idx) => (
+                                  <div key={idx} className="flex gap-1.5 items-center">
+                                    <input type="text" placeholder="Nama PIC..." value={pic || ''} onChange={e => handleDraftArrayUpdateString('pics', idx, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded outline-none focus:border-blue-500 text-xs bg-white" />
+                                    <button onClick={() => handleDraftArrayRemove('pics', idx)} className="text-slate-400 hover:text-red-500 p-2 rounded transition-colors bg-white border border-slate-300"><Trash2 className="w-4 h-4" /></button>
+                                  </div>
+                                ))}
+                                <button onClick={() => handleDraftArrayAdd('pics', '')} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full"><Plus className="w-3 h-3"/> Tambah PIC Baru</button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* KOLOM KANAN: 9 STAGES PROGRESS (DIBIKIN GRID 2 KOLOM BIAR RAPI) */}
+                     <div className="lg:col-span-2">
+                        <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
+                             <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
+                               <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
+                               <FormEditableStatus draft={formDraft} stage={stage} updateDraftField={updateDraftField} />
+                             </div>
+                           ))}
+                        </div>
+                     </div>
+
+                   </div>
+                 </div>
+               )}
              </div>
           )}
 
@@ -1014,9 +1033,7 @@ function ChecklistBadge({ status, checklist, type }) {
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 300);
+    setIsOpen(false); 
   };
 
   useEffect(() => {
@@ -1101,9 +1118,7 @@ function MediaBadge({ status, links, folderLink, title }) {
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 300); 
+    setIsOpen(false);
   };
 
   useEffect(() => {
@@ -1180,20 +1195,22 @@ function MediaBadge({ status, links, folderLink, title }) {
   );
 }
 
-function EditableStatus({ loc, stage, updateDraftField }) {
+// KOMPONEN BARU: FORM FIELD SPESIFIK BUAT HALAMAN EDIT/TAMBAH
+function FormEditableStatus({ draft, stage, updateDraftField }) {
+  // --- TIPE 1: CHECKLIST SMART LINK (DOKUMEN & IZIN) ---
   if (stage === 'dokumen' || stage === 'izin') {
     const isDokumen = stage === 'dokumen';
     const checklistField = isDokumen ? 'dokumenChecklist' : 'izinChecklist';
     const ITEMS = isDokumen ? DOKUMEN_ITEMS : IZIN_ITEMS;
     
     const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {});
-    const checklist = loc[checklistField] || defaultChecklist;
+    const checklist = draft[checklistField] || defaultChecklist;
     
     const handleSelectChange = (e) => {
       const val = e.target.value;
-      updateDraftField(loc.id, stage, val);
+      updateDraftField(stage, val);
       if (val === 'Belum') {
-        updateDraftField(loc.id, checklistField, defaultChecklist);
+        updateDraftField(checklistField, defaultChecklist);
       }
     };
 
@@ -1208,8 +1225,8 @@ function EditableStatus({ loc, stage, updateDraftField }) {
         return typeof val === 'object' ? val?.checked : val;
       });
       
-      updateDraftField(loc.id, checklistField, newChecklist);
-      updateDraftField(loc.id, stage, isAllChecked ? 'Selesai' : 'Proses');
+      updateDraftField(checklistField, newChecklist);
+      updateDraftField(stage, isAllChecked ? 'Selesai' : 'Proses');
     };
 
     const handleLinkChange = (key, link) => {
@@ -1217,36 +1234,36 @@ function EditableStatus({ loc, stage, updateDraftField }) {
       const isChecked = typeof currentVal === 'object' ? currentVal.checked : currentVal;
       
       const newChecklist = { ...checklist, [key]: { checked: isChecked, link } };
-      updateDraftField(loc.id, checklistField, newChecklist);
+      updateDraftField(checklistField, newChecklist);
     };
 
     return (
-      <div className="flex flex-col gap-1 w-full min-w-[280px]">
-        <select value={loc[stage]} onChange={handleSelectChange} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
+      <div className="flex flex-col gap-2 w-full">
+        <select value={draft[stage]} onChange={handleSelectChange} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
           <option value="Belum">Belum</option>
           <option value="Proses">Proses</option>
-          {loc[stage] === 'Selesai' && <option value="Selesai" disabled>Selesai</option>}
+          {draft[stage] === 'Selesai' && <option value="Selesai" disabled>Selesai</option>}
         </select>
         
-        {(loc[stage] === 'Proses' || loc[stage] === 'Selesai') && (
-          <div className="flex flex-col gap-2 mt-1.5 p-3 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
+        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
+          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
             {ITEMS.map(item => {
               const currentVal = checklist[item.key];
               const isChecked = typeof currentVal === 'object' ? currentVal?.checked : currentVal || false;
               const link = typeof currentVal === 'object' ? currentVal?.link : '';
 
               return (
-                <div key={item.key} className="flex flex-col gap-1.5 border-b border-slate-200 pb-2.5 last:border-0 last:pb-0">
+                <div key={item.key} className="flex flex-col gap-2 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
                   <label className="flex items-start gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
-                    <input type="checkbox" checked={isChecked} onChange={(e) => handleCheck(item.key, e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer shrink-0 mt-0.5" /> 
-                    <span className="font-medium text-slate-700 whitespace-normal leading-tight group-hover:text-blue-600 transition-colors">{item.label}</span>
+                    <input type="checkbox" checked={isChecked} onChange={(e) => handleCheck(item.key, e.target.checked)} className="accent-blue-600 w-4 h-4 cursor-pointer shrink-0" /> 
+                    <span className="font-bold text-slate-700 whitespace-normal leading-tight group-hover:text-blue-600 transition-colors pt-0.5">{item.label}</span>
                   </label>
                   <input 
                     type="text" 
                     value={link} 
                     onChange={(e) => handleLinkChange(item.key, e.target.value)} 
-                    placeholder="Link GDrive file ini..." 
-                    className="w-[calc(100%-22px)] ml-[22px] p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] bg-white" 
+                    placeholder="Link GDrive dokumen..." 
+                    className="w-[calc(100%-24px)] ml-[24px] p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
                   />
                 </div>
               );
@@ -1257,83 +1274,98 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     );
   }
 
+  // --- TIPE 2: MEDIA VIEWER (SURVEY, TEKNIS, PLN, INSTALASI, TESTING) ---
   if (['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage)) {
     const linksField = stage + 'Links';
     const folderField = stage + 'FolderLink';
     
-    const links = loc[linksField] || [];
-    const folderLink = loc[folderField] || '';
+    const links = draft[linksField] || [];
+    const folderLink = draft[folderField] || '';
+    
+    // Khusus Opsi Jadwal
+    const isJadwal = draft[stage]?.startsWith('Jadwal');
+    const allowJadwal = true; 
     
     return (
-      <div className="flex flex-col gap-1 w-full min-w-[240px]">
-        <select value={loc[stage]} onChange={(e) => updateDraftField(loc.id, stage, e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
+      <div className="flex flex-col gap-2 w-full">
+        <select value={isJadwal ? 'Jadwal' : draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
           <option value="Belum">Belum</option>
           <option value="Proses">Proses</option>
           <option value="Selesai">Selesai</option>
           {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
+          {allowJadwal && <option value="Jadwal">Jadwal Penentuan</option>}
         </select>
         
-        {(loc[stage] === 'Proses' || loc[stage] === 'Selesai' || loc[stage] === 'Non PLN') && (
-          <div className="flex flex-col gap-2 mt-1.5 p-2 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
-            <div className="mb-1 border-b border-slate-200 pb-2">
-               <span className="font-bold text-slate-700 flex items-center gap-1 mb-1.5"><Folder className="w-3 h-3 text-blue-500"/> Folder Master GDrive</span>
+        {isJadwal && (
+          <input type="date" value={draft[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(stage, `Jadwal ${e.target.value}`)} className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" />
+        )}
+
+        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai' || draft[stage] === 'Non PLN') && (
+          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+            <div className="border-b border-slate-200 pb-3">
+               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><Folder className="w-3.5 h-3.5 text-blue-500"/> Folder Master GDrive</span>
                <input 
                  type="text" 
                  value={folderLink} 
-                 onChange={(e) => updateDraftField(loc.id, folderField, e.target.value)} 
-                 className="w-full p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] bg-white" 
+                 onChange={(e) => updateDraftField(folderField, e.target.value)} 
+                 className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
                  placeholder="Link folder Google Drive..." 
                />
             </div>
 
-            <span className="font-bold text-slate-700 flex items-center gap-1"><ImageIcon className="w-3 h-3 text-blue-500"/> Lampiran Gambar (Thumbnail)</span>
-            {links.map((link, idx) => (
-              <div key={idx} className="flex items-center gap-1.5">
-                <input 
-                  type="text" 
-                  value={link} 
-                  onChange={(e) => {
-                    const newLinks = [...links];
-                    newLinks[idx] = e.target.value;
-                    updateDraftField(loc.id, linksField, newLinks);
-                  }} 
-                  className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] bg-white" 
-                  placeholder="Paste link file GDrive di sini..." 
-                />
-                <button onClick={() => {
-                  const newLinks = [...links];
-                  newLinks.splice(idx, 1);
-                  updateDraftField(loc.id, linksField, newLinks);
-                }} className="text-slate-400 hover:text-red-500 transition-colors p-1 bg-white border border-slate-200 rounded"><Trash2 className="w-3.5 h-3.5"/></button>
-              </div>
-            ))}
-            <button onClick={() => updateDraftField(loc.id, linksField, [...links, ''])} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center justify-center gap-1 hover:bg-blue-100 transition-colors w-full mt-1 border border-blue-100"><Plus className="w-3 h-3"/> Tambah Thumbnail File</button>
+            <div>
+               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><ImageIcon className="w-3.5 h-3.5 text-blue-500"/> Lampiran Gambar (Thumbnail)</span>
+               <div className="space-y-2">
+                 {links.map((link, idx) => (
+                   <div key={idx} className="flex items-center gap-2">
+                     <input 
+                       type="text" 
+                       value={link} 
+                       onChange={(e) => {
+                         const newLinks = [...links];
+                         newLinks[idx] = e.target.value;
+                         updateDraftField(linksField, newLinks);
+                       }} 
+                       className="flex-1 p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
+                       placeholder="Paste link file GDrive..." 
+                     />
+                     <button onClick={() => {
+                       const newLinks = [...links];
+                       newLinks.splice(idx, 1);
+                       updateDraftField(linksField, newLinks);
+                     }} className="text-slate-400 hover:text-red-500 transition-colors p-2 bg-white border border-slate-200 rounded"><Trash2 className="w-4 h-4"/></button>
+                   </div>
+                 ))}
+                 <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
+               </div>
+            </div>
           </div>
         )}
       </div>
     );
   }
 
+  // --- TIPE 3: FOLDER ONLY (VENDOR & PKS) ---
   if (['vendor', 'pks'].includes(stage)) {
     const folderField = stage + 'FolderLink';
-    const folderLink = loc[folderField] || '';
+    const folderLink = draft[folderField] || '';
 
     return (
-      <div className="flex flex-col gap-1 w-full min-w-[200px]">
-        <select value={loc[stage]} onChange={(e) => updateDraftField(loc.id, stage, e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
+      <div className="flex flex-col gap-2 w-full">
+        <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
           <option value="Belum">Belum</option>
           <option value="Proses">Proses</option>
           <option value="Selesai">Selesai</option>
         </select>
         
-        {(loc[stage] === 'Proses' || loc[stage] === 'Selesai') && (
-          <div className="flex flex-col gap-1.5 mt-1.5 p-2 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
-             <span className="font-bold text-slate-700 flex items-center gap-1"><Folder className="w-3 h-3 text-blue-500"/> Link GDrive</span>
+        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
+          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
              <input 
                type="text" 
                value={folderLink} 
-               onChange={(e) => updateDraftField(loc.id, folderField, e.target.value)} 
-               className="w-full p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] bg-white" 
+               onChange={(e) => updateDraftField(folderField, e.target.value)} 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
                placeholder="Link folder Google Drive..." 
              />
           </div>
@@ -1342,19 +1374,12 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     );
   }
 
-  const isJadwal = loc[stage]?.startsWith('Jadwal');
+  // Jaga-jaga Fallback
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <select value={isJadwal ? 'Jadwal' : loc[stage]} onChange={(e) => updateDraftField(loc.id, stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
-        <option value="Belum">Belum</option>
-        <option value="Proses">Proses</option>
-        <option value="Selesai">Selesai</option>
-        {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
-        <option value="Jadwal">Jadwal</option>
-      </select>
-      {isJadwal && (
-        <input type="date" value={loc[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(loc.id, stage, `Jadwal ${e.target.value}`)} className="w-full p-1 border border-slate-200 rounded text-slate-600 [&::-webkit-calendar-picker-indicator]:cursor-pointer bg-white shadow-sm" />
-      )}
-    </div>
+     <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+       <option value="Belum">Belum</option>
+       <option value="Proses">Proses</option>
+       <option value="Selesai">Selesai</option>
+     </select>
   );
 }
