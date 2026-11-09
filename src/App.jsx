@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -500,8 +500,9 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
+      {/* Z-INDEX DIBESARIN BIAR GAK KALAH SAMA STICKY TABLE */}
       {resetModal.isOpen && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="text-lg font-bold text-slate-800 mb-4">Reset Password</h3>
             <div className="mb-5">
@@ -517,7 +518,7 @@ export default function App() {
       )}
 
       {historyModal.isOpen && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
             <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
               <div>
@@ -550,7 +551,7 @@ export default function App() {
         </div>
       )}
 
-      <aside className="w-64 bg-[#111827] text-white flex flex-col shadow-xl z-10 shrink-0">
+      <aside className="w-64 bg-[#111827] text-white flex flex-col shadow-xl z-40 shrink-0">
         <div className="p-6 mb-4"><h1 className="text-2xl font-bold tracking-wider text-green-400">CAZ<span className="text-white">TRACK</span></h1></div>
         <nav className="flex-1 space-y-1 px-3">
           {navItems.filter(i => !i.allowedRoles || i.allowedRoles.includes(currentUser.role)).map((item) => (
@@ -568,7 +569,7 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10">
         <div className="p-8">
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -601,18 +602,17 @@ export default function App() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              {/* OVERFLOW-AUTO & MAX-H untuk scroll horizontal dinamis */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
                 <table className="w-max min-w-full text-xs text-left">
-                  <thead className="text-slate-500 font-semibold uppercase tracking-wider">
+                  <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                     <tr>
-                      <SortHeader label="NO" sortKey="no" className="sticky left-0 z-30 w-[60px] min-w-[60px] max-w-[60px]" />
-                      <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-30 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                      <SortHeader label="NO" sortKey="no" className="left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
+                      <SortHeader label="LOKASI" sortKey="lokasi" className="left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
-                      <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
+                      <SortHeader label="JUMLAH" sortKey="jumlah" className="z-20" />
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
-                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
+                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="z-20" />
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
@@ -624,7 +624,7 @@ export default function App() {
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">STATUS AKHIR</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
-                      <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-30">HISTORY</th>
+                      <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-50">HISTORY</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -633,8 +633,8 @@ export default function App() {
                       const statusAkhir = getStatusAkhir(progress);
                       return (
                       <tr key={item.id} className="hover:bg-slate-50/50 group">
-                        <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-10 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
-                        <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-10 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                        <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
+                        <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                           {item.gmapsLink ? (
                             <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
                               <span className="group-hover/link:underline">{item.lokasi}</span>
@@ -654,8 +654,9 @@ export default function App() {
                         </td>
                         <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                         
+                        {/* UPDATE HIERARKI Z-INDEX: Normal hover dibatasi ke z-30 */}
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                           <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-50">
+                           <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-30">
                              {stage === 'dokumen' || stage === 'izin' ? (
                                <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
                              ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
@@ -671,7 +672,7 @@ export default function App() {
                         <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
                         <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                         
-                        <td className="py-4 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top z-10">
+                        <td className="py-4 px-4 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
                            <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
                              <Info className="w-5 h-5" />
                            </button>
@@ -679,7 +680,7 @@ export default function App() {
                       </tr>
                     )})}
                     {filteredLocations.length === 0 && (
-                      <tr><td colSpan="20" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                      <tr><td colSpan="19" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -697,11 +698,10 @@ export default function App() {
 
                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
                  <table className="w-max min-w-full text-xs text-left relative">
-                   <thead className="text-slate-500 font-semibold uppercase tracking-wider">
+                   <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                      <tr>
-                       {/* DITAMBAHKAN: Kolom No di Update Progress biar simetris */}
-                       <th className="py-3 px-3 sticky top-0 left-0 z-30 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
-                       <th className="py-3 px-3 sticky top-0 left-[60px] z-30 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                       <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
+                       <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
                        <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
                        <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
                        <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
@@ -715,7 +715,7 @@ export default function App() {
                        <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PKS</th>
                        <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROSES INSTALASI</th>
                        <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">TESTING & COMM.</th>
-                       <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-30 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI</th>
+                       <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI</th>
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100">
@@ -727,13 +727,13 @@ export default function App() {
                        return (
                        <tr key={item.id} className="group hover:bg-slate-50 align-top">
                          
-                         <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-10 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{index + 1}</td>
+                         <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{index + 1}</td>
                          
-                         <td className="py-3 px-3 align-top sticky left-[60px] z-10 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                         <td className="py-3 px-3 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                            {isEditing ? <input type="text" value={displayItem.lokasi} onChange={(e) => updateDraftField(item.id, 'lokasi', e.target.value)} className="font-bold text-slate-800 bg-white border border-slate-200 rounded p-1.5 focus:border-blue-500 outline-none w-full" placeholder="Nama Lokasi..." /> : <span className="font-bold text-slate-800 block pt-1.5">{displayItem.lokasi}</span>}
                          </td>
                          
-                         <td className="py-3 px-3">
+                         <td className="py-3 px-3 relative hover:z-30">
                            {isEditing ? (
                               <input type="text" value={displayItem.gmapsLink || ''} onChange={(e) => updateDraftField(item.id, 'gmapsLink', e.target.value)} className="w-full p-1.5 border border-slate-200 rounded focus:border-blue-500 outline-none text-xs bg-white" placeholder="URL Google Maps..." />
                            ) : (
@@ -741,7 +741,7 @@ export default function App() {
                            )}
                          </td>
 
-                         <td className="py-3 px-3">
+                         <td className="py-3 px-3 relative hover:z-30">
                            {isEditing ? (
                              <div className="space-y-2">
                                {(displayItem.chargers || []).map((chg, idx) => (
@@ -766,7 +766,7 @@ export default function App() {
                            )}
                          </td>
 
-                         <td className="py-3 px-3">
+                         <td className="py-3 px-3 relative hover:z-30">
                            {isEditing ? (
                              <div className="space-y-2">
                                {(displayItem.pics || []).map((pic, idx) => (
@@ -785,12 +785,12 @@ export default function App() {
                            )}
                          </td>
 
-                         <td className="py-3 px-3">
+                         <td className="py-3 px-3 relative hover:z-30">
                            {isEditing ? <textarea value={displayItem.keterangan || ''} onChange={(e) => updateDraftField(item.id, 'keterangan', e.target.value)} className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs min-h-[60px] bg-white" placeholder="Masukkan keterangan..." /> : <p className="whitespace-normal break-words max-w-[200px] text-slate-600 pt-1.5">{displayItem.keterangan || <span className="italic text-slate-400">Kosong</span>}</p>}
                          </td>
 
                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                           <td key={stage} className="py-3 px-3 min-w-[140px] relative hover:z-50">
+                           <td key={stage} className="py-3 px-3 min-w-[140px] relative hover:z-30">
                              {isEditing ? (
                                <EditableStatus loc={displayItem} stage={stage} updateDraftField={updateDraftField} />
                              ) : (
@@ -809,7 +809,7 @@ export default function App() {
                            </td>
                          ))}
                          
-                         <td className="py-3 px-3 text-center sticky right-0 z-20 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors">
+                         <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
                            <div className="flex gap-2 justify-center items-center h-full pt-1">
                              {isEditing ? (
                                <button onClick={() => handleSaveClick(item)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded font-bold flex items-center gap-1 shadow-sm transition-colors" title="Simpan"><Check className="w-3.5 h-3.5" /> Simpan</button>
@@ -822,7 +822,7 @@ export default function App() {
                        </tr>
                      )})}
                      {filteredLocations.length === 0 && (
-                       <tr><td colSpan="15" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                       <tr><td colSpan="16" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                      )}
                    </tbody>
                  </table>
@@ -995,11 +995,13 @@ function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
+  const timeoutRef = useRef(null);
   
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
   const safeChecklist = checklist || {};
 
   const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 300) {
@@ -1011,12 +1013,22 @@ function ChecklistBadge({ status, checklist, type }) {
     setIsOpen(true);
   };
 
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300);
+  };
+
+  useEffect(() => {
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
+  }, []);
+
   return (
     <div 
       ref={badgeRef}
       className="relative flex flex-col w-full text-center cursor-pointer group" 
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
         <StatusBadge status={status} />
@@ -1063,6 +1075,7 @@ function MediaBadge({ status, links, folderLink, title }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
+  const timeoutRef = useRef(null); 
   const safeLinks = links || [];
 
   const getGDriveThumbnailUrl = (url) => {
@@ -1075,6 +1088,7 @@ function MediaBadge({ status, links, folderLink, title }) {
   };
 
   const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 250) {
@@ -1085,6 +1099,16 @@ function MediaBadge({ status, links, folderLink, title }) {
     }
     setIsOpen(true);
   };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300); 
+  };
+
+  useEffect(() => {
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
+  }, []);
 
   const handleClick = (e) => {
     if (folderLink) {
@@ -1098,7 +1122,7 @@ function MediaBadge({ status, links, folderLink, title }) {
       ref={badgeRef}
       className={`relative flex flex-col w-full text-center ${folderLink ? 'cursor-pointer' : 'cursor-default'} group`} 
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
