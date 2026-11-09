@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -63,7 +63,6 @@ export default function App() {
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
   
-  // STATE: Konfigurasi Sorting di Dashboard
   const [sortConfig, setSortConfig] = useState({ key: 'no', direction: 'asc' });
 
   const getFormattedTime = () => {
@@ -223,6 +222,7 @@ export default function App() {
       id: newId, lokasi: 'Lokasi Baru', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
+      dokumenChecklist: { sld: false, panel: false, layout: false }, // Default checklist
       logs: [newLog]
     };
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', newId), newLocation);
@@ -300,11 +300,16 @@ export default function App() {
       newLogs.push({ user: currentUser.name, action: `Mengubah daftar tim PIC dari "${oldStr}" menjadi "${newStr}"`, time: getFormattedTime() });
     }
 
+    if (JSON.stringify(originalLoc.dokumenChecklist) !== JSON.stringify(draft.dokumenChecklist)) {
+      updates.dokumenChecklist = draft.dokumenChecklist;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Dokumen Teknis`, time: getFormattedTime() });
+    }
+
     const stageNameMap = {survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'};
     ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
       if (originalLoc[stage] !== draft[stage]) {
         updates[stage] = draft[stage];
-        newLogs.push({ user: currentUser.name, action: `Mengubah ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
+        newLogs.push({ user: currentUser.name, action: `Mengubah status ${stageNameMap[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${draft[stage]}"`, time: getFormattedTime() });
       }
     });
 
@@ -332,7 +337,6 @@ export default function App() {
     return matchLokasi || matchPic;
   });
 
-  // --- LOGIKA SORTING DASHBOARD YANG SUPER AKURAT ---
   const requestSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
@@ -607,7 +611,6 @@ export default function App() {
                  </button>
                </div>
 
-               {/* KODE PADDING WRAPPER DIHILANGKAN */}
                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                  <table className="w-max min-w-full text-xs text-left relative">
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
@@ -862,6 +865,55 @@ function StatusBadge({ status }) {
 }
 
 function EditableStatus({ loc, stage, updateDraftField }) {
+  // KHUSUS MENU DOKUMEN TEKNIS
+  if (stage === 'dokumen') {
+    const checklist = loc.dokumenChecklist || { sld: false, panel: false, layout: false };
+    
+    const handleSelectChange = (e) => {
+      const val = e.target.value;
+      updateDraftField(loc.id, stage, val);
+      if (val === 'Belum') {
+        updateDraftField(loc.id, 'dokumenChecklist', { sld: false, panel: false, layout: false });
+      }
+    };
+
+    const handleCheck = (key, checked) => {
+      const newChecklist = { ...checklist, [key]: checked };
+      const isAllChecked = newChecklist.sld && newChecklist.panel && newChecklist.layout;
+      
+      updateDraftField(loc.id, 'dokumenChecklist', newChecklist);
+      updateDraftField(loc.id, stage, isAllChecked ? 'Selesai' : 'Proses');
+    };
+
+    return (
+      <div className="flex flex-col gap-1 w-full">
+        <select value={loc[stage]} onChange={handleSelectChange} className="w-full p-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-600 bg-white shadow-sm">
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          {loc[stage] === 'Selesai' && <option value="Selesai" disabled>Selesai</option>}
+        </select>
+        
+        {(loc[stage] === 'Proses' || loc[stage] === 'Selesai') && (
+          <div className="flex flex-col gap-1.5 mt-1 p-2 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
+            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+              <input type="checkbox" checked={checklist.sld} onChange={(e) => handleCheck('sld', e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer" /> 
+              <span className="font-medium text-slate-700">SLD</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+              <input type="checkbox" checked={checklist.panel} onChange={(e) => handleCheck('panel', e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer" /> 
+              <span className="font-medium text-slate-700">Diagram Panel</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+              <input type="checkbox" checked={checklist.layout} onChange={(e) => handleCheck('layout', e.target.checked)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer" /> 
+              <span className="font-medium text-slate-700">Layout</span>
+            </label>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // --- MENU LAINNYA ---
   const isJadwal = loc[stage]?.startsWith('Jadwal');
   return (
     <div className="flex flex-col gap-1 w-full">
