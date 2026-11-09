@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -87,7 +87,6 @@ export default function App() {
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
-  // STATE BARU: DEDICATED FORM DRAFT (Menggantikan inline editing)
   const [formDraft, setFormDraft] = useState(null);
   
   const [calendarMonth, setCalendarMonth] = useState(new Date());
@@ -99,7 +98,6 @@ export default function App() {
     return new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
   };
 
-  // --- SESI & AUTO LOGOUT LOGIC ---
   useEffect(() => {
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
     const storedUser = localStorage.getItem('caztrack_user');
@@ -147,7 +145,6 @@ export default function App() {
     };
   }, []);
 
-  // --- FIREBASE INIT & FETCH DATA ---
   useEffect(() => {
     const initAuth = async () => {
       try { await signInAnonymously(auth); } catch (err) { console.error("Auth init error:", err); }
@@ -244,7 +241,6 @@ export default function App() {
     }
   };
 
-  // --- DEDICATED FORM LOGIC ---
   const handleOpenAddForm = () => {
     setFormDraft({
       isNew: true,
@@ -298,14 +294,11 @@ export default function App() {
     if (!firebaseUser || !formDraft) return;
 
     if (formDraft.isNew) {
-      // Simpan data baru
       const newLog = { user: currentUser.name, action: "Membuat data lokasi baru", time: getFormattedTime() };
       const locationToSave = { ...formDraft, logs: [newLog] };
       delete locationToSave.isNew;
-      
       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'locations', locationToSave.id), locationToSave);
     } else {
-      // Update data lama (Diffing)
       const originalLoc = locations.find(l => l.id === formDraft.id);
       if (!originalLoc) return;
 
@@ -387,7 +380,6 @@ export default function App() {
       }
     }
     
-    // Tutup form setelah save
     setFormDraft(null);
   };
 
@@ -571,9 +563,11 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto relative z-10">
-        <div className="p-8">
-          <div className="flex justify-between items-center mb-8">
+      {/* STRUKTUR MAIN DIPERBARUI: flex flex-col h-screen overflow-hidden */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden relative z-10 bg-slate-50">
+        <div className="flex flex-col flex-1 min-h-0 p-8 overflow-hidden">
+          
+          <div className="flex justify-between items-center mb-8 shrink-0">
             <div>
               <h2 className="text-3xl font-bold text-slate-800">
                 {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
@@ -596,25 +590,25 @@ export default function App() {
           </div>
 
           {activeTab === 'dashboard' && (
-            <>
-              <div className="grid grid-cols-4 gap-6 mb-8">
+            <div className="flex flex-col flex-1 min-h-0">
+              <div className="grid grid-cols-4 gap-6 mb-8 shrink-0">
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600"><Home className="w-5 h-5" /></div></div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Selesai Beroperasi</p><p className="text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Activity className="w-5 h-5" /></div></div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Sedang Proses</p><p className="text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500"><Activity className="w-5 h-5" /></div></div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto flex-1 min-h-0 relative">
                 <table className="w-max min-w-full text-xs text-left">
                   <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                     <tr>
-                      <SortHeader label="NO" sortKey="no" className="left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
-                      <SortHeader label="LOKASI" sortKey="lokasi" className="left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                      <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
+                      <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
-                      <SortHeader label="JUMLAH" sortKey="jumlah" className="z-20" />
+                      <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
-                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="z-20" />
+                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
                       <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
@@ -686,23 +680,22 @@ export default function App() {
                   </tbody>
                 </table>
               </div>
-            </>
+            </div>
           )}
 
           {activeTab === 'update' && (
-             <div className="space-y-4">
+             <div className="flex flex-col flex-1 min-h-0">
                
-               {/* KONDISI 1: JIKA LAGI GAK ADA YANG DIEDIT, TAMPILIN LIST LOKASI */}
                {!formDraft && (
                  <>
-                   <div className="flex justify-end mb-4">
+                   <div className="flex justify-end mb-4 shrink-0">
                      <button onClick={handleOpenAddForm} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors">
                        <Plus className="w-4 h-4" /> Tambah Lokasi
                      </button>
                    </div>
 
-                   <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[calc(100vh-240px)]">
-                     <table className="w-max min-w-full text-xs text-left relative">
+                   <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto flex-1 min-h-0 relative">
+                     <table className="w-max min-w-full text-xs text-left">
                        <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                          <tr>
                            <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
@@ -753,10 +746,8 @@ export default function App() {
                  </>
                )}
 
-               {/* KONDISI 2: JIKA LAGI NGEDIT (MUNCUL HALAMAN FORM PENUH) */}
                {formDraft && (
-                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 animate-fade-in pb-12">
-                   {/* HEADER FORM */}
+                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex-1 overflow-y-auto relative">
                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
                      <div className="flex items-center gap-4">
                        <button onClick={() => setFormDraft(null)} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors" title="Kembali"><ChevronLeft className="w-5 h-5"/></button>
@@ -771,9 +762,8 @@ export default function App() {
                      </div>
                    </div>
 
-                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
                      
-                     {/* KOLOM KIRI: INFO UTAMA & HARDWARE */}
                      <div className="lg:col-span-1 space-y-6">
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                            <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
@@ -830,7 +820,6 @@ export default function App() {
                         </div>
                      </div>
 
-                     {/* KOLOM KANAN: 9 STAGES PROGRESS (DIBIKIN GRID 2 KOLOM BIAR RAPI) */}
                      <div className="lg:col-span-2">
                         <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -850,58 +839,60 @@ export default function App() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100">
-                <div className="p-5 border-b border-slate-100"><h3 className="text-lg font-bold text-slate-800">Daftar Pengguna Sistem</h3></div>
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-xs">
-                    <tr><th className="py-3 px-5">NAMA PENGGUNA</th><th className="py-3 px-5">EMAIL</th><th className="py-3 px-5">ROLE</th><th className="py-3 px-5 text-center">AKSI</th></tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {users.map(u => (
-                      <tr key={u.id} className="hover:bg-slate-50">
-                        <td className="py-3 px-5 font-bold flex items-center gap-2">
-                           <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">{u.name.charAt(0)}</span> {u.name}
-                        </td>
-                        <td className="py-3 px-5 text-slate-500">{u.email}</td>
-                        <td className="py-3 px-5">
-                          <span className={`px-2.5 py-1 rounded text-xs font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : u.role === 'Editor' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span>
-                        </td>
-                        <td className="py-3 px-5 text-center flex items-center justify-center gap-3">
-                           <button onClick={() => setResetModal({ isOpen: true, userId: u.id, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Reset Password"><Key className="w-4 h-4" /></button>
-                           <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div>
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4">Tambah Pengguna Baru</h3>
-                  <form onSubmit={handleAddUser} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
-                      <input type="text" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">Email</label>
-                      <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
-                      <input type="password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">Role</label>
-                      <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
-                        <option value="Admin">Admin</option>
-                        <option value="Editor">Editor</option>
-                        <option value="Viewer">Viewer</option>
-                      </select>
-                    </div>
-                    <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">Simpan Pengguna</button>
-                  </form>
+            <div className="flex-1 overflow-y-auto min-h-0 pb-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100">
+                  <div className="p-5 border-b border-slate-100"><h3 className="text-lg font-bold text-slate-800">Daftar Pengguna Sistem</h3></div>
+                  <table className="w-full text-sm text-left">
+                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-xs">
+                      <tr><th className="py-3 px-5">NAMA PENGGUNA</th><th className="py-3 px-5">EMAIL</th><th className="py-3 px-5">ROLE</th><th className="py-3 px-5 text-center">AKSI</th></tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {users.map(u => (
+                        <tr key={u.id} className="hover:bg-slate-50">
+                          <td className="py-3 px-5 font-bold flex items-center gap-2">
+                             <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">{u.name.charAt(0)}</span> {u.name}
+                          </td>
+                          <td className="py-3 px-5 text-slate-500">{u.email}</td>
+                          <td className="py-3 px-5">
+                            <span className={`px-2.5 py-1 rounded text-xs font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : u.role === 'Editor' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span>
+                          </td>
+                          <td className="py-3 px-5 text-center flex items-center justify-center gap-3">
+                             <button onClick={() => setResetModal({ isOpen: true, userId: u.id, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Reset Password"><Key className="w-4 h-4" /></button>
+                             <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div>
+                  <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">Tambah Pengguna Baru</h3>
+                    <form onSubmit={handleAddUser} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
+                        <input type="text" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1">Email</label>
+                        <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
+                        <input type="password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1">Role</label>
+                        <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                          <option value="Admin">Admin</option>
+                          <option value="Editor">Editor</option>
+                          <option value="Viewer">Viewer</option>
+                        </select>
+                      </div>
+                      <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">Simpan Pengguna</button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
@@ -915,54 +906,56 @@ export default function App() {
             const firstDayOfMonth = new Date(year, month, 1).getDay();
 
             return (
-              <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-                 <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-xl font-bold text-slate-800">
-                     Jadwal {monthNames[month]} {year}
-                   </h3>
-                   <div className="flex gap-2">
-                     <button onClick={handlePrevMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Sebelumnya"><ChevronLeft className="w-5 h-5" /></button>
-                     <button onClick={handleNextMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Selanjutnya"><ChevronRight className="w-5 h-5" /></button>
+              <div className="flex-1 overflow-y-auto min-h-0 pb-12">
+                <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                   <div className="flex justify-between items-center mb-6">
+                     <h3 className="text-xl font-bold text-slate-800">
+                       Jadwal {monthNames[month]} {year}
+                     </h3>
+                     <div className="flex gap-2">
+                       <button onClick={handlePrevMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Sebelumnya"><ChevronLeft className="w-5 h-5" /></button>
+                       <button onClick={handleNextMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Selanjutnya"><ChevronRight className="w-5 h-5" /></button>
+                     </div>
                    </div>
-                 </div>
 
-                 <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-                   {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => (
-                     <div key={d} className="bg-white py-2 text-center text-xs font-bold text-slate-600">{d}</div>
-                   ))}
+                   <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden">
+                     {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => (
+                       <div key={d} className="bg-white py-2 text-center text-xs font-bold text-slate-600">{d}</div>
+                     ))}
 
-                   {Array.from({ length: firstDayOfMonth }).map((_, i) => <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>)}
+                     {Array.from({ length: firstDayOfMonth }).map((_, i) => <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>)}
 
-                   {Array.from({ length: daysInMonth }).map((_, i) => {
-                     const dateNum = i + 1;
-                     const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
-                     
-                     const events = [];
-                     filteredLocations.forEach(loc => {
-                       ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
-                          if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
-                             events.push({ locName: loc.lokasi, stageName: stage });
-                          }
+                     {Array.from({ length: daysInMonth }).map((_, i) => {
+                       const dateNum = i + 1;
+                       const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
+                       
+                       const events = [];
+                       filteredLocations.forEach(loc => {
+                         ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+                            if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
+                               events.push({ locName: loc.lokasi, stageName: stage });
+                            }
+                         });
                        });
-                     });
 
-                     return (
-                       <div key={i} className="bg-white min-h-[100px] p-2">
-                         <span className={`text-xs font-bold block text-right ${new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' : 'text-slate-400'}`}>
-                           {dateNum}
-                         </span>
-                         <div className="mt-1 space-y-1">
-                           {events.map((ev, idx) => (
-                             <div key={idx} className="bg-blue-50 border border-blue-100 p-1.5 rounded text-[10px]">
-                                <div className="font-bold text-blue-700 capitalize">{ev.stageName}</div>
-                                <div className="text-slate-500 truncate">{ev.locName}</div>
-                             </div>
-                           ))}
+                       return (
+                         <div key={i} className="bg-white min-h-[100px] p-2">
+                           <span className={`text-xs font-bold block text-right ${new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' : 'text-slate-400'}`}>
+                             {dateNum}
+                           </span>
+                           <div className="mt-1 space-y-1">
+                             {events.map((ev, idx) => (
+                               <div key={idx} className="bg-blue-50 border border-blue-100 p-1.5 rounded text-[10px]">
+                                  <div className="font-bold text-blue-700 capitalize">{ev.stageName}</div>
+                                  <div className="text-slate-500 truncate">{ev.locName}</div>
+                               </div>
+                             ))}
+                           </div>
                          </div>
-                       </div>
-                     );
-                   })}
-                 </div>
+                       );
+                     })}
+                   </div>
+                </div>
               </div>
             );
           })()}
@@ -1195,9 +1188,7 @@ function MediaBadge({ status, links, folderLink, title }) {
   );
 }
 
-// KOMPONEN BARU: FORM FIELD SPESIFIK BUAT HALAMAN EDIT/TAMBAH
 function FormEditableStatus({ draft, stage, updateDraftField }) {
-  // --- TIPE 1: CHECKLIST SMART LINK (DOKUMEN & IZIN) ---
   if (stage === 'dokumen' || stage === 'izin') {
     const isDokumen = stage === 'dokumen';
     const checklistField = isDokumen ? 'dokumenChecklist' : 'izinChecklist';
@@ -1274,15 +1265,12 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
 
-  // --- TIPE 2: MEDIA VIEWER (SURVEY, TEKNIS, PLN, INSTALASI, TESTING) ---
   if (['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage)) {
     const linksField = stage + 'Links';
     const folderField = stage + 'FolderLink';
     
     const links = draft[linksField] || [];
     const folderLink = draft[folderField] || '';
-    
-    // Khusus Opsi Jadwal
     const isJadwal = draft[stage]?.startsWith('Jadwal');
     const allowJadwal = true; 
     
@@ -1345,7 +1333,6 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
 
-  // --- TIPE 3: FOLDER ONLY (VENDOR & PKS) ---
   if (['vendor', 'pks'].includes(stage)) {
     const folderField = stage + 'FolderLink';
     const folderLink = draft[folderField] || '';
@@ -1374,7 +1361,6 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
 
-  // Jaga-jaga Fallback
   return (
      <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
        <option value="Belum">Belum</option>
