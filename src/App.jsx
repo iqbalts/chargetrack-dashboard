@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -345,7 +345,6 @@ export default function App() {
       newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Perizinan`, time: getFormattedTime() });
     }
 
-    // Diffing Media (Folder & Links)
     const mediaStages = ['survey', 'teknis', 'pln', 'instalasi', 'testing'];
     mediaStages.forEach(stg => {
       const linkF = stg + 'Links';
@@ -360,7 +359,6 @@ export default function App() {
       }
     });
 
-    // Diffing Folder Only
     const folderStages = ['vendor', 'pks'];
     folderStages.forEach(stg => {
       const foldF = stg + 'FolderLink';
@@ -992,11 +990,13 @@ function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
+  const timeoutRef = useRef(null); // Tambahan Delay
   
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
   const safeChecklist = checklist || {};
 
   const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 300) {
@@ -1008,45 +1008,57 @@ function ChecklistBadge({ status, checklist, type }) {
     setIsOpen(true);
   };
 
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300); // Tahan pop-up selama 300ms 
+  };
+
+  useEffect(() => {
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
+  }, []);
+
   return (
     <div 
       ref={badgeRef}
       className="relative flex flex-col w-full text-center cursor-pointer group" 
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
         <StatusBadge status={status} />
       </div>
       
       {isOpen && (
-        <div className={`absolute left-1/2 -translate-x-1/2 w-max max-w-xs bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4 text-left cursor-default ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}>
-          <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 whitespace-nowrap">
-            {type === 'dokumen' ? 'Detail Dokumen Teknis' : 'Detail Perizinan'}
-          </p>
-          <div className="space-y-2.5">
-            {ITEMS.map(item => {
-              const isChecked = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.checked : safeChecklist[item.key];
-              const link = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.link : '';
-              
-              const content = (
-                <div className="flex items-start gap-2 text-xs group/link">
-                  {isChecked ? <Check className="w-4 h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-4 h-4 text-red-400 shrink-0 mt-px" />}
-                  <span className={`whitespace-normal leading-tight ${isChecked ? 'text-slate-700 font-medium' : 'text-slate-400'} ${link ? 'group-hover/link:underline group-hover/link:text-blue-600 transition-colors' : ''}`}>
-                    {item.label}
-                  </span>
-                  {link && <ExternalLink className="w-3 h-3 text-slate-400 group-hover/link:text-blue-500 shrink-0 mt-0.5" />}
-                </div>
-              );
+        <div className={`absolute left-1/2 -translate-x-1/2 w-max max-w-xs z-50 ${position === 'top' ? 'bottom-full pb-2' : 'top-full pt-2'}`}>
+          <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-4 text-left cursor-default">
+            <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 whitespace-nowrap">
+              {type === 'dokumen' ? 'Detail Dokumen Teknis' : 'Detail Perizinan'}
+            </p>
+            <div className="space-y-2.5">
+              {ITEMS.map(item => {
+                const isChecked = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.checked : safeChecklist[item.key];
+                const link = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.link : '';
+                
+                const content = (
+                  <div className="flex items-start gap-2 text-xs group/link">
+                    {isChecked ? <Check className="w-4 h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-4 h-4 text-red-400 shrink-0 mt-px" />}
+                    <span className={`whitespace-normal leading-tight ${isChecked ? 'text-slate-700 font-medium' : 'text-slate-400'} ${link ? 'group-hover/link:underline group-hover/link:text-blue-600 transition-colors' : ''}`}>
+                      {item.label}
+                    </span>
+                    {link && <ExternalLink className="w-3 h-3 text-slate-400 group-hover/link:text-blue-500 shrink-0 mt-0.5" />}
+                  </div>
+                );
 
-              return link ? (
-                <a key={item.key} href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noreferrer" className="block">
-                  {content}
-                </a>
-              ) : (
-                <div key={item.key} className="block">{content}</div>
-              );
-            })}
+                return link ? (
+                  <a key={item.key} href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noreferrer" className="block">
+                    {content}
+                  </a>
+                ) : (
+                  <div key={item.key} className="block">{content}</div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -1058,6 +1070,7 @@ function MediaBadge({ status, links, folderLink, title }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
+  const timeoutRef = useRef(null); // Tambahan Delay
   const safeLinks = links || [];
 
   const getGDriveThumbnailUrl = (url) => {
@@ -1070,6 +1083,7 @@ function MediaBadge({ status, links, folderLink, title }) {
   };
 
   const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 250) {
@@ -1080,6 +1094,16 @@ function MediaBadge({ status, links, folderLink, title }) {
     }
     setIsOpen(true);
   };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300); // Tahan pop-up selama 300ms
+  };
+
+  useEffect(() => {
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
+  }, []);
 
   const handleClick = (e) => {
     if (folderLink) {
@@ -1093,7 +1117,7 @@ function MediaBadge({ status, links, folderLink, title }) {
       ref={badgeRef}
       className={`relative flex flex-col w-full text-center ${folderLink ? 'cursor-pointer' : 'cursor-default'} group`} 
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
@@ -1103,46 +1127,48 @@ function MediaBadge({ status, links, folderLink, title }) {
       {isOpen && (
         <div 
           onClick={(e) => e.stopPropagation()} 
-          className={`absolute left-1/2 -translate-x-1/2 w-max max-w-[280px] bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
+          className={`absolute left-1/2 -translate-x-1/2 w-max max-w-[280px] z-50 ${position === 'top' ? 'bottom-full pb-2' : 'top-full pt-2'}`}
         >
-          <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex items-center gap-1.5 whitespace-nowrap">
-            <ImageIcon className="w-4 h-4 text-blue-500" /> Lampiran {title}
-          </p>
-          {safeLinks.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2">
-              {safeLinks.map((link, idx) => (
-                <a 
-                  key={idx} 
-                  href={link.startsWith('http') ? link : `https://${link}`} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  onClick={(e) => e.stopPropagation()} 
-                  className="block relative group/img overflow-hidden rounded border border-slate-200 aspect-square bg-slate-50"
-                >
-                  <img 
-                    src={getGDriveThumbnailUrl(link)} 
-                    alt={`Bukti ${idx+1}`} 
-                    className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-300" 
-                    onError={(e) => { 
-                      e.target.onerror = null; 
-                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2JkNWUxIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSI+PC9wb2x5bGluZT48L3N2Zz4='; 
-                      e.target.className = "w-full h-full p-4 object-contain opacity-50 group-hover/img:scale-100 transition-none";
-                    }} 
-                  />
-                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
-                    <ExternalLink className="w-5 h-5 text-white" />
-                  </div>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400 italic text-center py-3">Belum ada lampiran foto/video.</p>
-          )}
-          {folderLink && (
-             <div className="mt-3 pt-2 border-t border-slate-100 text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
-               <Folder className="w-3 h-3"/> Klik status untuk buka folder GDrive
-             </div>
-          )}
+          <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-3 text-left cursor-default">
+            <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex items-center gap-1.5 whitespace-nowrap">
+              <ImageIcon className="w-4 h-4 text-blue-500" /> Lampiran {title}
+            </p>
+            {safeLinks.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2">
+                {safeLinks.map((link, idx) => (
+                  <a 
+                    key={idx} 
+                    href={link.startsWith('http') ? link : `https://${link}`} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    onClick={(e) => e.stopPropagation()} 
+                    className="block relative group/img overflow-hidden rounded border border-slate-200 aspect-square bg-slate-50"
+                  >
+                    <img 
+                      src={getGDriveThumbnailUrl(link)} 
+                      alt={`Bukti ${idx+1}`} 
+                      className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-300" 
+                      onError={(e) => { 
+                        e.target.onerror = null; 
+                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2JkNWUxIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSI+PC9wb2x5bGluZT48L3N2Zz4='; 
+                        e.target.className = "w-full h-full p-4 object-contain opacity-50 group-hover/img:scale-100 transition-none";
+                      }} 
+                    />
+                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                      <ExternalLink className="w-5 h-5 text-white" />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 italic text-center py-3">Belum ada lampiran foto/video.</p>
+            )}
+            {folderLink && (
+               <div className="mt-3 pt-2 border-t border-slate-100 text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
+                 <Folder className="w-3 h-3"/> Klik status untuk buka folder GDrive
+               </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -1150,13 +1176,11 @@ function MediaBadge({ status, links, folderLink, title }) {
 }
 
 function EditableStatus({ loc, stage, updateDraftField }) {
-  // --- TIPE 1: CHECKLIST SMART LINK (DOKUMEN & IZIN) ---
   if (stage === 'dokumen' || stage === 'izin') {
     const isDokumen = stage === 'dokumen';
     const checklistField = isDokumen ? 'dokumenChecklist' : 'izinChecklist';
     const ITEMS = isDokumen ? DOKUMEN_ITEMS : IZIN_ITEMS;
     
-    // Safety fallback untuk support data lama yang masih format boolean
     const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {});
     const checklist = loc[checklistField] || defaultChecklist;
     
@@ -1228,7 +1252,6 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     );
   }
 
-  // --- TIPE 2: MEDIA VIEWER (SURVEY, TEKNIS, PLN, INSTALASI, TESTING) ---
   if (['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage)) {
     const linksField = stage + 'Links';
     const folderField = stage + 'FolderLink';
@@ -1286,7 +1309,6 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     );
   }
 
-  // --- TIPE 3: FOLDER ONLY (VENDOR & PKS) ---
   if (['vendor', 'pks'].includes(stage)) {
     const folderField = stage + 'FolderLink';
     const folderLink = loc[folderField] || '';
@@ -1315,7 +1337,6 @@ function EditableStatus({ loc, stage, updateDraftField }) {
     );
   }
 
-  // --- TIPE 4: JADWAL (DEFAULT KALO GAK MASUK KATEGORI DI ATAS) ---
   const isJadwal = loc[stage]?.startsWith('Jadwal');
   return (
     <div className="flex flex-col gap-1 w-full">
@@ -1323,6 +1344,7 @@ function EditableStatus({ loc, stage, updateDraftField }) {
         <option value="Belum">Belum</option>
         <option value="Proses">Proses</option>
         <option value="Selesai">Selesai</option>
+        {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
         <option value="Jadwal">Jadwal</option>
       </select>
       {isJadwal && (
