@@ -27,6 +27,7 @@ const ArrowUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width
 const ArrowDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 12-7 7-7-7"/><path d="M12 5v14"/></svg>;
 const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>;
 const ImageIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>;
+const Folder = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>;
 
 // --- KONFIGURASI CHECKLIST ---
 const DOKUMEN_ITEMS = [
@@ -246,6 +247,7 @@ export default function App() {
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
       izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
+      surveyFolderLink: '',
       surveyLinks: [], 
       logs: [newLog]
     };
@@ -337,6 +339,11 @@ export default function App() {
     if (JSON.stringify(originalLoc.izinChecklist) !== JSON.stringify(draft.izinChecklist)) {
       updates.izinChecklist = draft.izinChecklist;
       newLogs.push({ user: currentUser.name, action: `Memperbarui checklist Perizinan`, time: getFormattedTime() });
+    }
+
+    if (originalLoc.surveyFolderLink !== draft.surveyFolderLink) {
+      updates.surveyFolderLink = draft.surveyFolderLink;
+      newLogs.push({ user: currentUser.name, action: `Memperbarui Link Folder GDrive Early Survey`, time: getFormattedTime() });
     }
 
     if (JSON.stringify(originalLoc.surveyLinks) !== JSON.stringify(draft.surveyLinks)) {
@@ -477,7 +484,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
-      {/* Reset Password Modal */}
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -494,7 +500,6 @@ export default function App() {
         </div>
       )}
 
-      {/* POP UP HISTORY LOG */}
       {historyModal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
@@ -635,7 +640,7 @@ export default function App() {
                         {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                            <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-50">
                              {stage === 'survey' ? (
-                               <SurveyBadge status={item.survey} links={item.surveyLinks} />
+                               <SurveyBadge status={item.survey} links={item.surveyLinks} folderLink={item.surveyFolderLink} />
                              ) : stage === 'dokumen' || stage === 'izin' ? (
                                <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
                              ) : (
@@ -768,7 +773,7 @@ export default function App() {
                              ) : (
                                <div className="pt-1">
                                  {stage === 'survey' ? (
-                                   <SurveyBadge status={displayItem.survey} links={displayItem.surveyLinks} />
+                                   <SurveyBadge status={displayItem.survey} links={displayItem.surveyLinks} folderLink={displayItem.surveyFolderLink} />
                                  ) : stage === 'dokumen' || stage === 'izin' ? (
                                    <ChecklistBadge status={displayItem[stage]} checklist={stage === 'dokumen' ? displayItem.dokumenChecklist : displayItem.izinChecklist} type={stage} />
                                  ) : (
@@ -792,7 +797,7 @@ export default function App() {
                        </tr>
                      )})}
                      {filteredLocations.length === 0 && (
-                       <tr><td colSpan="14" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                       <tr><td colSpan="15" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                      )}
                    </tbody>
                  </table>
@@ -957,7 +962,6 @@ function ChecklistBadge({ status, checklist, type }) {
   const handleMouseEnter = () => {
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
-      // Kalau sisa ruang di bawah kurang dari 300px, pop-up ke atas
       if (window.innerHeight - rect.bottom < 300) {
         setPosition('top');
       } else {
@@ -997,7 +1001,7 @@ function ChecklistBadge({ status, checklist, type }) {
   );
 }
 
-function SurveyBadge({ status, links }) {
+function SurveyBadge({ status, links, folderLink }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
@@ -1015,7 +1019,6 @@ function SurveyBadge({ status, links }) {
   const handleMouseEnter = () => {
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
-      // Kalau sisa ruang di bawah kurang dari 250px, pop-up ke atas
       if (window.innerHeight - rect.bottom < 250) {
         setPosition('top');
       } else {
@@ -1025,26 +1028,44 @@ function SurveyBadge({ status, links }) {
     setIsOpen(true);
   };
 
+  const handleClick = (e) => {
+    if (folderLink) {
+      const url = folderLink.startsWith('http') ? folderLink : `https://${folderLink}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div 
       ref={badgeRef}
-      className="relative flex flex-col w-full text-center cursor-pointer group" 
+      className={`relative flex flex-col w-full text-center ${folderLink ? 'cursor-pointer' : 'cursor-default'} group`} 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsOpen(false)}
+      onClick={handleClick}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
         <StatusBadge status={status} />
       </div>
       
       {isOpen && (
-        <div className={`absolute left-1/2 -translate-x-1/2 w-max max-w-[280px] bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}>
+        <div 
+          onClick={(e) => e.stopPropagation()} // Biar klik di dalem pop-up gak ngebuka folder link
+          className={`absolute left-1/2 -translate-x-1/2 w-max max-w-[280px] bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 text-left cursor-default ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
+        >
           <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex items-center gap-1.5 whitespace-nowrap">
             <ImageIcon className="w-4 h-4 text-blue-500" /> Lampiran Early Survey
           </p>
           {safeLinks.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
               {safeLinks.map((link, idx) => (
-                <a key={idx} href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noreferrer" className="block relative group/img overflow-hidden rounded border border-slate-200 aspect-square bg-slate-50">
+                <a 
+                  key={idx} 
+                  href={link.startsWith('http') ? link : `https://${link}`} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  onClick={(e) => e.stopPropagation()} // Biar klik gambar cuma buka gambarnya
+                  className="block relative group/img overflow-hidden rounded border border-slate-200 aspect-square bg-slate-50"
+                >
                   <img 
                     src={getGDriveThumbnailUrl(link)} 
                     alt={`Bukti ${idx+1}`} 
@@ -1063,6 +1084,11 @@ function SurveyBadge({ status, links }) {
             </div>
           ) : (
             <p className="text-xs text-slate-400 italic text-center py-3">Belum ada lampiran foto/video.</p>
+          )}
+          {folderLink && (
+             <div className="mt-3 pt-2 border-t border-slate-100 text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
+               <Folder className="w-3 h-3"/> Klik status untuk buka folder GDrive
+             </div>
           )}
         </div>
       )}
@@ -1130,7 +1156,21 @@ function EditableStatus({ loc, stage, updateDraftField }) {
         
         {(loc[stage] === 'Proses' || loc[stage] === 'Selesai') && (
           <div className="flex flex-col gap-2 mt-1.5 p-2 bg-slate-50 border border-slate-200 rounded text-xs shadow-inner">
-            <span className="font-bold text-slate-700 flex items-center gap-1"><ImageIcon className="w-3 h-3 text-blue-500"/> Lampiran GDrive</span>
+            
+            {/* INPUT LINK FOLDER GDRIVE */}
+            <div className="mb-1 border-b border-slate-200 pb-2">
+               <span className="font-bold text-slate-700 flex items-center gap-1 mb-1.5"><Folder className="w-3 h-3 text-blue-500"/> Folder Master GDrive</span>
+               <input 
+                 type="text" 
+                 value={loc.surveyFolderLink || ''} 
+                 onChange={(e) => updateDraftField(loc.id, 'surveyFolderLink', e.target.value)} 
+                 className="w-full p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] bg-white" 
+                 placeholder="Link folder Google Drive..." 
+               />
+            </div>
+
+            {/* INPUT THUMBNAILS FILE */}
+            <span className="font-bold text-slate-700 flex items-center gap-1"><ImageIcon className="w-3 h-3 text-blue-500"/> Lampiran Foto/Video (Thumbnail)</span>
             {links.map((link, idx) => (
               <div key={idx} className="flex items-center gap-1.5">
                 <input 
@@ -1142,7 +1182,7 @@ function EditableStatus({ loc, stage, updateDraftField }) {
                     updateDraftField(loc.id, 'surveyLinks', newLinks);
                   }} 
                   className="flex-1 p-1.5 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] bg-white" 
-                  placeholder="Paste link GDrive di sini..." 
+                  placeholder="Paste link file GDrive di sini..." 
                 />
                 <button onClick={() => {
                   const newLinks = [...links];
@@ -1151,7 +1191,7 @@ function EditableStatus({ loc, stage, updateDraftField }) {
                 }} className="text-slate-400 hover:text-red-500 transition-colors p-1 bg-white border border-slate-200 rounded"><Trash2 className="w-3.5 h-3.5"/></button>
               </div>
             ))}
-            <button onClick={() => updateDraftField(loc.id, 'surveyLinks', [...links, ''])} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center justify-center gap-1 hover:bg-blue-100 transition-colors w-full mt-1 border border-blue-100"><Plus className="w-3 h-3"/> Tambah Foto/Video</button>
+            <button onClick={() => updateDraftField(loc.id, 'surveyLinks', [...links, ''])} className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1.5 rounded flex items-center justify-center gap-1 hover:bg-blue-100 transition-colors w-full mt-1 border border-blue-100"><Plus className="w-3 h-3"/> Tambah Thumbnail File</button>
           </div>
         )}
       </div>
