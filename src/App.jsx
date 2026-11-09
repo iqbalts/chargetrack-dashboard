@@ -340,35 +340,28 @@ export default function App() {
   };
 
   const getSortedLocations = () => {
-    // Memberikan index asli agar selalu bisa dikembalikan (di-reset) ke posisi awal
     let sortableItems = filteredLocations.map((loc, idx) => ({ ...loc, originalNo: idx + 1 }));
 
     sortableItems.sort((a, b) => {
       if (sortConfig.key === 'no') {
         return sortConfig.direction === 'asc' ? a.originalNo - b.originalNo : b.originalNo - a.originalNo;
       } 
-      
       if (sortConfig.key === 'lokasi') {
         const locA = (a.lokasi || '').toString().toLowerCase();
         const locB = (b.lokasi || '').toString().toLowerCase();
-        // Pakai localeCompare biar pengurutan string bener-bener sesuai abjad A-Z
         const comparison = locA.localeCompare(locB);
         return sortConfig.direction === 'asc' ? comparison : -comparison;
       } 
-      
       if (sortConfig.key === 'jumlah') {
         const sumA = (a.chargers || []).reduce((sum, c) => sum + (parseInt(c.jumlah) || 0), 0);
         const sumB = (b.chargers || []).reduce((sum, c) => sum + (parseInt(c.jumlah) || 0), 0);
-        // Menggunakan pengurangan murni buat memastikan nilai angka ke-sort dengan benar
         return sortConfig.direction === 'asc' ? sumA - sumB : sumB - sumA;
       } 
-      
       if (sortConfig.key === 'progress') {
         const progA = calculateProgress(a);
         const progB = calculateProgress(b);
         return sortConfig.direction === 'asc' ? progA - progB : progB - progA;
       }
-
       return 0;
     });
     return sortableItems;
@@ -376,7 +369,6 @@ export default function App() {
 
   const sortedDashboardLocations = getSortedLocations();
 
-  // Komponen Helper untuk Header Kolom yang bisa di-sort
   const SortHeader = ({ label, sortKey }) => {
     const isActive = sortConfig.key === sortKey;
     return (
@@ -615,7 +607,8 @@ export default function App() {
                  </button>
                </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto p-4 pb-8">
+               {/* KODE PADDING WRAPPER DIHILANGKAN */}
+               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
                  <table className="w-max min-w-full text-xs text-left relative">
                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                      <tr>
