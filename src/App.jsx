@@ -414,62 +414,86 @@ export default function App() {
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
-  // --- LOGIKA EXPORT EXCEL (NATIVE XLS FORMAT VIA HTML HACK) ---
+  // --- LOGIKA EXPORT EXCEL (NATIVE XLS FORMAT VIA HTML HACK) DENGAN STYLING ---
   const handleExportExcel = () => {
     if (!currentUser) return;
     
     const timestamp = getFormattedTime();
     
-    // Bikin struktur tabel HTML murni yang dimengerti 100% oleh Excel
+    // Setup Struktur & Custom CSS murni untuk Excel
     let tableHTML = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head>
         <meta charset="utf-8" />
         <style>
-          table { border-collapse: collapse; font-family: sans-serif; }
-          th, td { border: 1px solid #dddddd; padding: 8px; text-align: left; vertical-align: top; }
-          th { background-color: #f2f2f2; font-weight: bold; }
-          .header-row { font-size: 14px; }
+          body { font-family: 'Calibri', 'Arial', sans-serif; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { 
+            border: 0.5pt solid #94a3b8; 
+            padding: 6px 8px; 
+            font-size: 10pt; 
+            vertical-align: middle; 
+          }
+          th { 
+            background-color: #0f172a; 
+            color: #ffffff; 
+            font-weight: bold; 
+            text-align: center; 
+            font-size: 9pt;
+            text-transform: uppercase;
+          }
+          .meta-header { 
+            border: none; 
+            font-size: 11pt; 
+            font-weight: bold; 
+            color: #475569; 
+            padding-bottom: 20px; 
+            text-align: left; 
+          }
+          .center { text-align: center; }
+          .left { text-align: left; }
+          .bold { font-weight: bold; }
+          .wrap { white-space: normal; word-wrap: break-word; }
         </style>
       </head>
       <body>
         <table>
-          <tr><td colspan="17" style="font-size: 16px; font-weight: bold; border: none; padding-bottom: 20px;">Downloaded by: ${currentUser.name} - ${currentUser.email} - ${timestamp}</td></tr>
-          <tr class="header-row">
+          <tr><td colspan="17" class="meta-header">Laporan Status SPKLU | Downloaded by: ${currentUser.name} (${currentUser.email}) | ${timestamp}</td></tr>
+          <tr>
             <th>NO</th><th>LOKASI</th><th>LINK GMAPS</th><th>CHARGERS</th><th>PIC</th>
-            <th>PROGRESS KESELURUHAN</th><th>EARLY SURVEY</th><th>SURVEY TEKNIS</th>
+            <th>PROGRESS</th><th>EARLY SURVEY</th><th>SURVEY TEKNIS</th>
             <th>DOKUMEN TEKNIS</th><th>SURVEY PLN</th><th>PERIZINAN</th><th>PENAWARAN VENDOR</th>
             <th>PKS</th><th>PROSES INSTALASI</th><th>TESTING & COMM</th><th>STATUS AKHIR</th><th>KETERANGAN</th>
           </tr>
     `;
 
     sortedDashboardLocations.forEach((loc, index) => {
-      // Konversi data array jadi multiline yang cantik pakai <br>
+      // Konversi text array jadi per-baris menggunakan br
       const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
-      const picText = (loc.pics || []).join(", ");
+      const picText = (loc.pics || []).join("<br>");
       const progressText = `${calculateProgress(loc)}%`;
       const statusAkhirText = getStatusAkhir(calculateProgress(loc)).text;
-      const keteranganText = (loc.keterangan || '').replace(/\n/g, '<br>'); // Ngebaca enter dari textbox
+      const keteranganText = (loc.keterangan || '').replace(/\n/g, '<br>');
 
       tableHTML += `
         <tr>
-          <td>${index + 1}</td>
-          <td><b>${loc.lokasi || ''}</b></td>
-          <td>${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
-          <td>${chargersText}</td>
-          <td>${picText}</td>
-          <td><b>${progressText}</b></td>
-          <td>${loc.survey || 'Belum'}</td>
-          <td>${loc.teknis || 'Belum'}</td>
-          <td>${loc.dokumen || 'Belum'}</td>
-          <td>${loc.pln || 'Belum'}</td>
-          <td>${loc.izin || 'Belum'}</td>
-          <td>${loc.vendor || 'Belum'}</td>
-          <td>${loc.pks || 'Belum'}</td>
-          <td>${loc.instalasi || 'Belum'}</td>
-          <td>${loc.testing || 'Belum'}</td>
-          <td><b>${statusAkhirText}</b></td>
-          <td>${keteranganText}</td>
+          <td class="center">${index + 1}</td>
+          <td class="left bold">${loc.lokasi || ''}</td>
+          <td class="left">${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
+          <td class="left wrap">${chargersText}</td>
+          <td class="center wrap">${picText}</td>
+          <td class="center bold">${progressText}</td>
+          <td class="center">${loc.survey || 'Belum'}</td>
+          <td class="center">${loc.teknis || 'Belum'}</td>
+          <td class="center">${loc.dokumen || 'Belum'}</td>
+          <td class="center">${loc.pln || 'Belum'}</td>
+          <td class="center">${loc.izin || 'Belum'}</td>
+          <td class="center">${loc.vendor || 'Belum'}</td>
+          <td class="center">${loc.pks || 'Belum'}</td>
+          <td class="center">${loc.instalasi || 'Belum'}</td>
+          <td class="center">${loc.testing || 'Belum'}</td>
+          <td class="center bold">${statusAkhirText}</td>
+          <td class="left wrap">${keteranganText}</td>
         </tr>
       `;
     });
@@ -480,7 +504,6 @@ export default function App() {
       </html>
     `;
 
-    // Download sebagai format native MS Excel (.xls)
     const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     
@@ -730,7 +753,7 @@ export default function App() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-slate-500 text-sm">Belum ada catatan aktivitas untuk ini.</div>
+                <div className="text-center py-8 text-slate-500 text-sm">Belum ada catatan aktivitas untuk lokasi ini.</div>
               )}
             </div>
           </div>
