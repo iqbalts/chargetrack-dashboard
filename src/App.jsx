@@ -30,6 +30,7 @@ const ImageIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" wid
 const Folder = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>;
 const Save = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
 const FilterIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
+const Download = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
 
 // --- KONFIGURASI CHECKLIST & STAGES ---
 const DOKUMEN_ITEMS = [
@@ -112,13 +113,11 @@ export default function App() {
   
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   
-  // STATE BARU: PENCARIAN & FILTER
   const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'no', direction: 'asc' });
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
-  // Menghitung jumlah filter aktif
   const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
 
   const getFormattedTime = () => {
@@ -415,9 +414,72 @@ export default function App() {
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
+  // --- LOGIKA EXPORT EXCEL (CSV) ---
+  const handleExportExcel = () => {
+    if (!currentUser) return;
+    
+    const timestamp = getFormattedTime();
+    
+    // Bikin Header Metadata biar ketauan siapa yang narik data
+    const metaRow = `Downloaded by: ${currentUser.name} - ${currentUser.email} - ${timestamp}\n\n`;
+    
+    // Header Tabel
+    const headers = [
+      "NO", "LOKASI", "LINK GMAPS", "CHARGERS", "PIC", "PROGRESS KESELURUHAN", 
+      "EARLY SURVEY", "SURVEY TEKNIS", "DOKUMEN TEKNIS", "SURVEY PLN", 
+      "PERIZINAN", "PENAWARAN VENDOR", "PKS", "PROSES INSTALASI", 
+      "TESTING & COMM", "STATUS AKHIR", "KETERANGAN"
+    ];
+    
+    let csvString = metaRow + headers.map(h => `"${h}"`).join(",") + "\n";
+    
+    // Bikin Helper function buat handle text biar aman di-convert ke CSV (kasus koma & kutip)
+    const escapeQuote = (str) => String(str || '').replace(/"/g, '""');
+
+    sortedDashboardLocations.forEach((loc, index) => {
+      // Bikin teks Chargers jadi rapi dengan baris baru (di dalem sel excel)
+      const chargersText = (loc.chargers || []).map(c => `${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("\n");
+      const picText = (loc.pics || []).join(", ");
+      const progressText = `${calculateProgress(loc)}%`;
+      const statusAkhirText = getStatusAkhir(calculateProgress(loc)).text;
+
+      const row = [
+        index + 1,
+        escapeQuote(loc.lokasi),
+        escapeQuote(loc.gmapsLink),
+        escapeQuote(chargersText),
+        escapeQuote(picText),
+        progressText,
+        escapeQuote(loc.survey),
+        escapeQuote(loc.teknis),
+        escapeQuote(loc.dokumen),
+        escapeQuote(loc.pln),
+        escapeQuote(loc.izin),
+        escapeQuote(loc.vendor),
+        escapeQuote(loc.pks),
+        escapeQuote(loc.instalasi),
+        escapeQuote(loc.testing),
+        statusAkhirText,
+        escapeQuote(loc.keterangan)
+      ];
+      
+      csvString += row.map(cell => `"${cell}"`).join(",") + "\n";
+    });
+
+    // Tambahin BOM (\uFEFF) biar Excel bisa ngebaca spesial karakter dengan sempurna
+    const blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `Data_SPKLU_${timestamp.replace(/[:/, ]/g, "_")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // --- LOGIKA FILTERING (SEARCH & CHECKBOX) ---
   const filteredLocations = locations.filter(loc => {
-    // 1. Logika Search Box
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const matchLokasi = loc.lokasi?.toLowerCase().includes(query) || false;
@@ -425,23 +487,19 @@ export default function App() {
       if (!matchLokasi && !matchPic) return false;
     }
 
-    // 2. Logika Advanced Filters (Checkbox)
     if (activeFilterCount > 0) {
-      // Filter Brand
       if (filters.brand.length > 0) {
         const locBrands = (loc.chargers || []).map(c => c.brand);
         const hasMatchingBrand = locBrands.some(b => filters.brand.includes(b));
         if (!hasMatchingBrand) return false;
       }
 
-      // Filter Status Akhir Keseluruhan
       if (filters.statusAkhir.length > 0) {
         const progress = calculateProgress(loc);
         const sAkhir = getStatusAkhir(progress).text;
         if (!filters.statusAkhir.includes(sAkhir)) return false;
       }
 
-      // Filter Tiap Tahapan Progress
       const stages = ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'];
       for (let stage of stages) {
         if (filters[stage] && filters[stage].length > 0) {
@@ -694,7 +752,6 @@ export default function App() {
               <p className="text-slate-500 mt-1">Pantau progres deployment titik charging station.</p>
             </div>
             
-            {/* SEARCH BERSAMA TOMBOL FILTER (HANYA DI DASHBOARD) */}
             {activeTab !== 'settings' && !formDraft && (
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -709,10 +766,16 @@ export default function App() {
                 </div>
                 
                 {activeTab === 'dashboard' && (
-                  <button onClick={() => setIsFilterModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm">
-                    <FilterIcon className="w-4 h-4" /> Filter
-                    {activeFilterCount > 0 && <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{activeFilterCount}</span>}
-                  </button>
+                  <>
+                    <button onClick={() => setIsFilterModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm">
+                      <FilterIcon className="w-4 h-4" /> Filter
+                      {activeFilterCount > 0 && <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{activeFilterCount}</span>}
+                    </button>
+                    {/* TOMBOL BARU: EXPORT EXCEL */}
+                    <button onClick={handleExportExcel} className="flex items-center gap-2 px-5 py-2.5 bg-green-50 border border-green-200 rounded-full text-green-700 font-bold hover:bg-green-100 transition-colors shadow-sm ml-2">
+                      <Download className="w-4 h-4" /> Export Excel
+                    </button>
+                  </>
                 )}
               </div>
             )}
