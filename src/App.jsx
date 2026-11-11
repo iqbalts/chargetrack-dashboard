@@ -29,6 +29,7 @@ const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" 
 const ImageIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>;
 const Folder = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>;
 const Save = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
+const FilterIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
 
 // --- KONFIGURASI CHECKLIST & STAGES ---
 const DOKUMEN_ITEMS = [
@@ -54,6 +55,26 @@ const STAGE_NAME_MAP = {
   survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', 
   pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', 
   pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'
+};
+
+// --- DATA UNTUK FILTER ---
+const FILTER_SECTIONS = [
+  { id: 'brand', title: 'Brand Charger', options: ['TIDE', 'Moderntec', 'Teison', 'Starcharge'] },
+  { id: 'statusAkhir', title: 'Status Akhir', options: ['Menunggu', 'Proses', 'Selesai Beroperasi'] },
+  { id: 'survey', title: 'Early Survey', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
+  { id: 'teknis', title: 'Survey Teknis', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
+  { id: 'dokumen', title: 'Dokumen Teknis', options: ['Belum', 'Proses', 'Selesai'] },
+  { id: 'pln', title: 'Survey PLN', options: ['Belum', 'Proses', 'Selesai', 'Non PLN', 'Jadwal'] },
+  { id: 'izin', title: 'Perizinan', options: ['Belum', 'Proses', 'Selesai'] },
+  { id: 'vendor', title: 'Penawaran Vendor', options: ['Belum', 'Proses', 'Selesai'] },
+  { id: 'pks', title: 'PKS', options: ['Belum', 'Proses', 'Selesai'] },
+  { id: 'instalasi', title: 'Proses Instalasi', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
+  { id: 'testing', title: 'Testing & Comm.', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
+];
+
+const INITIAL_FILTERS = {
+  brand: [], statusAkhir: [], survey: [], teknis: [], dokumen: [], 
+  pln: [], izin: [], vendor: [], pks: [], instalasi: [], testing: []
 };
 
 // --- Firebase Initialization ---
@@ -90,14 +111,21 @@ export default function App() {
   const [formDraft, setFormDraft] = useState(null);
   
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [searchQuery, setSearchQuery] = useState('');
   
+  // STATE BARU: PENCARIAN & FILTER
+  const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'no', direction: 'asc' });
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+
+  // Menghitung jumlah filter aktif
+  const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
 
   const getFormattedTime = () => {
     return new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
   };
 
+  // --- SESI & AUTO LOGOUT LOGIC ---
   useEffect(() => {
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
     const storedUser = localStorage.getItem('caztrack_user');
@@ -145,6 +173,7 @@ export default function App() {
     };
   }, []);
 
+  // --- FIREBASE INIT & FETCH DATA ---
   useEffect(() => {
     const initAuth = async () => {
       try { await signInAnonymously(auth); } catch (err) { console.error("Auth init error:", err); }
@@ -386,12 +415,44 @@ export default function App() {
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
+  // --- LOGIKA FILTERING (SEARCH & CHECKBOX) ---
   const filteredLocations = locations.filter(loc => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    const matchLokasi = loc.lokasi?.toLowerCase().includes(query) || false;
-    const matchPic = loc.pics?.some(pic => pic.toLowerCase().includes(query)) || false;
-    return matchLokasi || matchPic;
+    // 1. Logika Search Box
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchLokasi = loc.lokasi?.toLowerCase().includes(query) || false;
+      const matchPic = loc.pics?.some(pic => pic.toLowerCase().includes(query)) || false;
+      if (!matchLokasi && !matchPic) return false;
+    }
+
+    // 2. Logika Advanced Filters (Checkbox)
+    if (activeFilterCount > 0) {
+      // Filter Brand
+      if (filters.brand.length > 0) {
+        const locBrands = (loc.chargers || []).map(c => c.brand);
+        const hasMatchingBrand = locBrands.some(b => filters.brand.includes(b));
+        if (!hasMatchingBrand) return false;
+      }
+
+      // Filter Status Akhir Keseluruhan
+      if (filters.statusAkhir.length > 0) {
+        const progress = calculateProgress(loc);
+        const sAkhir = getStatusAkhir(progress).text;
+        if (!filters.statusAkhir.includes(sAkhir)) return false;
+      }
+
+      // Filter Tiap Tahapan Progress
+      const stages = ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'];
+      for (let stage of stages) {
+        if (filters[stage] && filters[stage].length > 0) {
+          const rawStatus = loc[stage] || 'Belum';
+          const checkVal = rawStatus.startsWith('Jadwal') ? 'Jadwal' : rawStatus;
+          if (!filters[stage].includes(checkVal)) return false;
+        }
+      }
+    }
+
+    return true;
   });
 
   const requestSort = (key) => {
@@ -495,6 +556,65 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
+      
+      {/* --- MODAL FILTER (DASHBOARD ONLY) --- */}
+      {isFilterModalOpen && (
+        <div className="absolute inset-0 z-[120] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+           <div className="bg-slate-50 rounded-xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden animate-fade-in">
+              <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2"><FilterIcon className="w-5 h-5 text-blue-500"/> Filter Data Dashboard</h3>
+                  <p className="text-xs text-slate-500 mt-1">Pilih kriteria untuk memfilter tabel lokasi secara detail.</p>
+                </div>
+                <button onClick={() => setIsFilterModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-lg transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                   {FILTER_SECTIONS.map(section => (
+                     <div key={section.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                       <h4 className="text-[11px] font-bold text-slate-800 mb-3 uppercase tracking-wider border-b border-slate-100 pb-2">{section.title}</h4>
+                       <div className="flex flex-col gap-2.5">
+                         {section.options.map(opt => {
+                            const isChecked = filters[section.id].includes(opt);
+                            return (
+                              <label key={opt} className="flex items-start gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
+                                <input 
+                                  type="checkbox" 
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    setFilters(prev => {
+                                      const current = prev[section.id];
+                                      if (e.target.checked) return { ...prev, [section.id]: [...current, opt] };
+                                      return { ...prev, [section.id]: current.filter(v => v !== opt) };
+                                    })
+                                  }}
+                                  className="accent-blue-600 w-4 h-4 cursor-pointer shrink-0"
+                                />
+                                <span className={`text-xs whitespace-normal leading-tight ${isChecked ? 'font-bold text-blue-700' : 'font-medium text-slate-600 group-hover:text-blue-600'} transition-colors`}>{opt}</span>
+                              </label>
+                            )
+                         })}
+                       </div>
+                     </div>
+                   ))}
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-slate-200 flex justify-between items-center bg-white shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] shrink-0">
+                <button onClick={() => setFilters(INITIAL_FILTERS)} className="px-5 py-2.5 text-red-500 font-bold hover:bg-red-50 rounded-lg transition-colors">
+                  Reset Semua Filter
+                </button>
+                <button onClick={() => setIsFilterModalOpen(false)} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors">
+                  Terapkan Filter
+                </button>
+              </div>
+           </div>
+        </div>
+      )}
+
       {resetModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -563,7 +683,6 @@ export default function App() {
         </div>
       </aside>
 
-      {/* STRUKTUR MAIN DIPERBARUI: flex flex-col h-screen overflow-hidden */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative z-10 bg-slate-50">
         <div className="flex flex-col flex-1 min-h-0 p-8 overflow-hidden">
           
@@ -575,16 +694,26 @@ export default function App() {
               <p className="text-slate-500 mt-1">Pantau progres deployment titik charging station.</p>
             </div>
             
+            {/* SEARCH BERSAMA TOMBOL FILTER (HANYA DI DASHBOARD) */}
             {activeTab !== 'settings' && !formDraft && (
-              <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari lokasi atau PIC..." 
-                  className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                />
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari lokasi atau PIC..." 
+                    className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                  />
+                </div>
+                
+                {activeTab === 'dashboard' && (
+                  <button onClick={() => setIsFilterModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm">
+                    <FilterIcon className="w-4 h-4" /> Filter
+                    {activeFilterCount > 0 && <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{activeFilterCount}</span>}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -675,7 +804,7 @@ export default function App() {
                       </tr>
                     )})}
                     {filteredLocations.length === 0 && (
-                      <tr><td colSpan="19" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                      <tr><td colSpan="19" className="py-12 text-center text-slate-500 font-medium">Pencarian atau Filter tidak menemukan hasil bray.</td></tr>
                     )}
                   </tbody>
                 </table>
