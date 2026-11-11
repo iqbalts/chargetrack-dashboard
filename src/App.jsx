@@ -414,65 +414,79 @@ export default function App() {
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
-  // --- LOGIKA EXPORT EXCEL (CSV) ---
+  // --- LOGIKA EXPORT EXCEL (NATIVE XLS FORMAT VIA HTML HACK) ---
   const handleExportExcel = () => {
     if (!currentUser) return;
     
     const timestamp = getFormattedTime();
     
-    // Bikin Header Metadata biar ketauan siapa yang narik data
-    const metaRow = `Downloaded by: ${currentUser.name} - ${currentUser.email} - ${timestamp}\n\n`;
-    
-    // Header Tabel
-    const headers = [
-      "NO", "LOKASI", "LINK GMAPS", "CHARGERS", "PIC", "PROGRESS KESELURUHAN", 
-      "EARLY SURVEY", "SURVEY TEKNIS", "DOKUMEN TEKNIS", "SURVEY PLN", 
-      "PERIZINAN", "PENAWARAN VENDOR", "PKS", "PROSES INSTALASI", 
-      "TESTING & COMM", "STATUS AKHIR", "KETERANGAN"
-    ];
-    
-    let csvString = metaRow + headers.map(h => `"${h}"`).join(",") + "\n";
-    
-    // Bikin Helper function buat handle text biar aman di-convert ke CSV (kasus koma & kutip)
-    const escapeQuote = (str) => String(str || '').replace(/"/g, '""');
+    // Bikin struktur tabel HTML murni yang dimengerti 100% oleh Excel
+    let tableHTML = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          table { border-collapse: collapse; font-family: sans-serif; }
+          th, td { border: 1px solid #dddddd; padding: 8px; text-align: left; vertical-align: top; }
+          th { background-color: #f2f2f2; font-weight: bold; }
+          .header-row { font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <table>
+          <tr><td colspan="17" style="font-size: 16px; font-weight: bold; border: none; padding-bottom: 20px;">Downloaded by: ${currentUser.name} - ${currentUser.email} - ${timestamp}</td></tr>
+          <tr class="header-row">
+            <th>NO</th><th>LOKASI</th><th>LINK GMAPS</th><th>CHARGERS</th><th>PIC</th>
+            <th>PROGRESS KESELURUHAN</th><th>EARLY SURVEY</th><th>SURVEY TEKNIS</th>
+            <th>DOKUMEN TEKNIS</th><th>SURVEY PLN</th><th>PERIZINAN</th><th>PENAWARAN VENDOR</th>
+            <th>PKS</th><th>PROSES INSTALASI</th><th>TESTING & COMM</th><th>STATUS AKHIR</th><th>KETERANGAN</th>
+          </tr>
+    `;
 
     sortedDashboardLocations.forEach((loc, index) => {
-      // Bikin teks Chargers jadi rapi dengan baris baru (di dalem sel excel)
-      const chargersText = (loc.chargers || []).map(c => `${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("\n");
+      // Konversi data array jadi multiline yang cantik pakai <br>
+      const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
       const picText = (loc.pics || []).join(", ");
       const progressText = `${calculateProgress(loc)}%`;
       const statusAkhirText = getStatusAkhir(calculateProgress(loc)).text;
+      const keteranganText = (loc.keterangan || '').replace(/\n/g, '<br>'); // Ngebaca enter dari textbox
 
-      const row = [
-        index + 1,
-        escapeQuote(loc.lokasi),
-        escapeQuote(loc.gmapsLink),
-        escapeQuote(chargersText),
-        escapeQuote(picText),
-        progressText,
-        escapeQuote(loc.survey),
-        escapeQuote(loc.teknis),
-        escapeQuote(loc.dokumen),
-        escapeQuote(loc.pln),
-        escapeQuote(loc.izin),
-        escapeQuote(loc.vendor),
-        escapeQuote(loc.pks),
-        escapeQuote(loc.instalasi),
-        escapeQuote(loc.testing),
-        statusAkhirText,
-        escapeQuote(loc.keterangan)
-      ];
-      
-      csvString += row.map(cell => `"${cell}"`).join(",") + "\n";
+      tableHTML += `
+        <tr>
+          <td>${index + 1}</td>
+          <td><b>${loc.lokasi || ''}</b></td>
+          <td>${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
+          <td>${chargersText}</td>
+          <td>${picText}</td>
+          <td><b>${progressText}</b></td>
+          <td>${loc.survey || 'Belum'}</td>
+          <td>${loc.teknis || 'Belum'}</td>
+          <td>${loc.dokumen || 'Belum'}</td>
+          <td>${loc.pln || 'Belum'}</td>
+          <td>${loc.izin || 'Belum'}</td>
+          <td>${loc.vendor || 'Belum'}</td>
+          <td>${loc.pks || 'Belum'}</td>
+          <td>${loc.instalasi || 'Belum'}</td>
+          <td>${loc.testing || 'Belum'}</td>
+          <td><b>${statusAkhirText}</b></td>
+          <td>${keteranganText}</td>
+        </tr>
+      `;
     });
 
-    // Tambahin BOM (\uFEFF) biar Excel bisa ngebaca spesial karakter dengan sempurna
-    const blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
+    tableHTML += `
+        </table>
+      </body>
+      </html>
+    `;
+
+    // Download sebagai format native MS Excel (.xls)
+    const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `Data_SPKLU_${timestamp.replace(/[:/, ]/g, "_")}.csv`);
+    link.setAttribute("download", `Data_SPKLU_${timestamp.replace(/[:/, ]/g, "_")}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -716,7 +730,7 @@ export default function App() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-slate-500 text-sm">Belum ada catatan aktivitas untuk lokasi ini.</div>
+                <div className="text-center py-8 text-slate-500 text-sm">Belum ada catatan aktivitas untuk ini.</div>
               )}
             </div>
           </div>
