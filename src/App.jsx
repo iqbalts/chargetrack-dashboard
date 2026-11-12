@@ -121,10 +121,17 @@ export default function App() {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
+  // STATE BARU: CONFIGURASI PAGINATION
+  const [pageConfig, setPageConfig] = useState({ Umum: 1, SPBU: 1, 'Rest Area': 1 });
+
   const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
 
   const getFormattedTime = () => {
     return new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+  };
+
+  const handlePageChange = (kategori, newPage) => {
+    setPageConfig(prev => ({ ...prev, [kategori]: newPage }));
   };
 
   // --- SESI & AUTO LOGOUT LOGIC ---
@@ -475,35 +482,41 @@ export default function App() {
           </tr>
     `;
 
-    sortedDashboardLocations.forEach((loc, index) => {
-      const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
-      const picText = (loc.pics || []).join("<br>");
-      const progressText = `${calculateProgress(loc)}%`;
-      const statusAkhirText = getStatusAkhir(calculateProgress(loc)).text;
-      const keteranganText = (loc.keterangan || '').replace(/\n/g, '<br>');
+    // Looping data Excel per kategori biar terurut cantik
+    KATEGORI_LIST.forEach(kategori => {
+      const catLocs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
+      if (catLocs.length > 0) {
+        catLocs.forEach((loc, index) => {
+          const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
+          const picText = (loc.pics || []).join("<br>");
+          const progressText = `${calculateProgress(loc)}%`;
+          const statusAkhirText = getStatusAkhir(calculateProgress(loc)).text;
+          const keteranganText = (loc.keterangan || '').replace(/\n/g, '<br>');
 
-      tableHTML += `
-        <tr>
-          <td class="center">${index + 1}</td>
-          <td class="center">${loc.kategori || 'Umum'}</td>
-          <td class="left bold">${loc.lokasi || ''}</td>
-          <td class="left">${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
-          <td class="left wrap">${chargersText}</td>
-          <td class="center wrap">${picText}</td>
-          <td class="center bold">${progressText}</td>
-          <td class="center">${loc.survey || 'Belum'}</td>
-          <td class="center">${loc.teknis || 'Belum'}</td>
-          <td class="center">${loc.dokumen || 'Belum'}</td>
-          <td class="center">${loc.pln || 'Belum'}</td>
-          <td class="center">${loc.izin || 'Belum'}</td>
-          <td class="center">${loc.vendor || 'Belum'}</td>
-          <td class="center">${loc.pks || 'Belum'}</td>
-          <td class="center">${loc.instalasi || 'Belum'}</td>
-          <td class="center">${loc.testing || 'Belum'}</td>
-          <td class="center bold">${statusAkhirText}</td>
-          <td class="left wrap">${keteranganText}</td>
-        </tr>
-      `;
+          tableHTML += `
+            <tr>
+              <td class="center">${index + 1}</td>
+              <td class="center">${loc.kategori || 'Umum'}</td>
+              <td class="left bold">${loc.lokasi || ''}</td>
+              <td class="left">${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
+              <td class="left wrap">${chargersText}</td>
+              <td class="center wrap">${picText}</td>
+              <td class="center bold">${progressText}</td>
+              <td class="center">${loc.survey || 'Belum'}</td>
+              <td class="center">${loc.teknis || 'Belum'}</td>
+              <td class="center">${loc.dokumen || 'Belum'}</td>
+              <td class="center">${loc.pln || 'Belum'}</td>
+              <td class="center">${loc.izin || 'Belum'}</td>
+              <td class="center">${loc.vendor || 'Belum'}</td>
+              <td class="center">${loc.pks || 'Belum'}</td>
+              <td class="center">${loc.instalasi || 'Belum'}</td>
+              <td class="center">${loc.testing || 'Belum'}</td>
+              <td class="center bold">${statusAkhirText}</td>
+              <td class="left wrap">${keteranganText}</td>
+            </tr>
+          `;
+        });
+      }
     });
 
     tableHTML += `
@@ -565,21 +578,17 @@ export default function App() {
     return true;
   });
 
-  // Terapkan No. Urut Global Sebelum Dipecah Per Kategori
-  const locationsWithOriginalNo = filteredLocations.map((loc, idx) => ({ ...loc, originalNo: idx + 1 }));
-
   const requestSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
     setSortConfig({ key, direction });
   };
 
+  // Hilangin index/no disini karena sekarang pakai per-kategori
   const getSortedLocations = (locsArray) => {
     let sortableItems = [...locsArray];
     sortableItems.sort((a, b) => {
-      if (sortConfig.key === 'no') {
-        return sortConfig.direction === 'asc' ? a.originalNo - b.originalNo : b.originalNo - a.originalNo;
-      } 
+      // sort by no sudah nggak valid buat global, jadi abaikan.
       if (sortConfig.key === 'lokasi') {
         const locA = (a.lokasi || '').toString().toLowerCase();
         const locB = (b.lokasi || '').toString().toLowerCase();
@@ -601,7 +610,7 @@ export default function App() {
     return sortableItems;
   };
 
-  const sortedDashboardLocations = getSortedLocations(locationsWithOriginalNo);
+  const sortedDashboardLocations = getSortedLocations(filteredLocations);
 
   const SortHeader = ({ label, sortKey, className = "" }) => {
     const isActive = sortConfig.key === sortKey;
@@ -834,7 +843,6 @@ export default function App() {
             )}
           </div>
 
-          {/* DASHBOARD: DIBIKIN LOOPING BERDASARKAN KATEGORI */}
           {activeTab === 'dashboard' && (
             <div className="flex flex-col flex-1 min-h-0">
               <div className="grid grid-cols-4 gap-6 mb-8 shrink-0">
@@ -849,19 +857,25 @@ export default function App() {
                   const locs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
                   if (locs.length === 0) return null;
 
+                  // --- PAGINATION LOGIC DASHBOARD ---
+                  const itemsPerPage = 10;
+                  const totalPages = Math.ceil(locs.length / itemsPerPage) || 1;
+                  const currentPage = Math.min(pageConfig[kategori] || 1, totalPages);
+                  const paginatedLocs = locs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
                   return (
-                    <div key={kategori} className="flex flex-col">
-                      <div className="flex items-center gap-3 mb-4 pl-1">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                          {kategori === 'Umum' ? <Activity className="w-5 h-5"/> : kategori === 'SPBU' ? <MapPin className="w-5 h-5"/> : <Home className="w-5 h-5"/>}
+                    <div key={kategori} className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                      <div className="flex items-center gap-3 p-4 bg-slate-50 border-b border-slate-100 shrink-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                          {kategori === 'Umum' ? <Activity className="w-4 h-4"/> : kategori === 'SPBU' ? <MapPin className="w-4 h-4"/> : <Home className="w-4 h-4"/>}
                         </div>
                         <div>
-                          <h3 className="text-lg font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
-                          <p className="text-xs text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
+                          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
+                          <p className="text-[10px] text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
                         </div>
                       </div>
                       
-                      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[55vh] relative">
+                      <div className="overflow-auto max-h-[50vh] relative w-full">
                         <table className="w-max min-w-full text-xs text-left">
                           <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                             <tr>
@@ -887,12 +901,16 @@ export default function App() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {locs.map((item) => {
+                            {paginatedLocs.map((item, index) => {
                               const progress = calculateProgress(item);
                               const statusAkhir = getStatusAkhir(progress);
+                              
+                              // Row number independen berdasar kategori
+                              const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                              
                               return (
                               <tr key={item.id} className="hover:bg-slate-50/50 group">
-                                <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
+                                <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
                                 <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                                   {item.gmapsLink ? (
                                     <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
@@ -940,6 +958,34 @@ export default function App() {
                           </tbody>
                         </table>
                       </div>
+                      
+                      {/* PAGINATION UI */}
+                      {totalPages > 1 && (
+                        <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100">
+                          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, locs.length)} dari {locs.length}
+                          </span>
+                          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                            <button onClick={() => handlePageChange(kategori, currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <div className="flex items-center px-1 gap-1">
+                              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                <button 
+                                  key={page}
+                                  onClick={() => handlePageChange(kategori, page)}
+                                  className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                                >
+                                  {page}
+                                </button>
+                              ))}
+                            </div>
+                            <button onClick={() => handlePageChange(kategori, currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -960,22 +1006,28 @@ export default function App() {
 
                    <div className="flex-1 overflow-y-auto pr-2 pb-12 space-y-10">
                      {KATEGORI_LIST.map(kategori => {
-                       const locs = locationsWithOriginalNo.filter(loc => (loc.kategori || 'Umum') === kategori);
+                       const locs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
                        if (locs.length === 0) return null;
+                       
+                       // --- PAGINATION LOGIC UPDATE PROGRESS ---
+                       const itemsPerPage = 10;
+                       const totalPages = Math.ceil(locs.length / itemsPerPage) || 1;
+                       const currentPage = Math.min(pageConfig[kategori] || 1, totalPages);
+                       const paginatedLocs = locs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
                        return (
-                         <div key={kategori} className="flex flex-col">
-                           <div className="flex items-center gap-3 mb-4 pl-1">
-                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                               {kategori === 'Umum' ? <Activity className="w-5 h-5"/> : kategori === 'SPBU' ? <MapPin className="w-5 h-5"/> : <Home className="w-5 h-5"/>}
+                         <div key={kategori} className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                           <div className="flex items-center gap-3 p-4 bg-slate-50 border-b border-slate-100 shrink-0">
+                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                               {kategori === 'Umum' ? <Activity className="w-4 h-4"/> : kategori === 'SPBU' ? <MapPin className="w-4 h-4"/> : <Home className="w-4 h-4"/>}
                              </div>
                              <div>
-                               <h3 className="text-lg font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
-                               <p className="text-xs text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
+                               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
+                               <p className="text-[10px] text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
                              </div>
                            </div>
                            
-                           <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[55vh] relative">
+                           <div className="overflow-auto max-h-[50vh] relative w-full">
                              <table className="w-max min-w-full text-xs text-left">
                                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                                  <tr>
@@ -990,11 +1042,15 @@ export default function App() {
                                  </tr>
                                </thead>
                                <tbody className="divide-y divide-slate-100">
-                                 {locs.map((item) => {
+                                 {paginatedLocs.map((item, index) => {
                                    const progress = calculateProgress(item);
+                                   
+                                   // Row number independen berdasar kategori
+                                   const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                                   
                                    return (
                                    <tr key={item.id} className="group hover:bg-slate-50 align-top">
-                                     <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
+                                     <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
                                      <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
                                      <td className="py-3 px-3">
                                         {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[11px] line-clamp-2 mt-1.5">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1.5 block">Kosong</span>}
@@ -1025,6 +1081,34 @@ export default function App() {
                                </tbody>
                              </table>
                            </div>
+                           
+                           {/* PAGINATION UI */}
+                           {totalPages > 1 && (
+                             <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100">
+                               <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                                 Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, locs.length)} dari {locs.length}
+                               </span>
+                               <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                                 <button onClick={() => handlePageChange(kategori, currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                                   <ChevronLeft className="w-4 h-4" />
+                                 </button>
+                                 <div className="flex items-center px-1 gap-1">
+                                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                     <button 
+                                       key={page}
+                                       onClick={() => handlePageChange(kategori, page)}
+                                       className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                                     >
+                                       {page}
+                                     </button>
+                                   ))}
+                                 </div>
+                                 <button onClick={() => handlePageChange(kategori, currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                                   <ChevronRight className="w-4 h-4" />
+                                 </button>
+                               </div>
+                             </div>
+                           )}
                          </div>
                        );
                      })}
@@ -1054,7 +1138,6 @@ export default function App() {
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                            <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
                            <div className="space-y-4">
-                              {/* TAMBAHAN BARU: DROPDOWN KATEGORI */}
                               <div>
                                  <label className="block text-xs font-bold text-slate-600 mb-1">Kategori Lokasi</label>
                                  <select value={formDraft.kategori || 'Umum'} onChange={(e) => updateDraftField('kategori', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-xs font-bold text-slate-700 bg-white">
@@ -1506,205 +1589,5 @@ function MediaBadge({ status, links, folderLink, title }) {
         </div>
       )}
     </div>
-  );
-}
-
-function FormEditableStatus({ draft, stage, updateDraftField }) {
-  if (stage === 'dokumen' || stage === 'izin') {
-    const isDokumen = stage === 'dokumen';
-    const checklistField = isDokumen ? 'dokumenChecklist' : 'izinChecklist';
-    const ITEMS = isDokumen ? DOKUMEN_ITEMS : IZIN_ITEMS;
-    
-    const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {});
-    const checklist = draft[checklistField] || defaultChecklist;
-    
-    const handleSelectChange = (e) => {
-      const val = e.target.value;
-      updateDraftField(stage, val);
-      if (val === 'Belum') {
-        updateDraftField(checklistField, defaultChecklist);
-      }
-    };
-
-    const handleCheck = (key, checked) => {
-      const currentVal = checklist[key] || { checked: false, link: '' };
-      const currentLink = typeof currentVal === 'object' ? currentVal.link : '';
-      
-      const newChecklist = { ...checklist, [key]: { checked, link: currentLink } };
-      
-      const isAllChecked = ITEMS.every(item => {
-        const val = newChecklist[item.key];
-        return typeof val === 'object' ? val?.checked : val;
-      });
-      
-      updateDraftField(checklistField, newChecklist);
-      updateDraftField(stage, isAllChecked ? 'Selesai' : 'Proses');
-    };
-
-    const handleLinkChange = (key, link) => {
-      const currentVal = checklist[key] || { checked: false, link: '' };
-      const isChecked = typeof currentVal === 'object' ? currentVal.checked : currentVal;
-      
-      const newChecklist = { ...checklist, [key]: { checked: isChecked, link } };
-      updateDraftField(checklistField, newChecklist);
-    };
-
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select value={draft[stage]} onChange={handleSelectChange} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
-          <option value="Belum">Belum</option>
-          <option value="Proses">Proses</option>
-          {draft[stage] === 'Selesai' && <option value="Selesai" disabled>Selesai</option>}
-        </select>
-        
-        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
-          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
-            {ITEMS.map(item => {
-              const currentVal = checklist[item.key];
-              const isChecked = typeof currentVal === 'object' ? currentVal?.checked : currentVal || false;
-              const link = typeof currentVal === 'object' ? currentVal?.link : '';
-
-              return (
-                <div key={item.key} className="flex flex-col gap-2 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
-                  <label className="flex items-start gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
-                    <input type="checkbox" checked={isChecked} onChange={(e) => handleCheck(item.key, e.target.checked)} className="accent-blue-600 w-4 h-4 cursor-pointer shrink-0" /> 
-                    <span className="font-bold text-slate-700 whitespace-normal leading-tight group-hover:text-blue-600 transition-colors pt-0.5">{item.label}</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    value={link} 
-                    onChange={(e) => handleLinkChange(item.key, e.target.value)} 
-                    placeholder="Link GDrive dokumen..." 
-                    className="w-[calc(100%-24px)] ml-[24px] p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage)) {
-    const linksField = stage + 'Links';
-    const folderField = stage + 'FolderLink';
-    
-    const links = draft[linksField] || [];
-    const folderLink = draft[folderField] || '';
-    const isJadwal = draft[stage]?.startsWith('Jadwal');
-    const allowJadwal = true; 
-    
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select value={isJadwal ? 'Jadwal' : draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
-          <option value="Belum">Belum</option>
-          <option value="Proses">Proses</option>
-          <option value="Selesai">Selesai</option>
-          {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
-          {allowJadwal && <option value="Jadwal">Jadwal Penentuan</option>}
-        </select>
-        
-        {isJadwal && (
-          <input type="date" value={draft[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(stage, `Jadwal ${e.target.value}`)} className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" />
-        )}
-
-        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai' || draft[stage] === 'Non PLN') && (
-          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
-            <div className="border-b border-slate-200 pb-3">
-               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><Folder className="w-3.5 h-3.5 text-blue-500"/> Folder Master GDrive</span>
-               <input 
-                 type="text" 
-                 value={folderLink} 
-                 onChange={(e) => updateDraftField(folderField, e.target.value)} 
-                 className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
-                 placeholder="Link folder Google Drive..." 
-               />
-            </div>
-
-            <div>
-               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><ImageIcon className="w-3.5 h-3.5 text-blue-500"/> Lampiran Gambar (Thumbnail)</span>
-               <div className="space-y-2">
-                 {links.map((link, idx) => (
-                   <div key={idx} className="flex items-center gap-2">
-                     <input 
-                       type="text" 
-                       value={link} 
-                       onChange={(e) => {
-                         const newLinks = [...links];
-                         newLinks[idx] = e.target.value;
-                         updateDraftField(linksField, newLinks);
-                       }} 
-                       className="flex-1 p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
-                       placeholder="Paste link file GDrive..." 
-                     />
-                     <button onClick={() => {
-                       const newLinks = [...links];
-                       newLinks.splice(idx, 1);
-                       updateDraftField(linksField, newLinks);
-                     }} className="text-slate-400 hover:text-red-500 transition-colors p-2 bg-white border border-slate-200 rounded"><Trash2 className="w-4 h-4"/></button>
-                   </div>
-                 ))}
-                 <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
-               </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (['vendor', 'pks'].includes(stage)) {
-    const folderField = stage + 'FolderLink';
-    const folderLink = draft[folderField] || '';
-    
-    const isPksSelesai = stage === 'pks' && draft[stage]?.startsWith('Selesai');
-
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select 
-          value={isPksSelesai ? 'Selesai' : draft[stage]} 
-          onChange={(e) => {
-            const val = e.target.value;
-            updateDraftField(stage, (stage === 'pks' && val === 'Selesai') ? 'Selesai ' : val);
-          }} 
-          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
-        >
-          <option value="Belum">Belum</option>
-          <option value="Proses">Proses</option>
-          <option value="Selesai">Selesai</option>
-        </select>
-        
-        {isPksSelesai && (
-          <input 
-            type="date" 
-            value={draft[stage].replace('Selesai ', '')} 
-            onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
-            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
-          />
-        )}
-        
-        {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
-          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
-             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
-             <input 
-               type="text" 
-               value={folderLink} 
-               onChange={(e) => updateDraftField(folderField, e.target.value)} 
-               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
-               placeholder="Link folder Google Drive..." 
-             />
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-     <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
-       <option value="Belum">Belum</option>
-       <option value="Proses">Proses</option>
-       <option value="Selesai">Selesai</option>
-     </select>
   );
 }
