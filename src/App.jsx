@@ -31,8 +31,11 @@ const Folder = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width=
 const Save = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
 const FilterIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
 const Download = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
+const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
 
-// --- KONFIGURASI CHECKLIST & STAGES ---
+// --- KONFIGURASI CHECKLIST, STAGES & KATEGORI ---
+const KATEGORI_LIST = ['Umum', 'SPBU', 'Rest Area'];
+
 const DOKUMEN_ITEMS = [
   { key: 'sld', label: 'SLD' },
   { key: 'panel', label: 'Diagram Panel' },
@@ -60,6 +63,7 @@ const STAGE_NAME_MAP = {
 
 // --- DATA UNTUK FILTER ---
 const FILTER_SECTIONS = [
+  { id: 'kategori', title: 'Kategori Lokasi', options: ['Umum', 'SPBU', 'Rest Area'] },
   { id: 'brand', title: 'Brand Charger', options: ['TIDE', 'Moderntec', 'Teison', 'Starcharge'] },
   { id: 'statusAkhir', title: 'Status Akhir', options: ['Menunggu', 'Proses', 'Selesai Beroperasi'] },
   { id: 'survey', title: 'Early Survey', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
@@ -74,7 +78,7 @@ const FILTER_SECTIONS = [
 ];
 
 const INITIAL_FILTERS = {
-  brand: [], statusAkhir: [], survey: [], teknis: [], dokumen: [], 
+  kategori: [], brand: [], statusAkhir: [], survey: [], teknis: [], dokumen: [], 
   pln: [], izin: [], vendor: [], pks: [], instalasi: [], testing: []
 };
 
@@ -110,7 +114,6 @@ export default function App() {
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
   const [formDraft, setFormDraft] = useState(null);
-  
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -231,7 +234,6 @@ export default function App() {
     localStorage.removeItem('caztrack_lastActivity');
   };
 
-  // UPDATE: LOGIKA PROGRESS AGAR BISA MENGHITUNG "SELESAI YYYY-MM-DD" DENGAN BENAR
   const calculateProgress = (loc) => {
     const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.pks, loc.instalasi, loc.testing];
     const completed = stages.filter(s => (s && s.startsWith('Selesai')) || s === 'Non PLN').length;
@@ -274,6 +276,7 @@ export default function App() {
     setFormDraft({
       isNew: true,
       id: Date.now().toString(), 
+      kategori: 'Umum',
       lokasi: '', gmapsLink: '', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
@@ -333,6 +336,11 @@ export default function App() {
 
       const updates = {};
       const newLogs = [];
+
+      if ((originalLoc.kategori || 'Umum') !== (formDraft.kategori || 'Umum')) {
+        updates.kategori = formDraft.kategori || 'Umum';
+        newLogs.push({ user: currentUser.name, action: `Mengubah Kategori dari "${originalLoc.kategori || 'Umum'}" menjadi "${formDraft.kategori || 'Umum'}"`, time: getFormattedTime() });
+      }
 
       if (originalLoc.keterangan !== formDraft.keterangan) {
         updates.keterangan = formDraft.keterangan;
@@ -415,7 +423,7 @@ export default function App() {
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
-  // --- LOGIKA EXPORT EXCEL (NATIVE XLS FORMAT VIA HTML HACK) DENGAN STYLING ---
+  // --- LOGIKA EXPORT EXCEL (NATIVE XLS FORMAT VIA HTML HACK) ---
   const handleExportExcel = () => {
     if (!currentUser) return;
     
@@ -458,9 +466,9 @@ export default function App() {
       </head>
       <body>
         <table>
-          <tr><td colspan="17" class="meta-header">Laporan Status SPKLU | Downloaded by: ${currentUser.name} (${currentUser.email}) | ${timestamp}</td></tr>
+          <tr><td colspan="18" class="meta-header">Laporan Status SPKLU | Downloaded by: ${currentUser.name} (${currentUser.email}) | ${timestamp}</td></tr>
           <tr>
-            <th>NO</th><th>LOKASI</th><th>LINK GMAPS</th><th>CHARGERS</th><th>PIC</th>
+            <th>NO</th><th>KATEGORI</th><th>LOKASI</th><th>LINK GMAPS</th><th>CHARGERS</th><th>PIC</th>
             <th>PROGRESS</th><th>EARLY SURVEY</th><th>SURVEY TEKNIS</th>
             <th>DOKUMEN TEKNIS</th><th>SURVEY PLN</th><th>PERIZINAN</th><th>PENAWARAN VENDOR</th>
             <th>PKS</th><th>PROSES INSTALASI</th><th>TESTING & COMM</th><th>STATUS AKHIR</th><th>KETERANGAN</th>
@@ -477,6 +485,7 @@ export default function App() {
       tableHTML += `
         <tr>
           <td class="center">${index + 1}</td>
+          <td class="center">${loc.kategori || 'Umum'}</td>
           <td class="left bold">${loc.lokasi || ''}</td>
           <td class="left">${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
           <td class="left wrap">${chargersText}</td>
@@ -524,6 +533,10 @@ export default function App() {
     }
 
     if (activeFilterCount > 0) {
+      if (filters.kategori && filters.kategori.length > 0) {
+        if (!filters.kategori.includes(loc.kategori || 'Umum')) return false;
+      }
+
       if (filters.brand.length > 0) {
         const locBrands = (loc.chargers || []).map(c => c.brand);
         const hasMatchingBrand = locBrands.some(b => filters.brand.includes(b));
@@ -552,15 +565,17 @@ export default function App() {
     return true;
   });
 
+  // Terapkan No. Urut Global Sebelum Dipecah Per Kategori
+  const locationsWithOriginalNo = filteredLocations.map((loc, idx) => ({ ...loc, originalNo: idx + 1 }));
+
   const requestSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
     setSortConfig({ key, direction });
   };
 
-  const getSortedLocations = () => {
-    let sortableItems = filteredLocations.map((loc, idx) => ({ ...loc, originalNo: idx + 1 }));
-
+  const getSortedLocations = (locsArray) => {
+    let sortableItems = [...locsArray];
     sortableItems.sort((a, b) => {
       if (sortConfig.key === 'no') {
         return sortConfig.direction === 'asc' ? a.originalNo - b.originalNo : b.originalNo - a.originalNo;
@@ -586,7 +601,7 @@ export default function App() {
     return sortableItems;
   };
 
-  const sortedDashboardLocations = getSortedLocations();
+  const sortedDashboardLocations = getSortedLocations(locationsWithOriginalNo);
 
   const SortHeader = ({ label, sortKey, className = "" }) => {
     const isActive = sortConfig.key === sortKey;
@@ -810,7 +825,6 @@ export default function App() {
                       <FilterIcon className="w-4 h-4" /> Filter
                       {activeFilterCount > 0 && <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{activeFilterCount}</span>}
                     </button>
-                    {/* TOMBOL BARU: EXPORT EXCEL */}
                     <button onClick={handleExportExcel} className="flex items-center gap-2 px-5 py-2.5 bg-green-50 border border-green-200 rounded-full text-green-700 font-bold hover:bg-green-100 transition-colors shadow-sm ml-2">
                       <Download className="w-4 h-4" /> Export Excel
                     </button>
@@ -820,6 +834,7 @@ export default function App() {
             )}
           </div>
 
+          {/* DASHBOARD: DIBIKIN LOOPING BERDASARKAN KATEGORI */}
           {activeTab === 'dashboard' && (
             <div className="flex flex-col flex-1 min-h-0">
               <div className="grid grid-cols-4 gap-6 mb-8 shrink-0">
@@ -829,87 +844,105 @@ export default function App() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto flex-1 min-h-0 relative">
-                <table className="w-max min-w-full text-xs text-left">
-                  <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                    <tr>
-                      <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
-                      <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
-                      <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
-                      <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">STATUS AKHIR</th>
-                      <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
-                      <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-50">HISTORY</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {sortedDashboardLocations.map((item) => {
-                      const progress = calculateProgress(item);
-                      const statusAkhir = getStatusAkhir(progress);
-                      return (
-                      <tr key={item.id} className="hover:bg-slate-50/50 group">
-                        <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
-                        <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
-                          {item.gmapsLink ? (
-                            <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
-                              <span className="group-hover/link:underline">{item.lokasi}</span>
-                              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0" />
-                            </a>
-                          ) : (
-                            item.lokasi
-                          )}
-                        </td>
-                        <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
-                        <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
-                        <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}</td>
-                        <td className="py-4 px-4 space-y-1 align-top">
-                          {item.pics?.map((p, i) => (
-                            <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
-                          ))}
-                        </td>
-                        <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                        
-                        {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                           <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-30">
-                             {stage === 'dokumen' || stage === 'izin' ? (
-                               <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
-                             ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
-                               <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
-                             ) : ['vendor', 'pks'].includes(stage) ? (
-                               <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
-                             ) : (
-                               <StatusBadge status={item[stage]} />
-                             )}
-                           </td>
-                        ))}
+              <div className="flex-1 overflow-y-auto pr-2 pb-12 space-y-10">
+                {KATEGORI_LIST.map(kategori => {
+                  const locs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
+                  if (locs.length === 0) return null;
 
-                        <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
-                        <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
-                        
-                        <td className="py-4 px-4 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
-                           <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
-                             <Info className="w-5 h-5" />
-                           </button>
-                        </td>
-                      </tr>
-                    )})}
-                    {filteredLocations.length === 0 && (
-                      <tr><td colSpan="19" className="py-12 text-center text-slate-500 font-medium">Pencarian atau Filter tidak menemukan hasil bray.</td></tr>
-                    )}
-                  </tbody>
-                </table>
+                  return (
+                    <div key={kategori} className="flex flex-col">
+                      <div className="flex items-center gap-3 mb-4 pl-1">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                          {kategori === 'Umum' ? <Activity className="w-5 h-5"/> : kategori === 'SPBU' ? <MapPin className="w-5 h-5"/> : <Home className="w-5 h-5"/>}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
+                          <p className="text-xs text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[55vh] relative">
+                        <table className="w-max min-w-full text-xs text-left">
+                          <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                            <tr>
+                              <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
+                              <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
+                              <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
+                              <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">STATUS AKHIR</th>
+                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
+                              <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-50">HISTORY</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {locs.map((item) => {
+                              const progress = calculateProgress(item);
+                              const statusAkhir = getStatusAkhir(progress);
+                              return (
+                              <tr key={item.id} className="hover:bg-slate-50/50 group">
+                                <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
+                                <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                                  {item.gmapsLink ? (
+                                    <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
+                                      <span className="group-hover/link:underline">{item.lokasi}</span>
+                                      <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0" />
+                                    </a>
+                                  ) : (
+                                    item.lokasi
+                                  )}
+                                </td>
+                                <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
+                                <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
+                                <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}</td>
+                                <td className="py-4 px-4 space-y-1 align-top">
+                                  {item.pics?.map((p, i) => (
+                                    <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
+                                  ))}
+                                </td>
+                                <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                                
+                                {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
+                                   <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-30">
+                                     {stage === 'dokumen' || stage === 'izin' ? (
+                                       <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
+                                     ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
+                                       <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
+                                     ) : ['vendor', 'pks'].includes(stage) ? (
+                                       <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
+                                     ) : (
+                                       <StatusBadge status={item[stage]} />
+                                     )}
+                                   </td>
+                                ))}
+
+                                <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
+                                <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
+                                
+                                <td className="py-4 px-4 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
+                                   <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
+                                     <Info className="w-5 h-5" />
+                                   </button>
+                                </td>
+                              </tr>
+                            )})}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -925,54 +958,76 @@ export default function App() {
                      </button>
                    </div>
 
-                   <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto flex-1 min-h-0 relative">
-                     <table className="w-max min-w-full text-xs text-left">
-                       <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                         <tr>
-                           <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
-                           <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
-                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
-                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
-                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROGRESS KESELURUHAN</th>
-                           <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
-                           <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
-                         </tr>
-                       </thead>
-                       <tbody className="divide-y divide-slate-100">
-                         {filteredLocations.map((item, index) => {
-                           const progress = calculateProgress(item);
-                           return (
-                           <tr key={item.id} className="group hover:bg-slate-50 align-top">
-                             <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{index + 1}</td>
-                             <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
-                             <td className="py-3 px-3">
-                                <div className="space-y-1">
-                                   {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
-                                   {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                                </div>
-                             </td>
-                             <td className="py-3 px-3">
-                               <div className="space-y-1">
-                                 {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
-                                 {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                               </div>
-                             </td>
-                             <td className="py-3 px-3"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                             <td className="py-3 px-3"><p className="whitespace-normal break-words max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
-                             
-                             <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
-                               <div className="flex gap-2 justify-center items-center h-full">
-                                 <button onClick={() => handleOpenEditForm(item)} className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> Edit</button>
-                                 <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
-                               </div>
-                             </td>
-                           </tr>
-                         )})}
-                         {filteredLocations.length === 0 && (
-                           <tr><td colSpan="7" className="py-8 text-center text-slate-500">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
-                         )}
-                       </tbody>
-                     </table>
+                   <div className="flex-1 overflow-y-auto pr-2 pb-12 space-y-10">
+                     {KATEGORI_LIST.map(kategori => {
+                       const locs = locationsWithOriginalNo.filter(loc => (loc.kategori || 'Umum') === kategori);
+                       if (locs.length === 0) return null;
+
+                       return (
+                         <div key={kategori} className="flex flex-col">
+                           <div className="flex items-center gap-3 mb-4 pl-1">
+                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                               {kategori === 'Umum' ? <Activity className="w-5 h-5"/> : kategori === 'SPBU' ? <MapPin className="w-5 h-5"/> : <Home className="w-5 h-5"/>}
+                             </div>
+                             <div>
+                               <h3 className="text-lg font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
+                               <p className="text-xs text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
+                             </div>
+                           </div>
+                           
+                           <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-auto max-h-[55vh] relative">
+                             <table className="w-max min-w-full text-xs text-left">
+                               <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                                 <tr>
+                                   <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
+                                   <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
+                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
+                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROGRESS KESELURUHAN</th>
+                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
+                                   <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
+                                 </tr>
+                               </thead>
+                               <tbody className="divide-y divide-slate-100">
+                                 {locs.map((item) => {
+                                   const progress = calculateProgress(item);
+                                   return (
+                                   <tr key={item.id} className="group hover:bg-slate-50 align-top">
+                                     <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{item.originalNo}</td>
+                                     <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
+                                     <td className="py-3 px-3">
+                                        {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[11px] line-clamp-2 mt-1.5">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1.5 block">Kosong</span>}
+                                     </td>
+                                     <td className="py-3 px-3">
+                                        <div className="space-y-1">
+                                           {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
+                                           {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                                        </div>
+                                     </td>
+                                     <td className="py-3 px-3">
+                                       <div className="space-y-1">
+                                         {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
+                                         {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                                       </div>
+                                     </td>
+                                     <td className="py-3 px-3"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                                     <td className="py-3 px-3"><p className="whitespace-normal break-words max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
+                                     
+                                     <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
+                                       <div className="flex gap-2 justify-center items-center h-full">
+                                         <button onClick={() => handleOpenEditForm(item)} className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> Edit</button>
+                                         <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
+                                       </div>
+                                     </td>
+                                   </tr>
+                                 )})}
+                               </tbody>
+                             </table>
+                           </div>
+                         </div>
+                       );
+                     })}
                    </div>
                  </>
                )}
@@ -999,9 +1054,18 @@ export default function App() {
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                            <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
                            <div className="space-y-4">
+                              {/* TAMBAHAN BARU: DROPDOWN KATEGORI */}
+                              <div>
+                                 <label className="block text-xs font-bold text-slate-600 mb-1">Kategori Lokasi</label>
+                                 <select value={formDraft.kategori || 'Umum'} onChange={(e) => updateDraftField('kategori', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-xs font-bold text-slate-700 bg-white">
+                                   <option value="Umum">Umum</option>
+                                   <option value="SPBU">SPBU</option>
+                                   <option value="Rest Area">Rest Area</option>
+                                 </select>
+                              </div>
                               <div>
                                  <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lokasi</label>
-                                 <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none" placeholder="Masukkan nama lokasi..." />
+                                 <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-sm" placeholder="Masukkan nama lokasi..." />
                               </div>
                               <div>
                                  <label className="block text-xs font-bold text-slate-600 mb-1">Link Google Maps (Opsional)</label>
@@ -1166,7 +1230,6 @@ export default function App() {
                             if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
                                events.push({ locName: loc.lokasi, stageName: stage });
                             }
-                            // TAMPILIN JUGA JIKA STATUSNYA "Selesai YYYY-MM-DD"
                             if (loc[stage] && loc[stage] === `Selesai ${fullDateStr}`) {
                                events.push({ locName: loc.lokasi, stageName: `${stage} (Selesai)` });
                             }
@@ -1207,7 +1270,6 @@ function StatusBadge({ status }) {
   
   if (status.startsWith('Selesai')) {
     const parts = status.split(' ');
-    // Jika ada tanggal terlampir (Misal: Selesai 2026-11-11)
     if (parts.length > 1 && parts[1].match(/^\d{4}-\d{2}-\d{2}$/)) {
       const dateStr = parts[1];
       const [year, month, day] = dateStr.split('-');
@@ -1281,7 +1343,9 @@ function ChecklistBadge({ status, checklist, type }) {
   };
 
   const handleMouseLeave = () => {
-    setIsOpen(false); 
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300);
   };
 
   useEffect(() => {
@@ -1366,7 +1430,9 @@ function MediaBadge({ status, links, folderLink, title }) {
   };
 
   const handleMouseLeave = () => {
-    setIsOpen(false);
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300); 
   };
 
   useEffect(() => {
@@ -1520,56 +1586,6 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
 
-  // --- OPSI PKS: BISA PILIH TANGGAL JIKA SELESAI ---
-  if (['vendor', 'pks'].includes(stage)) {
-    const folderField = stage + 'FolderLink';
-    const folderLink = draft[folderField] || '';
-    
-    // Logic khusus buat PKS biar bisa pilih tanggal selesai
-    const isPksSelesai = stage === 'pks' && draft[stage]?.startsWith('Selesai');
-
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select 
-          value={isPksSelesai ? 'Selesai' : draft[stage]} 
-          onChange={(e) => {
-            const val = e.target.value;
-            // Kalau PKS & milih Selesai, tambahin spasi kosong biar dia tau ini nunggu tanggal
-            updateDraftField(stage, (stage === 'pks' && val === 'Selesai') ? 'Selesai ' : val);
-          }} 
-          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
-        >
-          <option value="Belum">Belum</option>
-          <option value="Proses">Proses</option>
-          <option value="Selesai">Selesai</option>
-        </select>
-        
-        {/* INPUT TANGGAL KHUSUS PKS */}
-        {isPksSelesai && (
-          <input 
-            type="date" 
-            value={draft[stage].replace('Selesai ', '')} 
-            onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
-            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
-          />
-        )}
-        
-        {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
-          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
-             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
-             <input 
-               type="text" 
-               value={folderLink} 
-               onChange={(e) => updateDraftField(folderField, e.target.value)} 
-               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
-               placeholder="Link folder Google Drive..." 
-             />
-          </div>
-        )}
-      </div>
-    );
-  }
-
   if (['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage)) {
     const linksField = stage + 'Links';
     const folderField = stage + 'FolderLink';
@@ -1577,6 +1593,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     const links = draft[linksField] || [];
     const folderLink = draft[folderField] || '';
     const isJadwal = draft[stage]?.startsWith('Jadwal');
+    const allowJadwal = true; 
     
     return (
       <div className="flex flex-col gap-2 w-full">
@@ -1585,7 +1602,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
           <option value="Proses">Proses</option>
           <option value="Selesai">Selesai</option>
           {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
-          <option value="Jadwal">Jadwal Penentuan</option>
+          {allowJadwal && <option value="Jadwal">Jadwal Penentuan</option>}
         </select>
         
         {isJadwal && (
@@ -1631,6 +1648,52 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
                  <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
                </div>
             </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (['vendor', 'pks'].includes(stage)) {
+    const folderField = stage + 'FolderLink';
+    const folderLink = draft[folderField] || '';
+    
+    const isPksSelesai = stage === 'pks' && draft[stage]?.startsWith('Selesai');
+
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select 
+          value={isPksSelesai ? 'Selesai' : draft[stage]} 
+          onChange={(e) => {
+            const val = e.target.value;
+            updateDraftField(stage, (stage === 'pks' && val === 'Selesai') ? 'Selesai ' : val);
+          }} 
+          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
+        >
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+        
+        {isPksSelesai && (
+          <input 
+            type="date" 
+            value={draft[stage].replace('Selesai ', '')} 
+            onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
+            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
+          />
+        )}
+        
+        {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
+          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
+             <input 
+               type="text" 
+               value={folderLink} 
+               onChange={(e) => updateDraftField(folderField, e.target.value)} 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
+               placeholder="Link folder Google Drive..." 
+             />
           </div>
         )}
       </div>
