@@ -33,7 +33,7 @@ const FilterIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" wi
 const Download = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
 const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
 
-// --- KONFIGURASI CHECKLIST, STAGES & KATEGORI ---
+// --- KONFIGURASI PUSAT ---
 const KATEGORI_LIST = ['Umum', 'SPBU', 'Rest Area'];
 
 const DOKUMEN_ITEMS = [
@@ -61,7 +61,6 @@ const STAGE_NAME_MAP = {
   pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'
 };
 
-// --- DATA UNTUK FILTER ---
 const FILTER_SECTIONS = [
   { id: 'kategori', title: 'Kategori Lokasi', options: ['Umum', 'SPBU', 'Rest Area'] },
   { id: 'brand', title: 'Brand Charger', options: ['TIDE', 'Moderntec', 'Teison', 'Starcharge'] },
@@ -99,13 +98,11 @@ const appId = 'caztrack-v1';
 export default function App() {
   const [firebaseUser, setFirebaseUser] = useState(null);
   const [isFirebaseLoaded, setIsFirebaseLoaded] = useState(false);
-  
   const [currentUser, setCurrentUser] = useState(null);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [loginError, setLoginError] = useState('');
 
   const [activeTab, setActiveTab] = useState('dashboard');
-  
   const [users, setUsers] = useState([]);
   const [locations, setLocations] = useState([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
@@ -120,8 +117,8 @@ export default function App() {
   const [sortConfig, setSortConfig] = useState({ key: 'no', direction: 'asc' });
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-
-  // STATE BARU: CONFIGURASI PAGINATION
+  
+  // Pagination State per kategori
   const [pageConfig, setPageConfig] = useState({ Umum: 1, SPBU: 1, 'Rest Area': 1 });
 
   const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
@@ -134,7 +131,6 @@ export default function App() {
     setPageConfig(prev => ({ ...prev, [kategori]: newPage }));
   };
 
-  // --- SESI & AUTO LOGOUT LOGIC ---
   useEffect(() => {
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
     const storedUser = localStorage.getItem('caztrack_user');
@@ -182,10 +178,9 @@ export default function App() {
     };
   }, []);
 
-  // --- FIREBASE INIT & FETCH DATA ---
   useEffect(() => {
     const initAuth = async () => {
-      try { await signInAnonymously(auth); } catch (err) { console.error("Auth init error:", err); }
+      try { await signInAnonymously(auth); } catch (err) {}
     };
     initAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => { setFirebaseUser(user); });
@@ -279,6 +274,7 @@ export default function App() {
     }
   };
 
+  // --- FUNGSI DEDICATED FORM PENCEGAH BUG LAYAR PUTIH ---
   const handleOpenAddForm = () => {
     setFormDraft({
       isNew: true,
@@ -287,6 +283,9 @@ export default function App() {
       lokasi: '', gmapsLink: '', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
+      // Pastikan semua default arrays dan strings didefinisikan sempurna
+      surveyLinks: [], teknisLinks: [], plnLinks: [], instalasiLinks: [], testingLinks: [],
+      surveyFolderLink: '', teknisFolderLink: '', plnFolderLink: '', instalasiFolderLink: '', testingFolderLink: '', vendorFolderLink: '', pksFolderLink: '',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
       izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
       logs: []
@@ -482,7 +481,6 @@ export default function App() {
           </tr>
     `;
 
-    // Looping data Excel per kategori biar terurut cantik
     KATEGORI_LIST.forEach(kategori => {
       const catLocs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
       if (catLocs.length > 0) {
@@ -536,7 +534,7 @@ export default function App() {
     document.body.removeChild(link);
   };
 
-  // --- LOGIKA FILTERING (SEARCH & CHECKBOX) ---
+  // --- LOGIKA FILTERING ---
   const filteredLocations = locations.filter(loc => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -574,7 +572,6 @@ export default function App() {
         }
       }
     }
-
     return true;
   });
 
@@ -584,11 +581,9 @@ export default function App() {
     setSortConfig({ key, direction });
   };
 
-  // Hilangin index/no disini karena sekarang pakai per-kategori
   const getSortedLocations = (locsArray) => {
     let sortableItems = [...locsArray];
     sortableItems.sort((a, b) => {
-      // sort by no sudah nggak valid buat global, jadi abaikan.
       if (sortConfig.key === 'lokasi') {
         const locA = (a.lokasi || '').toString().toLowerCase();
         const locB = (b.lokasi || '').toString().toLowerCase();
@@ -678,7 +673,7 @@ export default function App() {
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
       
-      {/* --- MODAL FILTER (DASHBOARD ONLY) --- */}
+      {/* MODAL FILTER & HISTORY OMITTED FOR BREVITY BUT KEPT IN STRUCTURE */}
       {isFilterModalOpen && (
         <div className="absolute inset-0 z-[120] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
            <div className="bg-slate-50 rounded-xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden animate-fade-in">
@@ -857,7 +852,6 @@ export default function App() {
                   const locs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
                   if (locs.length === 0) return null;
 
-                  // --- PAGINATION LOGIC DASHBOARD ---
                   const itemsPerPage = 10;
                   const totalPages = Math.ceil(locs.length / itemsPerPage) || 1;
                   const currentPage = Math.min(pageConfig[kategori] || 1, totalPages);
@@ -904,8 +898,6 @@ export default function App() {
                             {paginatedLocs.map((item, index) => {
                               const progress = calculateProgress(item);
                               const statusAkhir = getStatusAkhir(progress);
-                              
-                              // Row number independen berdasar kategori
                               const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
                               
                               return (
@@ -959,7 +951,6 @@ export default function App() {
                         </table>
                       </div>
                       
-                      {/* PAGINATION UI */}
                       {totalPages > 1 && (
                         <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100">
                           <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
@@ -1009,7 +1000,6 @@ export default function App() {
                        const locs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
                        if (locs.length === 0) return null;
                        
-                       // --- PAGINATION LOGIC UPDATE PROGRESS ---
                        const itemsPerPage = 10;
                        const totalPages = Math.ceil(locs.length / itemsPerPage) || 1;
                        const currentPage = Math.min(pageConfig[kategori] || 1, totalPages);
@@ -1044,8 +1034,6 @@ export default function App() {
                                <tbody className="divide-y divide-slate-100">
                                  {paginatedLocs.map((item, index) => {
                                    const progress = calculateProgress(item);
-                                   
-                                   // Row number independen berdasar kategori
                                    const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
                                    
                                    return (
@@ -1082,7 +1070,6 @@ export default function App() {
                              </table>
                            </div>
                            
-                           {/* PAGINATION UI */}
                            {totalPages > 1 && (
                              <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100">
                                <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
@@ -1133,7 +1120,6 @@ export default function App() {
                    </div>
 
                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
-                     
                      <div className="lg:col-span-1 space-y-6">
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                            <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
@@ -1209,7 +1195,6 @@ export default function App() {
                            ))}
                         </div>
                      </div>
-
                    </div>
                  </div>
                )}
@@ -1590,4 +1575,222 @@ function MediaBadge({ status, links, folderLink, title }) {
       )}
     </div>
   );
+}
+
+function FormEditableStatus({ draft, stage, updateDraftField }) {
+  if (stage === 'dokumen' || stage === 'izin') {
+    const isDokumen = stage === 'dokumen';
+    const checklistField = isDokumen ? 'dokumenChecklist' : 'izinChecklist';
+    const ITEMS = isDokumen ? DOKUMEN_ITEMS : IZIN_ITEMS;
+    
+    const defaultChecklist = ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {});
+    const checklist = draft[checklistField] || defaultChecklist;
+    
+    const handleSelectChange = (e) => {
+      const val = e.target.value;
+      updateDraftField(stage, val);
+      if (val === 'Belum') {
+        updateDraftField(checklistField, defaultChecklist);
+      }
+    };
+
+    const handleCheck = (key, checked) => {
+      const currentVal = checklist[key] || { checked: false, link: '' };
+      const currentLink = typeof currentVal === 'object' ? currentVal.link : '';
+      const newChecklist = { ...checklist, [key]: { checked, link: currentLink } };
+      
+      const isAllChecked = ITEMS.every(item => {
+        const val = newChecklist[item.key];
+        return typeof val === 'object' ? val?.checked : val;
+      });
+      
+      updateDraftField(checklistField, newChecklist);
+      updateDraftField(stage, isAllChecked ? 'Selesai' : 'Proses');
+    };
+
+    const handleLinkChange = (key, link) => {
+      const currentVal = checklist[key] || { checked: false, link: '' };
+      const isChecked = typeof currentVal === 'object' ? currentVal.checked : currentVal;
+      const newChecklist = { ...checklist, [key]: { checked: isChecked, link } };
+      updateDraftField(checklistField, newChecklist);
+    };
+
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select value={draft[stage]} onChange={handleSelectChange} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          {draft[stage] === 'Selesai' && <option value="Selesai" disabled>Selesai</option>}
+        </select>
+        
+        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
+          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+            {ITEMS.map(item => {
+              const currentVal = checklist[item.key];
+              const isChecked = typeof currentVal === 'object' ? currentVal?.checked : currentVal || false;
+              const link = typeof currentVal === 'object' ? currentVal?.link : '';
+
+              return (
+                <div key={item.key} className="flex flex-col gap-2 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
+                  <label className="flex items-start gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
+                    <input type="checkbox" checked={isChecked} onChange={(e) => handleCheck(item.key, e.target.checked)} className="accent-blue-600 w-4 h-4 cursor-pointer shrink-0" /> 
+                    <span className="font-bold text-slate-700 whitespace-normal leading-tight group-hover:text-blue-600 transition-colors pt-0.5">{item.label}</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    value={link} 
+                    onChange={(e) => handleLinkChange(item.key, e.target.value)} 
+                    placeholder="Link GDrive dokumen..." 
+                    className="w-[calc(100%-24px)] ml-[24px] p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (stage === 'vendor') {
+    const folderField = stage + 'FolderLink';
+    const folderLink = draft[folderField] || '';
+
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+        
+        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
+          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
+             <input 
+               type="text" 
+               value={folderLink} 
+               onChange={(e) => updateDraftField(folderField, e.target.value)} 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
+               placeholder="Link folder Google Drive..." 
+             />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (stage === 'pks') {
+    const folderField = stage + 'FolderLink';
+    const folderLink = draft[folderField] || '';
+    const isPksSelesai = draft[stage]?.startsWith('Selesai');
+    
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select 
+          value={isPksSelesai ? 'Selesai' : draft[stage]} 
+          onChange={(e) => {
+            const val = e.target.value;
+            updateDraftField(stage, val === 'Selesai' ? 'Selesai ' : val);
+          }} 
+          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
+        >
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+        
+        {isPksSelesai && (
+          <input 
+            type="date" 
+            value={draft[stage].replace('Selesai ', '')} 
+            onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
+            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
+          />
+        )}
+        
+        {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
+          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
+             <input 
+               type="text" 
+               value={folderLink} 
+               onChange={(e) => updateDraftField(folderField, e.target.value)} 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
+               placeholder="Link folder Google Drive..." 
+             />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage)) {
+    const linksField = stage + 'Links';
+    const folderField = stage + 'FolderLink';
+    
+    const links = draft[linksField] || [];
+    const folderLink = draft[folderField] || '';
+    const isJadwal = draft[stage]?.startsWith('Jadwal');
+    
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select value={isJadwal ? 'Jadwal' : draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          <option value="Selesai">Selesai</option>
+          {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
+          <option value="Jadwal">Jadwal Penentuan</option>
+        </select>
+        
+        {isJadwal && (
+          <input type="date" value={draft[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(stage, `Jadwal ${e.target.value}`)} className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" />
+        )}
+
+        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai' || draft[stage] === 'Non PLN') && (
+          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+            <div className="border-b border-slate-200 pb-3">
+               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><Folder className="w-3.5 h-3.5 text-blue-500"/> Folder Master GDrive</span>
+               <input 
+                 type="text" 
+                 value={folderLink} 
+                 onChange={(e) => updateDraftField(folderField, e.target.value)} 
+                 className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
+                 placeholder="Link folder Google Drive..." 
+               />
+            </div>
+
+            <div>
+               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><ImageIcon className="w-3.5 h-3.5 text-blue-500"/> Lampiran Gambar (Thumbnail)</span>
+               <div className="space-y-2">
+                 {links.map((link, idx) => (
+                   <div key={idx} className="flex items-center gap-2">
+                     <input 
+                       type="text" 
+                       value={link} 
+                       onChange={(e) => {
+                         const newLinks = [...links];
+                         newLinks[idx] = e.target.value;
+                         updateDraftField(linksField, newLinks);
+                       }} 
+                       className="flex-1 p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
+                       placeholder="Paste link file GDrive..." 
+                     />
+                     <button onClick={() => {
+                       const newLinks = [...links];
+                       newLinks.splice(idx, 1);
+                       updateDraftField(linksField, newLinks);
+                     }} className="text-slate-400 hover:text-red-500 transition-colors p-2 bg-white border border-slate-200 rounded"><Trash2 className="w-4 h-4"/></button>
+                   </div>
+                 ))}
+                 <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
+               </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return null;
 }
