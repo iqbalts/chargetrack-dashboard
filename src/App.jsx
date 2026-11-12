@@ -231,9 +231,10 @@ export default function App() {
     localStorage.removeItem('caztrack_lastActivity');
   };
 
+  // UPDATE: LOGIKA PROGRESS AGAR BISA MENGHITUNG "SELESAI YYYY-MM-DD" DENGAN BENAR
   const calculateProgress = (loc) => {
     const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.pks, loc.instalasi, loc.testing];
-    const completed = stages.filter(s => s === 'Selesai' || s === 'Non PLN').length;
+    const completed = stages.filter(s => (s && s.startsWith('Selesai')) || s === 'Non PLN').length;
     return Math.round((completed / 9) * 100);
   };
 
@@ -420,7 +421,6 @@ export default function App() {
     
     const timestamp = getFormattedTime();
     
-    // Setup Struktur & Custom CSS murni untuk Excel
     let tableHTML = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head>
@@ -468,7 +468,6 @@ export default function App() {
     `;
 
     sortedDashboardLocations.forEach((loc, index) => {
-      // Konversi text array jadi per-baris menggunakan br
       const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
       const picText = (loc.pics || []).join("<br>");
       const progressText = `${calculateProgress(loc)}%`;
@@ -541,7 +540,10 @@ export default function App() {
       for (let stage of stages) {
         if (filters[stage] && filters[stage].length > 0) {
           const rawStatus = loc[stage] || 'Belum';
-          const checkVal = rawStatus.startsWith('Jadwal') ? 'Jadwal' : rawStatus;
+          let checkVal = rawStatus;
+          if (rawStatus.startsWith('Jadwal')) checkVal = 'Jadwal';
+          if (rawStatus.startsWith('Selesai')) checkVal = 'Selesai';
+          
           if (!filters[stage].includes(checkVal)) return false;
         }
       }
@@ -1164,6 +1166,10 @@ export default function App() {
                             if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
                                events.push({ locName: loc.lokasi, stageName: stage });
                             }
+                            // TAMPILIN JUGA JIKA STATUSNYA "Selesai YYYY-MM-DD"
+                            if (loc[stage] && loc[stage] === `Selesai ${fullDateStr}`) {
+                               events.push({ locName: loc.lokasi, stageName: `${stage} (Selesai)` });
+                            }
                          });
                        });
 
@@ -1174,8 +1180,8 @@ export default function App() {
                            </span>
                            <div className="mt-1 space-y-1">
                              {events.map((ev, idx) => (
-                               <div key={idx} className="bg-blue-50 border border-blue-100 p-1.5 rounded text-[10px]">
-                                  <div className="font-bold text-blue-700 capitalize">{ev.stageName}</div>
+                               <div key={idx} className={`border p-1.5 rounded text-[10px] ${ev.stageName.includes('Selesai') ? 'bg-green-50 border-green-100 text-green-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
+                                  <div className="font-bold capitalize">{ev.stageName}</div>
                                   <div className="text-slate-500 truncate">{ev.locName}</div>
                                </div>
                              ))}
@@ -1198,10 +1204,30 @@ export default function App() {
 
 function StatusBadge({ status }) {
   if (!status) return null;
-  if (status === 'Selesai') return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm">Selesai</span>;
-  if (status === 'Non PLN') return <span className="px-3 py-1 rounded bg-teal-100 text-teal-700 border border-teal-200 block text-center w-full shadow-sm">Non PLN</span>;
-  if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full shadow-sm">Proses</span>;
+  
+  if (status.startsWith('Selesai')) {
+    const parts = status.split(' ');
+    // Jika ada tanggal terlampir (Misal: Selesai 2026-11-11)
+    if (parts.length > 1 && parts[1].match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const dateStr = parts[1];
+      const [year, month, day] = dateStr.split('-');
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+      const displayDate = `${day} ${monthNames[parseInt(month, 10) - 1]} ${year}`;
+      
+      return (
+        <div className="flex flex-col w-full text-center shadow-sm">
+          <span className="bg-green-100 text-green-700 border border-green-200 border-b-0 rounded-t py-1 font-bold">Selesai</span>
+          <span className="bg-white text-slate-600 border border-green-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium whitespace-nowrap px-1 text-[11px]"><Calendar className="w-3 h-3 shrink-0" /> {displayDate}</span>
+        </div>
+      );
+    }
+    return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm font-bold">Selesai</span>;
+  }
+  
+  if (status === 'Non PLN') return <span className="px-3 py-1 rounded bg-teal-100 text-teal-700 border border-teal-200 block text-center w-full shadow-sm font-bold">Non PLN</span>;
+  if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full shadow-sm font-bold">Proses</span>;
   if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full">Belum</span>;
+  
   if (status.startsWith('Jadwal')) {
     const dateStr = status.replace('Jadwal ', '');
     const [year, month, day] = dateStr.split('-');
@@ -1210,7 +1236,7 @@ function StatusBadge({ status }) {
     
     return (
       <div className="flex flex-col w-full text-center shadow-sm">
-        <span className="bg-blue-100 text-blue-700 border border-blue-200 border-b-0 rounded-t py-1">Jadwal</span>
+        <span className="bg-blue-100 text-blue-700 border border-blue-200 border-b-0 rounded-t py-1 font-bold">Jadwal</span>
         <span className="bg-white text-slate-600 border border-blue-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium whitespace-nowrap px-1 text-[11px]"><Calendar className="w-3 h-3 shrink-0" /> {displayDate}</span>
       </div>
     );
@@ -1494,6 +1520,56 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
 
+  // --- OPSI PKS: BISA PILIH TANGGAL JIKA SELESAI ---
+  if (['vendor', 'pks'].includes(stage)) {
+    const folderField = stage + 'FolderLink';
+    const folderLink = draft[folderField] || '';
+    
+    // Logic khusus buat PKS biar bisa pilih tanggal selesai
+    const isPksSelesai = stage === 'pks' && draft[stage]?.startsWith('Selesai');
+
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select 
+          value={isPksSelesai ? 'Selesai' : draft[stage]} 
+          onChange={(e) => {
+            const val = e.target.value;
+            // Kalau PKS & milih Selesai, tambahin spasi kosong biar dia tau ini nunggu tanggal
+            updateDraftField(stage, (stage === 'pks' && val === 'Selesai') ? 'Selesai ' : val);
+          }} 
+          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
+        >
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+        
+        {/* INPUT TANGGAL KHUSUS PKS */}
+        {isPksSelesai && (
+          <input 
+            type="date" 
+            value={draft[stage].replace('Selesai ', '')} 
+            onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
+            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
+          />
+        )}
+        
+        {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
+          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
+             <input 
+               type="text" 
+               value={folderLink} 
+               onChange={(e) => updateDraftField(folderField, e.target.value)} 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
+               placeholder="Link folder Google Drive..." 
+             />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage)) {
     const linksField = stage + 'Links';
     const folderField = stage + 'FolderLink';
@@ -1501,7 +1577,6 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     const links = draft[linksField] || [];
     const folderLink = draft[folderField] || '';
     const isJadwal = draft[stage]?.startsWith('Jadwal');
-    const allowJadwal = true; 
     
     return (
       <div className="flex flex-col gap-2 w-full">
@@ -1510,7 +1585,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
           <option value="Proses">Proses</option>
           <option value="Selesai">Selesai</option>
           {stage === 'pln' && <option value="Non PLN">Non PLN</option>}
-          {allowJadwal && <option value="Jadwal">Jadwal Penentuan</option>}
+          <option value="Jadwal">Jadwal Penentuan</option>
         </select>
         
         {isJadwal && (
@@ -1556,34 +1631,6 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
                  <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
                </div>
             </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (['vendor', 'pks'].includes(stage)) {
-    const folderField = stage + 'FolderLink';
-    const folderLink = draft[folderField] || '';
-
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
-          <option value="Belum">Belum</option>
-          <option value="Proses">Proses</option>
-          <option value="Selesai">Selesai</option>
-        </select>
-        
-        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
-          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
-             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
-             <input 
-               type="text" 
-               value={folderLink} 
-               onChange={(e) => updateDraftField(folderField, e.target.value)} 
-               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
-               placeholder="Link folder Google Drive..." 
-             />
           </div>
         )}
       </div>
