@@ -34,6 +34,8 @@ const Download = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" widt
 const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
 
 // --- KONFIGURASI PUSAT ---
+const KATEGORI_LIST = ['Umum', 'SPBU', 'Rest Area'];
+
 const DOKUMEN_ITEMS = [
   { key: 'sld', label: 'SLD', type: 'link' },
   { key: 'panel', label: 'Diagram Panel', type: 'link' },
@@ -480,7 +482,6 @@ export default function App() {
           </tr>
     `;
 
-    // Loop data yang sudah disorting dan difilter langsung
     sortedDashboardLocations.forEach((loc, index) => {
       const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
       const picText = (loc.pics || []).join("<br>");
@@ -529,7 +530,6 @@ export default function App() {
     document.body.removeChild(link);
   };
 
-  // --- LOGIKA FILTERING ---
   const filteredLocations = locations.filter(loc => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -602,7 +602,6 @@ export default function App() {
 
   const sortedDashboardLocations = getSortedLocations(filteredLocations);
 
-  // Pagination Logic Global
   const totalPages = Math.ceil(sortedDashboardLocations.length / itemsPerPage) || 1;
   const currentLocs = sortedDashboardLocations.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -937,7 +936,6 @@ export default function App() {
                   </table>
                 </div>
                 
-                {/* GLOBAL PAGINATION */}
                 {totalPages > 1 && (
                   <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100 shrink-0">
                     <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
@@ -1042,7 +1040,6 @@ export default function App() {
                        </table>
                      </div>
 
-                     {/* GLOBAL PAGINATION */}
                      {totalPages > 1 && (
                        <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100 shrink-0">
                          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
@@ -1364,13 +1361,11 @@ function ChecklistBadge({ status, checklist, type }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
-  const timeoutRef = useRef(null);
   
   const ITEMS = type === 'dokumen' ? DOKUMEN_ITEMS : IZIN_ITEMS;
   const safeChecklist = checklist || {};
 
   const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 300) {
@@ -1383,14 +1378,8 @@ function ChecklistBadge({ status, checklist, type }) {
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 300);
+    setIsOpen(false); 
   };
-
-  useEffect(() => {
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
-  }, []);
 
   return (
     <div 
@@ -1449,20 +1438,18 @@ function MediaBadge({ status, links, folderLink, title }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState('bottom');
   const badgeRef = useRef(null);
-  const timeoutRef = useRef(null); 
   const safeLinks = links || [];
 
   const getGDriveThumbnailUrl = (url) => {
     if (!url) return '';
     const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if (match && match[1]) {
-      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w400-h400`; 
+      return `https://drive.google.com/uc?export=view&id=${match[1]}`; 
     }
     return url;
   };
 
   const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 250) {
@@ -1475,14 +1462,8 @@ function MediaBadge({ status, links, folderLink, title }) {
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 300); 
+    setIsOpen(false);
   };
-
-  useEffect(() => {
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }
-  }, []);
 
   const handleClick = (e) => {
     if (folderLink) {
