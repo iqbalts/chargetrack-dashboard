@@ -67,7 +67,7 @@ const STAGE_NAME_MAP = {
 const FILTER_SECTIONS = [
   { id: 'kategori', title: 'Kategori Lokasi', options: ['Umum', 'SPBU', 'Rest Area'] },
   { id: 'brand', title: 'Brand Charger', options: ['TIDE', 'Moderntec', 'Teison', 'Starcharge'] },
-  { id: 'statusAkhir', title: 'Status Akhir', options: ['Menunggu', 'Proses', 'Selesai Beroperasi'] },
+  { id: 'statusAkhir', title: 'Status Akhir', options: ['Menunggu', 'Proses', 'Beroperasi'] },
   { id: 'survey', title: 'Early Survey', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
   { id: 'teknis', title: 'Survey Teknis', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
   { id: 'dokumen', title: 'Dokumen Teknis', options: ['Belum', 'Proses', 'Selesai'] },
@@ -253,7 +253,7 @@ export default function App() {
 
   const getStatusAkhir = (progress) => {
     if (progress === 0) return { text: 'Menunggu', color: 'text-slate-500', dot: 'bg-slate-500' };
-    if (progress === 100) return { text: 'Selesai Beroperasi', color: 'text-green-600', dot: 'bg-green-500' };
+    if (progress === 100) return { text: 'Beroperasi', color: 'text-green-600', dot: 'bg-green-500' };
     return { text: 'Proses', color: 'text-amber-600', dot: 'bg-amber-500' };
   };
 
@@ -868,7 +868,7 @@ export default function App() {
             <div className="flex flex-col flex-1 lg:min-h-0">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-5 lg:mb-8 shrink-0">
                 <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-xl md:text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 shrink-0"><Home className="w-4 h-4 md:w-5 md:h-5" /></div></div>
-                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Selesai</p><p className="text-xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Beroperasi</p><p className="text-xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
                 <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Proses</p><p className="text-xl md:text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
                 <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shrink-0"><Search className="w-4 h-4 md:w-5 md:h-5" /></div></div>
               </div>
@@ -879,7 +879,6 @@ export default function App() {
                   <table className="w-max min-w-full text-[10px] md:text-xs text-left">
                     <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                       <tr>
-                        {/* Kiri Tetap Sticky Tapi Diperkecil */}
                         <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]" />
                         <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[40px] md:left-[60px] z-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
                         
@@ -901,7 +900,6 @@ export default function App() {
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[100px]">STATUS AKHIR</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
                         
-                        {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 (Lepas sticky di HP) */}
                         <th className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-30 lg:z-50">HISTORY</th>
                       </tr>
                     </thead>
@@ -956,7 +954,6 @@ export default function App() {
                           <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className={`flex items-center gap-1.5 md:gap-2 font-bold ${statusAkhir.color}`}><span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${statusAkhir.dot} shrink-0`}></span> <span className="whitespace-nowrap">{statusAkhir.text}</span></div></td>
                           <td className="py-2 px-2 md:py-4 md:px-4 text-slate-500 min-w-[150px] md:min-w-[200px] max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                           
-                          {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 (Lepas sticky di HP) */}
                           <td className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
                              <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-1.5 md:p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-0.5 md:mt-1" title="Lihat History Audit Trail">
                                <Info className="w-4 h-4 md:w-5 md:h-5" />
@@ -1026,7 +1023,6 @@ export default function App() {
                              <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[120px]">PROGRESS</th>
                              <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[150px] md:min-w-[200px]">KETERANGAN</th>
                              
-                             {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 */}
                              <th className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 top-0 bg-slate-50 z-30 lg:z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
                            </tr>
                          </thead>
@@ -1062,7 +1058,6 @@ export default function App() {
                                <td className="py-2 px-2 md:py-3 md:px-3"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 md:h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                                <td className="py-2 px-2 md:py-3 md:px-3"><p className="whitespace-normal break-words max-w-[150px] md:max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
                                
-                               {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 */}
                                <td className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
                                  <div className="flex gap-1 md:gap-2 justify-center items-center h-full">
                                    <button onClick={() => handleOpenEditForm(item)} className="px-2 py-1 md:px-4 md:py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors text-[9px] md:text-[10px]" title="Edit Lokasi"><Edit2 className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden sm:inline">Edit</span></button>
