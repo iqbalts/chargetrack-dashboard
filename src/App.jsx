@@ -216,7 +216,7 @@ export default function App() {
     });
 
     const unsubLocs = onSnapshot(locsRef, (snapshot) => {
-      // FIX 1: Sort Descending biar data paling baru langsung muncul di atas (karena ID pake timestamp)
+      // Sort Descending biar data paling baru langsung muncul di atas
       setLocations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(b.id) - parseInt(a.id)));
       setIsFirebaseLoaded(true);
     });
@@ -632,7 +632,7 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <div className="flex h-screen bg-slate-900 items-center justify-center font-sans p-4">
+      <div className="flex min-h-screen bg-slate-900 items-center justify-center font-sans p-4">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 md:p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold tracking-wider text-green-500 mb-2">CAZ<span className="text-slate-900">TRACK</span></h1>
@@ -674,7 +674,7 @@ export default function App() {
   const menunggu = filteredLocations.filter(l => calculateProgress(l) === 0).length;
 
   return (
-    <div className="flex h-[100dvh] bg-slate-50 font-sans text-sm relative overflow-hidden">
+    <div className="flex min-h-screen lg:h-[100dvh] bg-slate-50 font-sans text-sm relative lg:overflow-hidden">
       
       {/* OVERLAY SIDEBAR MOBILE */}
       {isMobileMenuOpen && (
@@ -686,7 +686,7 @@ export default function App() {
 
       {/* FILTER MODAL */}
       {isFilterModalOpen && (
-        <div className="absolute inset-0 z-[120] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
            <div className="bg-slate-50 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
               <div className="p-4 md:p-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
                 <div>
@@ -744,7 +744,7 @@ export default function App() {
 
       {/* RESET PASSWORD MODAL */}
       {resetModal.isOpen && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="text-lg font-bold text-slate-800 mb-4">Reset Password</h3>
             <div className="mb-5">
@@ -761,7 +761,7 @@ export default function App() {
 
       {/* HISTORY MODAL */}
       {historyModal.isOpen && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
             <div className="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
               <div>
@@ -818,18 +818,19 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col h-[100dvh] overflow-hidden relative z-10 bg-slate-50 w-full">
-        <div className="flex flex-col flex-1 min-h-0 p-4 lg:p-8 overflow-hidden">
+      {/* PERBAIKAN SCROLL MOBILE DI SINI: min-h-screen di HP, h-[100dvh] & overflow-hidden khusus desktop (lg) */}
+      <main className="flex-1 flex flex-col min-h-screen lg:h-[100dvh] lg:overflow-hidden relative z-10 bg-slate-50 w-full min-w-0">
+        <div className="flex flex-col flex-1 lg:min-h-0 p-4 lg:p-8 lg:overflow-hidden">
           
           {/* HEADER DASHBOARD RESPONSIVE */}
-          <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8 shrink-0 w-full">
+          <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-5 lg:mb-8 shrink-0 w-full">
             <div className="flex items-center gap-3 w-full lg:w-auto">
               {/* TOMBOL HAMBURGER MOBILE */}
-              <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 bg-white text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50">
+              <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 bg-white text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 shrink-0">
                 <Menu className="w-5 h-5" />
               </button>
               <div>
-                <h2 className="text-xl lg:text-3xl font-bold text-slate-800">
+                <h2 className="text-xl lg:text-3xl font-bold text-slate-800 leading-tight">
                   {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
                 </h2>
                 <p className="text-xs lg:text-sm text-slate-500 mt-1 hidden sm:block">Pantau progres deployment titik charging station.</p>
@@ -865,23 +866,23 @@ export default function App() {
           </div>
 
           {activeTab === 'dashboard' && (
-            <div className="flex flex-col flex-1 min-h-0">
-              {/* GRID STATS RESPONSIVE */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8 shrink-0">
-                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-2xl md:text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600"><Home className="w-5 h-5" /></div></div>
-                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Selesai Beroperasi</p><p className="text-2xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Activity className="w-5 h-5" /></div></div>
-                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Sedang Proses</p><p className="text-2xl md:text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500"><Activity className="w-5 h-5" /></div></div>
-                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-2xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
+            <div className="flex flex-col flex-1 lg:min-h-0">
+              {/* GRID STATS RESPONSIVE: 2 Kolom di HP biar hemat tempat */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-5 lg:mb-8 shrink-0">
+                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-xl md:text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 shrink-0"><Home className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Selesai</p><p className="text-xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Proses</p><p className="text-xl md:text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shrink-0"><Search className="w-4 h-4 md:w-5 md:h-5" /></div></div>
               </div>
 
-              {/* TABLE CONTAINER MOBILE FRIENDLY (Horizontal Scrollable) */}
-              <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full">
+              {/* TABLE CONTAINER MOBILE FRIENDLY (min-h-[450px] di HP biar tabelnya muncul lega) */}
+              <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full min-h-[450px] lg:min-h-0">
                 <div className="overflow-auto flex-1 relative w-full">
                   <table className="w-max min-w-full text-xs text-left">
                     <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                       <tr>
-                        <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
-                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                        <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]" />
+                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[50px] md:left-[60px] z-50 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KATEGORI</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
@@ -910,8 +911,8 @@ export default function App() {
                         
                         return (
                         <tr key={item.id} className="hover:bg-slate-50/50 group">
-                          <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
-                          <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                          <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]">{rowNumber}</td>
+                          <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[50px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                             {item.gmapsLink ? (
                               <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
                                 <span className="group-hover/link:underline">{item.lokasi}</span>
@@ -998,7 +999,7 @@ export default function App() {
           )}
 
           {activeTab === 'update' && (
-             <div className="flex flex-col flex-1 min-h-0">
+             <div className="flex flex-col flex-1 lg:min-h-0">
                
                {!formDraft && (
                  <>
@@ -1008,13 +1009,13 @@ export default function App() {
                      </button>
                    </div>
 
-                   <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative">
+                   <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative min-h-[450px] lg:min-h-0">
                      <div className="overflow-auto flex-1 relative w-full">
                        <table className="w-max min-w-full text-xs text-left">
                          <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                            <tr>
-                             <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
-                             <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                             <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]">NO</th>
+                             <th className="py-3 px-3 sticky top-0 left-[50px] md:left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
                              <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">KATEGORI</th>
                              <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
                              <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
@@ -1031,8 +1032,8 @@ export default function App() {
                              
                              return (
                              <tr key={item.id} className="group hover:bg-slate-50 align-top">
-                               <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
-                               <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
+                               <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]">{rowNumber}</td>
+                               <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[50px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
                                <td className="py-3 px-3 align-top">
                                  <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
                                    {item.kategori || 'Umum'}
@@ -1204,7 +1205,7 @@ export default function App() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="flex-1 overflow-y-auto min-h-0 pb-12">
+            <div className="flex-1 overflow-y-auto lg:min-h-0 pb-12">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                 <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden w-full">
                   <div className="p-4 md:p-5 border-b border-slate-100"><h3 className="text-base md:text-lg font-bold text-slate-800">Daftar Pengguna Sistem</h3></div>
@@ -1275,7 +1276,7 @@ export default function App() {
             const firstDayOfMonth = new Date(year, month, 1).getDay();
 
             return (
-              <div className="flex-1 overflow-y-auto min-h-0 pb-12 w-full">
+              <div className="flex-1 overflow-y-auto lg:min-h-0 pb-12 w-full">
                 <div className="bg-white p-4 md:p-8 rounded-xl shadow-sm border border-slate-100">
                    <div className="flex flex-col sm:flex-row justify-between items-center mb-4 md:mb-6 gap-3">
                      <h3 className="text-lg md:text-xl font-bold text-slate-800">
@@ -1405,7 +1406,7 @@ function ChecklistBadge({ status, checklist, type }) {
   const safeChecklist = checklist || {};
 
   const handleMouseEnter = () => {
-    if (window.innerWidth < 1024) return; // Disable hover dropdown on mobile (rely on click if we want to implement it, but hover is bad for mobile anyway)
+    if (window.innerWidth < 1024) return;
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 300) {
@@ -1515,7 +1516,7 @@ function MediaBadge({ status, links, folderLink, title }) {
 
   const handleClick = (e) => {
     if (window.innerWidth < 1024 && (safeLinks.length > 0 || folderLink)) {
-      setIsOpen(!isOpen); // Toggle thumbnail view on mobile tap
+      setIsOpen(!isOpen);
       return;
     }
 
