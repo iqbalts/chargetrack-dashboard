@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -34,8 +34,6 @@ const Download = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" widt
 const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
 
 // --- KONFIGURASI PUSAT ---
-const KATEGORI_LIST = ['Umum', 'SPBU', 'Rest Area'];
-
 const DOKUMEN_ITEMS = [
   { key: 'sld', label: 'SLD', type: 'link' },
   { key: 'panel', label: 'Diagram Panel', type: 'link' },
@@ -44,7 +42,6 @@ const DOKUMEN_ITEMS = [
   { key: 'proyeksi3d', label: 'Gambar Proyeksi 3D', type: 'link' }
 ];
 
-// UPDATE: Urutan baru dan penambahan input text untuk nomor
 const IZIN_ITEMS = [
   { key: 'ossDasar', label: 'Persyaratan Dasar (OSS)', type: 'link' },
   { key: 'nku', label: 'Nomor Kegiatan Usaha', type: 'text', placeholder: 'Input NKU...' },
@@ -121,7 +118,9 @@ export default function App() {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
-  const [pageConfig, setPageConfig] = useState({ Umum: 1, SPBU: 1, 'Rest Area': 1 });
+  // GLOBAL PAGINATION STATE
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
 
@@ -129,9 +128,10 @@ export default function App() {
     return new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
   };
 
-  const handlePageChange = (kategori, newPage) => {
-    setPageConfig(prev => ({ ...prev, [kategori]: newPage }));
-  };
+  // Reset pagination if filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchQuery, activeTab]);
 
   useEffect(() => {
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
@@ -480,40 +480,36 @@ export default function App() {
           </tr>
     `;
 
-    KATEGORI_LIST.forEach(kategori => {
-      const catLocs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
-      if (catLocs.length > 0) {
-        catLocs.forEach((loc, index) => {
-          const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
-          const picText = (loc.pics || []).join("<br>");
-          const progressText = `${calculateProgress(loc)}%`;
-          const statusAkhirText = getStatusAkhir(calculateProgress(loc)).text;
-          const keteranganText = (loc.keterangan || '').replace(/\n/g, '<br>');
+    // Loop data yang sudah disorting dan difilter langsung
+    sortedDashboardLocations.forEach((loc, index) => {
+      const chargersText = (loc.chargers || []).map(c => `- ${c.jenis} ${c.brand} (${c.jumlah} Unit)`).join("<br>");
+      const picText = (loc.pics || []).join("<br>");
+      const progressText = `${calculateProgress(loc)}%`;
+      const statusAkhirText = getStatusAkhir(calculateProgress(loc)).text;
+      const keteranganText = (loc.keterangan || '').replace(/\n/g, '<br>');
 
-          tableHTML += `
-            <tr>
-              <td class="center">${index + 1}</td>
-              <td class="center">${loc.kategori || 'Umum'}</td>
-              <td class="left bold">${loc.lokasi || ''}</td>
-              <td class="left">${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
-              <td class="left wrap">${chargersText}</td>
-              <td class="center wrap">${picText}</td>
-              <td class="center bold">${progressText}</td>
-              <td class="center">${loc.survey || 'Belum'}</td>
-              <td class="center">${loc.teknis || 'Belum'}</td>
-              <td class="center">${loc.dokumen || 'Belum'}</td>
-              <td class="center">${loc.pln || 'Belum'}</td>
-              <td class="center">${loc.izin || 'Belum'}</td>
-              <td class="center">${loc.vendor || 'Belum'}</td>
-              <td class="center">${loc.pks || 'Belum'}</td>
-              <td class="center">${loc.instalasi || 'Belum'}</td>
-              <td class="center">${loc.testing || 'Belum'}</td>
-              <td class="center bold">${statusAkhirText}</td>
-              <td class="left wrap">${keteranganText}</td>
-            </tr>
-          `;
-        });
-      }
+      tableHTML += `
+        <tr>
+          <td class="center">${index + 1}</td>
+          <td class="center">${loc.kategori || 'Umum'}</td>
+          <td class="left bold">${loc.lokasi || ''}</td>
+          <td class="left">${loc.gmapsLink ? `<a href="${loc.gmapsLink.startsWith('http') ? loc.gmapsLink : `https://${loc.gmapsLink}`}">${loc.gmapsLink}</a>` : ''}</td>
+          <td class="left wrap">${chargersText}</td>
+          <td class="center wrap">${picText}</td>
+          <td class="center bold">${progressText}</td>
+          <td class="center">${loc.survey || 'Belum'}</td>
+          <td class="center">${loc.teknis || 'Belum'}</td>
+          <td class="center">${loc.dokumen || 'Belum'}</td>
+          <td class="center">${loc.pln || 'Belum'}</td>
+          <td class="center">${loc.izin || 'Belum'}</td>
+          <td class="center">${loc.vendor || 'Belum'}</td>
+          <td class="center">${loc.pks || 'Belum'}</td>
+          <td class="center">${loc.instalasi || 'Belum'}</td>
+          <td class="center">${loc.testing || 'Belum'}</td>
+          <td class="center bold">${statusAkhirText}</td>
+          <td class="left wrap">${keteranganText}</td>
+        </tr>
+      `;
     });
 
     tableHTML += `
@@ -533,6 +529,7 @@ export default function App() {
     document.body.removeChild(link);
   };
 
+  // --- LOGIKA FILTERING ---
   const filteredLocations = locations.filter(loc => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -604,6 +601,10 @@ export default function App() {
   };
 
   const sortedDashboardLocations = getSortedLocations(filteredLocations);
+
+  // Pagination Logic Global
+  const totalPages = Math.ceil(sortedDashboardLocations.length / itemsPerPage) || 1;
+  const currentLocs = sortedDashboardLocations.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const SortHeader = ({ label, sortKey, className = "" }) => {
     const isActive = sortConfig.key === sortKey;
@@ -844,139 +845,125 @@ export default function App() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-2 pb-12 space-y-10">
-                {KATEGORI_LIST.map(kategori => {
-                  const locs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
-                  if (locs.length === 0) return null;
+              <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative">
+                <div className="overflow-auto flex-1 relative w-full">
+                  <table className="w-max min-w-full text-xs text-left">
+                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                      <tr>
+                        <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
+                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KATEGORI</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
+                        <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
+                        <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">STATUS AKHIR</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
+                        <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-50">HISTORY</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {currentLocs.map((item, index) => {
+                        const progress = calculateProgress(item);
+                        const statusAkhir = getStatusAkhir(progress);
+                        const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                        
+                        return (
+                        <tr key={item.id} className="hover:bg-slate-50/50 group">
+                          <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
+                          <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                            {item.gmapsLink ? (
+                              <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
+                                <span className="group-hover/link:underline">{item.lokasi}</span>
+                                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0" />
+                              </a>
+                            ) : (
+                              item.lokasi
+                            )}
+                          </td>
+                          <td className="py-4 px-4 align-top">
+                            <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                              {item.kategori || 'Umum'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
+                          <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
+                          <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}</td>
+                          <td className="py-4 px-4 space-y-1 align-top">
+                            {item.pics?.map((p, i) => (
+                              <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
+                            ))}
+                          </td>
+                          <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                          
+                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
+                             <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-30">
+                               {stage === 'dokumen' || stage === 'izin' ? (
+                                 <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
+                               ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
+                                 <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
+                               ) : ['vendor', 'pks'].includes(stage) ? (
+                                 <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
+                               ) : (
+                                 <StatusBadge status={item[stage]} />
+                               )}
+                             </td>
+                          ))}
 
-                  const itemsPerPage = 10;
-                  const totalPages = Math.ceil(locs.length / itemsPerPage) || 1;
-                  const currentPage = Math.min(pageConfig[kategori] || 1, totalPages);
-                  const paginatedLocs = locs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-                  return (
-                    <div key={kategori} className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                      <div className="flex items-center gap-3 p-4 bg-slate-50 border-b border-slate-100 shrink-0">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                          {kategori === 'Umum' ? <Activity className="w-4 h-4"/> : kategori === 'SPBU' ? <MapPin className="w-4 h-4"/> : <Home className="w-4 h-4"/>}
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
-                          <p className="text-[10px] text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
-                        </div>
-                      </div>
-                      
-                      <div className="overflow-auto max-h-[50vh] relative w-full">
-                        <table className="w-max min-w-full text-xs text-left">
-                          <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                            <tr>
-                              <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
-                              <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
-                              <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
-                              <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">STATUS AKHIR</th>
-                              <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
-                              <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-50">HISTORY</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
-                            {paginatedLocs.map((item, index) => {
-                              const progress = calculateProgress(item);
-                              const statusAkhir = getStatusAkhir(progress);
-                              const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
-                              
-                              return (
-                              <tr key={item.id} className="hover:bg-slate-50/50 group">
-                                <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
-                                <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
-                                  {item.gmapsLink ? (
-                                    <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
-                                      <span className="group-hover/link:underline">{item.lokasi}</span>
-                                      <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0" />
-                                    </a>
-                                  ) : (
-                                    item.lokasi
-                                  )}
-                                </td>
-                                <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
-                                <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
-                                <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}</td>
-                                <td className="py-4 px-4 space-y-1 align-top">
-                                  {item.pics?.map((p, i) => (
-                                    <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
-                                  ))}
-                                </td>
-                                <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                                
-                                {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                                   <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-30">
-                                     {stage === 'dokumen' || stage === 'izin' ? (
-                                       <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
-                                     ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
-                                       <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
-                                     ) : ['vendor', 'pks'].includes(stage) ? (
-                                       <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
-                                     ) : (
-                                       <StatusBadge status={item[stage]} />
-                                     )}
-                                   </td>
-                                ))}
-
-                                <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
-                                <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
-                                
-                                <td className="py-4 px-4 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
-                                   <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
-                                     <Info className="w-5 h-5" />
-                                   </button>
-                                </td>
-                              </tr>
-                            )})}
-                          </tbody>
-                        </table>
-                      </div>
-                      
-                      {totalPages > 1 && (
-                        <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100">
-                          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-                            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, locs.length)} dari {locs.length}
-                          </span>
-                          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                            <button onClick={() => handlePageChange(kategori, currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                              <ChevronLeft className="w-4 h-4" />
-                            </button>
-                            <div className="flex items-center px-1 gap-1">
-                              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                <button 
-                                  key={page}
-                                  onClick={() => handlePageChange(kategori, page)}
-                                  className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
-                                >
-                                  {page}
-                                </button>
-                              ))}
-                            </div>
-                            <button onClick={() => handlePageChange(kategori, currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
+                          <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
+                          <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
+                          
+                          <td className="py-4 px-4 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
+                             <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
+                               <Info className="w-5 h-5" />
+                             </button>
+                          </td>
+                        </tr>
+                      )})}
+                      {filteredLocations.length === 0 && (
+                        <tr><td colSpan="20" className="py-12 text-center text-slate-500 font-medium">Pencarian atau Filter tidak menemukan hasil bray.</td></tr>
                       )}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* GLOBAL PAGINATION */}
+                {totalPages > 1 && (
+                  <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100 shrink-0">
+                    <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                      Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
+                    </span>
+                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                      <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <div className="flex items-center px-1 gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                          <button 
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                      </div>
+                      <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -992,110 +979,96 @@ export default function App() {
                      </button>
                    </div>
 
-                   <div className="flex-1 overflow-y-auto pr-2 pb-12 space-y-10">
-                     {KATEGORI_LIST.map(kategori => {
-                       const locs = sortedDashboardLocations.filter(loc => (loc.kategori || 'Umum') === kategori);
-                       if (locs.length === 0) return null;
-                       
-                       const itemsPerPage = 10;
-                       const totalPages = Math.ceil(locs.length / itemsPerPage) || 1;
-                       const currentPage = Math.min(pageConfig[kategori] || 1, totalPages);
-                       const paginatedLocs = locs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-                       return (
-                         <div key={kategori} className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                           <div className="flex items-center gap-3 p-4 bg-slate-50 border-b border-slate-100 shrink-0">
-                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm ${kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                               {kategori === 'Umum' ? <Activity className="w-4 h-4"/> : kategori === 'SPBU' ? <MapPin className="w-4 h-4"/> : <Home className="w-4 h-4"/>}
-                             </div>
-                             <div>
-                               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide leading-none">{kategori}</h3>
-                               <p className="text-[10px] text-slate-500 font-medium mt-1">{locs.length} Titik Lokasi</p>
-                             </div>
-                           </div>
-                           
-                           <div className="overflow-auto max-h-[50vh] relative w-full">
-                             <table className="w-max min-w-full text-xs text-left">
-                               <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                                 <tr>
-                                   <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
-                                   <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
-                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
-                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
-                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
-                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROGRESS KESELURUHAN</th>
-                                   <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
-                                   <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
-                                 </tr>
-                               </thead>
-                               <tbody className="divide-y divide-slate-100">
-                                 {paginatedLocs.map((item, index) => {
-                                   const progress = calculateProgress(item);
-                                   const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
-                                   
-                                   return (
-                                   <tr key={item.id} className="group hover:bg-slate-50 align-top">
-                                     <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
-                                     <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
-                                     <td className="py-3 px-3">
-                                        {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[11px] line-clamp-2 mt-1.5">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1.5 block">Kosong</span>}
-                                     </td>
-                                     <td className="py-3 px-3">
-                                        <div className="space-y-1">
-                                           {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
-                                           {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                                        </div>
-                                     </td>
-                                     <td className="py-3 px-3">
-                                       <div className="space-y-1">
-                                         {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
-                                         {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                                       </div>
-                                     </td>
-                                     <td className="py-3 px-3"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                                     <td className="py-3 px-3"><p className="whitespace-normal break-words max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
-                                     
-                                     <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
-                                       <div className="flex gap-2 justify-center items-center h-full">
-                                         <button onClick={() => handleOpenEditForm(item)} className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> Edit</button>
-                                         <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
-                                       </div>
-                                     </td>
-                                   </tr>
-                                 )})}
-                               </tbody>
-                             </table>
-                           </div>
-                           
-                           {totalPages > 1 && (
-                             <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100">
-                               <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-                                 Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, locs.length)} dari {locs.length}
-                               </span>
-                               <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                                 <button onClick={() => handlePageChange(kategori, currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                                   <ChevronLeft className="w-4 h-4" />
-                                 </button>
-                                 <div className="flex items-center px-1 gap-1">
-                                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                     <button 
-                                       key={page}
-                                       onClick={() => handlePageChange(kategori, page)}
-                                       className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
-                                     >
-                                       {page}
-                                     </button>
-                                   ))}
+                   <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative">
+                     <div className="overflow-auto flex-1 relative w-full">
+                       <table className="w-max min-w-full text-xs text-left">
+                         <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                           <tr>
+                             <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
+                             <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">KATEGORI</th>
+                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
+                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
+                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROGRESS KESELURUHAN</th>
+                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
+                             <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
+                           </tr>
+                         </thead>
+                         <tbody className="divide-y divide-slate-100">
+                           {currentLocs.map((item, index) => {
+                             const progress = calculateProgress(item);
+                             const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                             
+                             return (
+                             <tr key={item.id} className="group hover:bg-slate-50 align-top">
+                               <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
+                               <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
+                               <td className="py-3 px-3 align-top">
+                                 <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                   {item.kategori || 'Umum'}
+                                 </span>
+                               </td>
+                               <td className="py-3 px-3">
+                                  {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[11px] line-clamp-2 mt-1.5">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1.5 block">Kosong</span>}
+                               </td>
+                               <td className="py-3 px-3">
+                                  <div className="space-y-1">
+                                     {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
+                                     {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                                  </div>
+                               </td>
+                               <td className="py-3 px-3">
+                                 <div className="space-y-1">
+                                   {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
+                                   {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                                  </div>
-                                 <button onClick={() => handlePageChange(kategori, currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                                   <ChevronRight className="w-4 h-4" />
-                                 </button>
-                               </div>
-                             </div>
+                               </td>
+                               <td className="py-3 px-3"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                               <td className="py-3 px-3"><p className="whitespace-normal break-words max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
+                               
+                               <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
+                                 <div className="flex gap-2 justify-center items-center h-full">
+                                   <button onClick={() => handleOpenEditForm(item)} className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> Edit</button>
+                                   <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
+                                 </div>
+                               </td>
+                             </tr>
+                           )})}
+                           {filteredLocations.length === 0 && (
+                             <tr><td colSpan="9" className="py-12 text-center text-slate-500 font-medium">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
                            )}
+                         </tbody>
+                       </table>
+                     </div>
+
+                     {/* GLOBAL PAGINATION */}
+                     {totalPages > 1 && (
+                       <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100 shrink-0">
+                         <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                           Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
+                         </span>
+                         <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                           <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                             <ChevronLeft className="w-4 h-4" />
+                           </button>
+                           <div className="flex items-center px-1 gap-1">
+                             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                               <button 
+                                 key={page}
+                                 onClick={() => setCurrentPage(page)}
+                                 className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                               >
+                                 {page}
+                               </button>
+                             ))}
+                           </div>
+                           <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                             <ChevronRight className="w-4 h-4" />
+                           </button>
                          </div>
-                       );
-                     })}
+                       </div>
+                     )}
                    </div>
                  </>
                )}
@@ -1726,9 +1699,8 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
   if (['vendor', 'pks'].includes(stage)) {
     const folderField = stage + 'FolderLink';
     const folderLink = draft[folderField] || '';
-    
     const isPksSelesai = stage === 'pks' && draft[stage]?.startsWith('Selesai');
-
+    
     return (
       <div className="flex flex-col gap-2 w-full">
         <select 
