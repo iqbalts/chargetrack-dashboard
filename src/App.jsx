@@ -212,7 +212,8 @@ export default function App() {
     });
 
     const unsubLocs = onSnapshot(locsRef, (snapshot) => {
-      setLocations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(a.id) - parseInt(b.id)));
+      // FIX 1: Sort Descending biar data paling baru langsung muncul di atas (karena ID pake timestamp)
+      setLocations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(b.id) - parseInt(a.id)));
       setIsFirebaseLoaded(true);
     });
 
@@ -1017,10 +1018,10 @@ export default function App() {
                                   </div>
                                </td>
                                <td className="py-3 px-3">
-                                 <div className="space-y-1">
-                                   {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
-                                   {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                                 </div>
+                                  <div className="space-y-1">
+                                    {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
+                                    {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                                  </div>
                                </td>
                                <td className="py-3 px-3"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                                <td className="py-3 px-3"><p className="whitespace-normal break-words max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
@@ -1444,7 +1445,8 @@ function MediaBadge({ status, links, folderLink, title }) {
     if (!url) return '';
     const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if (match && match[1]) {
-      return `https://drive.google.com/uc?export=view&id=${match[1]}`; 
+      // FIX 2: Endpoint GDrive diganti dari uc?export jadi /thumbnail biar ga ke-block CORS
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w500`; 
     }
     return url;
   };
