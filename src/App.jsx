@@ -7,7 +7,7 @@ import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
 const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const Calendar = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>;
-const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+const Settings = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73-.73l.15-.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>;
 const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
 const Plus = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
@@ -37,22 +37,25 @@ const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width=
 const KATEGORI_LIST = ['Umum', 'SPBU', 'Rest Area'];
 
 const DOKUMEN_ITEMS = [
-  { key: 'sld', label: 'SLD' },
-  { key: 'panel', label: 'Diagram Panel' },
-  { key: 'layout', label: 'Layout' },
-  { key: 'slo', label: 'SLO & NIDI' },
-  { key: 'proyeksi3d', label: 'Gambar Proyeksi 3D' }
+  { key: 'sld', label: 'SLD', type: 'link' },
+  { key: 'panel', label: 'Diagram Panel', type: 'link' },
+  { key: 'layout', label: 'Layout', type: 'link' },
+  { key: 'slo', label: 'SLO & NIDI', type: 'link' },
+  { key: 'proyeksi3d', label: 'Gambar Proyeksi 3D', type: 'link' }
 ];
 
+// UPDATE: Urutan baru dan penambahan input text untuk nomor
 const IZIN_ITEMS = [
-  { key: 'suratPemrakarsa', label: 'Surat Pemrakarsa' },
-  { key: 'petaTapak', label: 'Peta Tapak Proyek' },
-  { key: 'shp', label: 'SHP Polygon' },
-  { key: 'perjanjianSewa', label: 'Perjanjian Sewa / Pinjam Pakai Lahan' },
-  { key: 'ossDasar', label: 'Persyaratan Dasar (OSS)' },
-  { key: 'amdalnet', label: 'AMDALNET' },
-  { key: 'ossBerusaha', label: 'Perizinan Berusaha (OSS)' },
-  { key: 'iuptl', label: 'IUPTL' }
+  { key: 'ossDasar', label: 'Persyaratan Dasar (OSS)', type: 'link' },
+  { key: 'nku', label: 'Nomor Kegiatan Usaha', type: 'text', placeholder: 'Input NKU...' },
+  { key: 'suratPemrakarsa', label: 'Surat Pemrakarsa', type: 'link' },
+  { key: 'perjanjianSewa', label: 'Perjanjian Sewa / Pinjam Pakai Lahan', type: 'link' },
+  { key: 'nomorTataRuang', label: 'Nomor Tata Ruang', type: 'text', placeholder: 'Input Nomor Tata Ruang...' },
+  { key: 'amdalnet', label: 'AMDALNET', type: 'link' },
+  { key: 'petaTapak', label: 'Peta Tapak Proyek', type: 'link' },
+  { key: 'shp', label: 'SHP Polygon', type: 'link' },
+  { key: 'ossBerusaha', label: 'Perizinan Berusaha (OSS)', type: 'link' },
+  { key: 'iuptl', label: 'IUPTL', type: 'link' }
 ];
 
 const STAGE_NAME_MAP = {
@@ -118,7 +121,6 @@ export default function App() {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
-  // Pagination State per kategori
   const [pageConfig, setPageConfig] = useState({ Umum: 1, SPBU: 1, 'Rest Area': 1 });
 
   const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
@@ -274,7 +276,6 @@ export default function App() {
     }
   };
 
-  // --- FUNGSI DEDICATED FORM PENCEGAH BUG LAYAR PUTIH ---
   const handleOpenAddForm = () => {
     setFormDraft({
       isNew: true,
@@ -283,7 +284,6 @@ export default function App() {
       lokasi: '', gmapsLink: '', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
       vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
-      // Pastikan semua default arrays dan strings didefinisikan sempurna
       surveyLinks: [], teknisLinks: [], plnLinks: [], instalasiLinks: [], testingLinks: [],
       surveyFolderLink: '', teknisFolderLink: '', plnFolderLink: '', instalasiFolderLink: '', testingFolderLink: '', vendorFolderLink: '', pksFolderLink: '',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
@@ -429,7 +429,6 @@ export default function App() {
   const handlePrevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
-  // --- LOGIKA EXPORT EXCEL (NATIVE XLS FORMAT VIA HTML HACK) ---
   const handleExportExcel = () => {
     if (!currentUser) return;
     
@@ -534,7 +533,6 @@ export default function App() {
     document.body.removeChild(link);
   };
 
-  // --- LOGIKA FILTERING ---
   const filteredLocations = locations.filter(loc => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -673,7 +671,6 @@ export default function App() {
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
       
-      {/* MODAL FILTER & HISTORY OMITTED FOR BREVITY BUT KEPT IN STRUCTURE */}
       {isFilterModalOpen && (
         <div className="absolute inset-0 z-[120] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
            <div className="bg-slate-50 rounded-xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden animate-fade-in">
@@ -1120,6 +1117,7 @@ export default function App() {
                    </div>
 
                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+                     
                      <div className="lg:col-span-1 space-y-6">
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                            <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
@@ -1195,6 +1193,7 @@ export default function App() {
                            ))}
                         </div>
                      </div>
+
                    </div>
                  </div>
                )}
@@ -1440,20 +1439,25 @@ function ChecklistBadge({ status, checklist, type }) {
             <div className="space-y-2.5">
               {ITEMS.map(item => {
                 const isChecked = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.checked : safeChecklist[item.key];
-                const link = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.link : '';
+                const linkOrValue = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.link : '';
                 
                 const content = (
                   <div className="flex items-start gap-2 text-xs group/link">
                     {isChecked ? <Check className="w-4 h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-4 h-4 text-red-400 shrink-0 mt-px" />}
-                    <span className={`whitespace-normal leading-tight ${isChecked ? 'text-slate-700 font-medium' : 'text-slate-400'} ${link ? 'group-hover/link:underline group-hover/link:text-blue-600 transition-colors' : ''}`}>
-                      {item.label}
-                    </span>
-                    {link && <ExternalLink className="w-3 h-3 text-slate-400 group-hover/link:text-blue-500 shrink-0 mt-0.5" />}
+                    <div className="flex flex-col text-left">
+                      <span className={`whitespace-normal leading-tight ${isChecked ? 'text-slate-700 font-medium' : 'text-slate-400'} ${item.type !== 'text' && linkOrValue ? 'group-hover/link:underline group-hover/link:text-blue-600 transition-colors' : ''}`}>
+                        {item.label}
+                      </span>
+                      {item.type === 'text' && linkOrValue && (
+                        <span className="text-[10px] text-slate-500 font-medium mt-0.5">{linkOrValue}</span>
+                      )}
+                    </div>
+                    {item.type !== 'text' && linkOrValue && <ExternalLink className="w-3 h-3 text-slate-400 group-hover/link:text-blue-500 shrink-0 mt-0.5" />}
                   </div>
                 );
 
-                return link ? (
-                  <a key={item.key} href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noreferrer" className="block">
+                return (item.type !== 'text' && linkOrValue) ? (
+                  <a key={item.key} href={linkOrValue.startsWith('http') ? linkOrValue : `https://${linkOrValue}`} target="_blank" rel="noreferrer" className="block">
                     {content}
                   </a>
                 ) : (
@@ -1628,7 +1632,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
             {ITEMS.map(item => {
               const currentVal = checklist[item.key];
               const isChecked = typeof currentVal === 'object' ? currentVal?.checked : currentVal || false;
-              const link = typeof currentVal === 'object' ? currentVal?.link : '';
+              const linkOrValue = typeof currentVal === 'object' ? currentVal?.link : '';
 
               return (
                 <div key={item.key} className="flex flex-col gap-2 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
@@ -1638,87 +1642,14 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
                   </label>
                   <input 
                     type="text" 
-                    value={link} 
+                    value={linkOrValue} 
                     onChange={(e) => handleLinkChange(item.key, e.target.value)} 
-                    placeholder="Link GDrive dokumen..." 
+                    placeholder={item.type === 'text' ? item.placeholder : "Link GDrive dokumen..."} 
                     className="w-[calc(100%-24px)] ml-[24px] p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
                   />
                 </div>
               );
             })}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (stage === 'vendor') {
-    const folderField = stage + 'FolderLink';
-    const folderLink = draft[folderField] || '';
-
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
-          <option value="Belum">Belum</option>
-          <option value="Proses">Proses</option>
-          <option value="Selesai">Selesai</option>
-        </select>
-        
-        {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
-          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
-             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
-             <input 
-               type="text" 
-               value={folderLink} 
-               onChange={(e) => updateDraftField(folderField, e.target.value)} 
-               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
-               placeholder="Link folder Google Drive..." 
-             />
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (stage === 'pks') {
-    const folderField = stage + 'FolderLink';
-    const folderLink = draft[folderField] || '';
-    const isPksSelesai = draft[stage]?.startsWith('Selesai');
-    
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select 
-          value={isPksSelesai ? 'Selesai' : draft[stage]} 
-          onChange={(e) => {
-            const val = e.target.value;
-            updateDraftField(stage, val === 'Selesai' ? 'Selesai ' : val);
-          }} 
-          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
-        >
-          <option value="Belum">Belum</option>
-          <option value="Proses">Proses</option>
-          <option value="Selesai">Selesai</option>
-        </select>
-        
-        {isPksSelesai && (
-          <input 
-            type="date" 
-            value={draft[stage].replace('Selesai ', '')} 
-            onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
-            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
-          />
-        )}
-        
-        {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
-          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
-             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
-             <input 
-               type="text" 
-               value={folderLink} 
-               onChange={(e) => updateDraftField(folderField, e.target.value)} 
-               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
-               placeholder="Link folder Google Drive..." 
-             />
           </div>
         )}
       </div>
@@ -1792,5 +1723,57 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
 
-  return null;
+  if (['vendor', 'pks'].includes(stage)) {
+    const folderField = stage + 'FolderLink';
+    const folderLink = draft[folderField] || '';
+    
+    const isPksSelesai = stage === 'pks' && draft[stage]?.startsWith('Selesai');
+
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select 
+          value={isPksSelesai ? 'Selesai' : draft[stage]} 
+          onChange={(e) => {
+            const val = e.target.value;
+            updateDraftField(stage, (stage === 'pks' && val === 'Selesai') ? 'Selesai ' : val);
+          }} 
+          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
+        >
+          <option value="Belum">Belum</option>
+          <option value="Proses">Proses</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+        
+        {isPksSelesai && (
+          <input 
+            type="date" 
+            value={draft[stage].replace('Selesai ', '')} 
+            onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
+            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
+          />
+        )}
+        
+        {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
+          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
+             <input 
+               type="text" 
+               value={folderLink} 
+               onChange={(e) => updateDraftField(folderField, e.target.value)} 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
+               placeholder="Link folder Google Drive..." 
+             />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+     <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+       <option value="Belum">Belum</option>
+       <option value="Proses">Proses</option>
+       <option value="Selesai">Selesai</option>
+     </select>
+  );
 }
