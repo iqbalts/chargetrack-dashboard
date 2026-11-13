@@ -32,6 +32,7 @@ const Save = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="2
 const FilterIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
 const Download = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
 const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+const Menu = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>;
 
 // --- KONFIGURASI PUSAT ---
 const KATEGORI_LIST = ['Umum', 'SPBU', 'Rest Area'];
@@ -120,6 +121,9 @@ export default function App() {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
+  // MOBILE MENU STATE
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // GLOBAL PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -628,8 +632,8 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <div className="flex h-screen bg-slate-900 items-center justify-center font-sans">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+      <div className="flex h-screen bg-slate-900 items-center justify-center font-sans p-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 md:p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold tracking-wider text-green-500 mb-2">CAZ<span className="text-slate-900">TRACK</span></h1>
             <p className="text-slate-500 text-sm">Masuk ke Dashboard SPKLU</p>
@@ -670,26 +674,35 @@ export default function App() {
   const menunggu = filteredLocations.filter(l => calculateProgress(l) === 0).length;
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans text-sm relative">
+    <div className="flex h-[100dvh] bg-slate-50 font-sans text-sm relative overflow-hidden">
       
+      {/* OVERLAY SIDEBAR MOBILE */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+      )}
+
+      {/* FILTER MODAL */}
       {isFilterModalOpen && (
         <div className="absolute inset-0 z-[120] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-           <div className="bg-slate-50 rounded-xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden animate-fade-in">
-              <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
+           <div className="bg-slate-50 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
+              <div className="p-4 md:p-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2"><FilterIcon className="w-5 h-5 text-blue-500"/> Filter Data Dashboard</h3>
-                  <p className="text-xs text-slate-500 mt-1">Pilih kriteria untuk memfilter tabel lokasi secara detail.</p>
+                  <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2"><FilterIcon className="w-4 md:w-5 h-4 md:h-5 text-blue-500"/> Filter Data Dashboard</h3>
+                  <p className="text-[10px] md:text-xs text-slate-500 mt-1">Pilih kriteria untuk memfilter tabel lokasi secara detail.</p>
                 </div>
                 <button onClick={() => setIsFilterModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-lg transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               
-              <div className="p-6 overflow-y-auto flex-1">
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              <div className="p-4 md:p-6 overflow-y-auto flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                    {FILTER_SECTIONS.map(section => (
-                     <div key={section.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                       <h4 className="text-[11px] font-bold text-slate-800 mb-3 uppercase tracking-wider border-b border-slate-100 pb-2">{section.title}</h4>
+                     <div key={section.id} className="bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm">
+                       <h4 className="text-[10px] md:text-[11px] font-bold text-slate-800 mb-3 uppercase tracking-wider border-b border-slate-100 pb-2">{section.title}</h4>
                        <div className="flex flex-col gap-2.5">
                          {section.options.map(opt => {
                             const isChecked = filters[section.id].includes(opt);
@@ -707,7 +720,7 @@ export default function App() {
                                   }}
                                   className="accent-blue-600 w-4 h-4 cursor-pointer shrink-0"
                                 />
-                                <span className={`text-xs whitespace-normal leading-tight ${isChecked ? 'font-bold text-blue-700' : 'font-medium text-slate-600 group-hover:text-blue-600'} transition-colors`}>{opt}</span>
+                                <span className={`text-[11px] md:text-xs whitespace-normal leading-tight ${isChecked ? 'font-bold text-blue-700' : 'font-medium text-slate-600 group-hover:text-blue-600'} transition-colors`}>{opt}</span>
                               </label>
                             )
                          })}
@@ -718,10 +731,10 @@ export default function App() {
               </div>
 
               <div className="p-4 border-t border-slate-200 flex justify-between items-center bg-white shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] shrink-0">
-                <button onClick={() => setFilters(INITIAL_FILTERS)} className="px-5 py-2.5 text-red-500 font-bold hover:bg-red-50 rounded-lg transition-colors">
-                  Reset Semua Filter
+                <button onClick={() => setFilters(INITIAL_FILTERS)} className="px-4 md:px-5 py-2 md:py-2.5 text-red-500 font-bold hover:bg-red-50 rounded-lg transition-colors text-xs md:text-sm">
+                  Reset Semua
                 </button>
-                <button onClick={() => setIsFilterModalOpen(false)} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors">
+                <button onClick={() => setIsFilterModalOpen(false)} className="px-4 md:px-6 py-2 md:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-xs md:text-sm">
                   Terapkan Filter
                 </button>
               </div>
@@ -729,8 +742,9 @@ export default function App() {
         </div>
       )}
 
+      {/* RESET PASSWORD MODAL */}
       {resetModal.isOpen && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="text-lg font-bold text-slate-800 mb-4">Reset Password</h3>
             <div className="mb-5">
@@ -745,22 +759,23 @@ export default function App() {
         </div>
       )}
 
+      {/* HISTORY MODAL */}
       {historyModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[80vh]">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <div className="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
               <div>
-                <h3 className="text-lg font-bold text-slate-800">History Perubahan</h3>
-                <p className="text-xs text-slate-500 mt-1">Audit Trail untuk lokasi: <span className="font-bold text-blue-600">{historyModal.location?.lokasi}</span></p>
+                <h3 className="text-base md:text-lg font-bold text-slate-800">History Perubahan</h3>
+                <p className="text-[10px] md:text-xs text-slate-500 mt-1">Audit Trail untuk lokasi: <span className="font-bold text-blue-600">{historyModal.location?.lokasi}</span></p>
               </div>
               <button onClick={() => setHistoryModal({ isOpen: false, location: null })} className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-lg transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-5 overflow-y-auto flex-1 space-y-3">
+            <div className="p-4 md:p-5 overflow-y-auto flex-1 space-y-3">
               {historyModal.location?.logs && historyModal.location.logs.length > 0 ? (
                 [...historyModal.location.logs].reverse().map((log, idx) => (
-                  <div key={idx} className="flex gap-4 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                  <div key={idx} className="flex gap-3 md:gap-4 p-3 bg-slate-50 border border-slate-100 rounded-lg">
                     <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
                       {log.user?.charAt(0) || '?'}
                     </div>
@@ -779,11 +794,17 @@ export default function App() {
         </div>
       )}
 
-      <aside className="w-64 bg-[#111827] text-white flex flex-col shadow-xl z-40 shrink-0">
-        <div className="p-6 mb-4"><h1 className="text-2xl font-bold tracking-wider text-green-400">CAZ<span className="text-white">TRACK</span></h1></div>
+      {/* SIDEBAR DENGAN KONDISI MOBILE RESPONSIVE */}
+      <aside className={`fixed inset-y-0 left-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 w-64 bg-[#111827] text-white flex flex-col shadow-xl z-50 shrink-0`}>
+        <div className="p-6 mb-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold tracking-wider text-green-400">CAZ<span className="text-white">TRACK</span></h1>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
         <nav className="flex-1 space-y-1 px-3">
           {navItems.filter(i => !i.allowedRoles || i.allowedRoles.includes(currentUser.role)).map((item) => (
-            <button key={item.id} onClick={() => { setActiveTab(item.id); setFormDraft(null); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <button key={item.id} onClick={() => { setActiveTab(item.id); setFormDraft(null); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
               <item.icon className="w-5 h-5" /> <span className="font-medium">{item.label}</span>
             </button>
           ))}
@@ -791,46 +812,53 @@ export default function App() {
         <div className="p-4 border-t border-slate-800">
           <div className="flex items-center gap-3 mb-4 px-2">
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">{currentUser?.name.charAt(0)}</div>
-            <div className="text-left"><p className="text-sm font-semibold">{currentUser?.name}</p><p className="text-xs text-slate-400">{currentUser?.role}</p></div>
+            <div className="text-left"><p className="text-sm font-semibold truncate max-w-[140px]">{currentUser?.name}</p><p className="text-xs text-slate-400">{currentUser?.role}</p></div>
           </div>
           <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-slate-800 rounded-lg"><LogOut className="w-4 h-4" /> Keluar</button>
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden relative z-10 bg-slate-50">
-        <div className="flex flex-col flex-1 min-h-0 p-8 overflow-hidden">
+      <main className="flex-1 flex flex-col h-[100dvh] overflow-hidden relative z-10 bg-slate-50 w-full">
+        <div className="flex flex-col flex-1 min-h-0 p-4 lg:p-8 overflow-hidden">
           
-          <div className="flex justify-between items-center mb-8 shrink-0">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-800">
-                {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
-              </h2>
-              <p className="text-slate-500 mt-1">Pantau progres deployment titik charging station.</p>
+          {/* HEADER DASHBOARD RESPONSIVE */}
+          <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8 shrink-0 w-full">
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              {/* TOMBOL HAMBURGER MOBILE */}
+              <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 bg-white text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50">
+                <Menu className="w-5 h-5" />
+              </button>
+              <div>
+                <h2 className="text-xl lg:text-3xl font-bold text-slate-800">
+                  {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
+                </h2>
+                <p className="text-xs lg:text-sm text-slate-500 mt-1 hidden sm:block">Pantau progres deployment titik charging station.</p>
+              </div>
             </div>
             
             {activeTab !== 'settings' && !formDraft && (
-              <div className="flex items-center gap-3">
-                <div className="relative">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                <div className="relative w-full sm:w-auto">
                   <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                   <input 
                     type="text" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cari lokasi atau PIC..." 
-                    className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                    className="pl-10 pr-4 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full w-full lg:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm"
                   />
                 </div>
                 
                 {activeTab === 'dashboard' && (
-                  <>
-                    <button onClick={() => setIsFilterModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm">
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <button onClick={() => setIsFilterModalOpen(true)} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm flex text-xs md:text-sm">
                       <FilterIcon className="w-4 h-4" /> Filter
                       {activeFilterCount > 0 && <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{activeFilterCount}</span>}
                     </button>
-                    <button onClick={handleExportExcel} className="flex items-center gap-2 px-5 py-2.5 bg-green-50 border border-green-200 rounded-full text-green-700 font-bold hover:bg-green-100 transition-colors shadow-sm ml-2">
-                      <Download className="w-4 h-4" /> Export Excel
+                    <button onClick={handleExportExcel} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-green-50 border border-green-200 rounded-full text-green-700 font-bold hover:bg-green-100 transition-colors shadow-sm flex text-xs md:text-sm">
+                      <Download className="w-4 h-4" /> Export
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
             )}
@@ -838,26 +866,28 @@ export default function App() {
 
           {activeTab === 'dashboard' && (
             <div className="flex flex-col flex-1 min-h-0">
-              <div className="grid grid-cols-4 gap-6 mb-8 shrink-0">
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600"><Home className="w-5 h-5" /></div></div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Selesai Beroperasi</p><p className="text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Activity className="w-5 h-5" /></div></div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Sedang Proses</p><p className="text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500"><Activity className="w-5 h-5" /></div></div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
+              {/* GRID STATS RESPONSIVE */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8 shrink-0">
+                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-2xl md:text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600"><Home className="w-5 h-5" /></div></div>
+                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Selesai Beroperasi</p><p className="text-2xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600"><Activity className="w-5 h-5" /></div></div>
+                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Sedang Proses</p><p className="text-2xl md:text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500"><Activity className="w-5 h-5" /></div></div>
+                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-xs md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-2xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><Search className="w-5 h-5" /></div></div>
               </div>
 
-              <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative">
+              {/* TABLE CONTAINER MOBILE FRIENDLY (Horizontal Scrollable) */}
+              <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full">
                 <div className="overflow-auto flex-1 relative w-full">
                   <table className="w-max min-w-full text-xs text-left">
                     <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                       <tr>
                         <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[60px] min-w-[60px] max-w-[60px]" />
-                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[60px] z-50 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KATEGORI</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
                         <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
-                        <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20" />
+                        <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20 min-w-[150px]" />
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
@@ -867,7 +897,7 @@ export default function App() {
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">STATUS AKHIR</th>
+                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20 min-w-[120px]">STATUS AKHIR</th>
                         <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
                         <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-50">HISTORY</th>
                       </tr>
@@ -881,11 +911,11 @@ export default function App() {
                         return (
                         <tr key={item.id} className="hover:bg-slate-50/50 group">
                           <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
-                          <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                          <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                             {item.gmapsLink ? (
                               <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
                                 <span className="group-hover/link:underline">{item.lokasi}</span>
-                                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0" />
+                                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0 hidden sm:block" />
                               </a>
                             ) : (
                               item.lokasi
@@ -896,12 +926,12 @@ export default function App() {
                               {item.kategori || 'Umum'}
                             </span>
                           </td>
-                          <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis}</span>)}</td>
-                          <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.brand}</span>)}</td>
-                          <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block">{c.jumlah} Unit</span>)}</td>
+                          <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit whitespace-nowrap">{c.jenis}</span>)}</td>
+                          <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.brand}</span>)}</td>
+                          <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.jumlah} Unit</span>)}</td>
                           <td className="py-4 px-4 space-y-1 align-top">
                             {item.pics?.map((p, i) => (
-                              <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>
+                              <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600 whitespace-nowrap">{p}</span></div>
                             ))}
                           </td>
                           <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
@@ -920,8 +950,8 @@ export default function App() {
                              </td>
                           ))}
 
-                          <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot}`}></span> {statusAkhir.text}</div></td>
-                          <td className="py-4 px-4 text-slate-500 max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
+                          <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot} shrink-0`}></span> <span className="whitespace-nowrap">{statusAkhir.text}</span></div></td>
+                          <td className="py-4 px-4 text-slate-500 min-w-[200px] max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                           
                           <td className="py-4 px-4 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
                              <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
@@ -938,27 +968,27 @@ export default function App() {
                 </div>
                 
                 {totalPages > 1 && (
-                  <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100 shrink-0">
-                    <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
+                    <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
                       Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
                     </span>
                     <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                      <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                        <ChevronLeft className="w-4 h-4" />
+                      <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                        <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                       <div className="flex items-center px-1 gap-1">
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                           <button 
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                            className={`w-6 h-6 md:w-8 md:h-8 rounded-md text-[10px] md:text-xs font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
                           >
                             {page}
                           </button>
                         ))}
                       </div>
-                      <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                        <ChevronRight className="w-4 h-4" />
+                      <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                        <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                     </div>
                   </div>
@@ -973,7 +1003,7 @@ export default function App() {
                {!formDraft && (
                  <>
                    <div className="flex justify-end mb-4 shrink-0">
-                     <button onClick={handleOpenAddForm} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors">
+                     <button onClick={handleOpenAddForm} className="flex w-full sm:w-auto justify-center items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors text-sm">
                        <Plus className="w-4 h-4" /> Tambah Lokasi
                      </button>
                    </div>
@@ -984,7 +1014,7 @@ export default function App() {
                          <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                            <tr>
                              <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[60px] min-w-[60px] max-w-[60px]">NO</th>
-                             <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                             <th className="py-3 px-3 sticky top-0 left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
                              <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">KATEGORI</th>
                              <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
                              <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
@@ -1002,7 +1032,7 @@ export default function App() {
                              return (
                              <tr key={item.id} className="group hover:bg-slate-50 align-top">
                                <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[60px] min-w-[60px] max-w-[60px]">{rowNumber}</td>
-                               <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[250px] max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
+                               <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[200px] max-w-[200px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
                                <td className="py-3 px-3 align-top">
                                  <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
                                    {item.kategori || 'Umum'}
@@ -1028,8 +1058,8 @@ export default function App() {
                                
                                <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
                                  <div className="flex gap-2 justify-center items-center h-full">
-                                   <button onClick={() => handleOpenEditForm(item)} className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> Edit</button>
-                                   <button onClick={() => handleDeleteLocation(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
+                                   <button onClick={() => handleOpenEditForm(item)} className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors text-[10px] md:text-xs" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> <span className="hidden sm:inline">Edit</span></button>
+                                   <button onClick={() => handleDeleteLocation(item.id)} className="p-1.5 md:p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
                                  </div>
                                </td>
                              </tr>
@@ -1042,27 +1072,27 @@ export default function App() {
                      </div>
 
                      {totalPages > 1 && (
-                       <div className="flex justify-between items-center p-3 bg-white border-t border-slate-100 shrink-0">
-                         <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                       <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
+                         <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
                            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
                          </span>
                          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                           <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                             <ChevronLeft className="w-4 h-4" />
+                           <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                            </button>
                            <div className="flex items-center px-1 gap-1">
                              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                <button 
                                  key={page}
                                  onClick={() => setCurrentPage(page)}
-                                 className={`w-6 h-6 rounded-md text-[10px] font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                                 className={`w-6 h-6 md:w-8 md:h-8 rounded-md text-[10px] md:text-xs font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
                                >
                                  {page}
                                </button>
                              ))}
                            </div>
-                           <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                             <ChevronRight className="w-4 h-4" />
+                           <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                             <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                            </button>
                          </div>
                        </div>
@@ -1072,22 +1102,22 @@ export default function App() {
                )}
 
                {formDraft && (
-                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex-1 overflow-y-auto relative">
-                   <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
-                     <div className="flex items-center gap-4">
-                       <button onClick={() => setFormDraft(null)} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors" title="Kembali"><ChevronLeft className="w-5 h-5"/></button>
+                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 md:p-6 flex-1 overflow-y-auto relative w-full">
+                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+                     <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
+                       <button onClick={() => setFormDraft(null)} className="p-1.5 md:p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors" title="Kembali"><ChevronLeft className="w-5 h-5"/></button>
                        <div>
-                          <h3 className="text-xl font-bold text-slate-800">{formDraft.isNew ? 'Tambah Lokasi Baru' : 'Edit Progress Lokasi'}</h3>
-                          <p className="text-xs text-slate-500 mt-1">{formDraft.isNew ? 'Isi data awal lokasi baru' : `Update progres pengerjaan untuk ${formDraft.lokasi}`}</p>
+                          <h3 className="text-lg md:text-xl font-bold text-slate-800">{formDraft.isNew ? 'Tambah Lokasi Baru' : 'Edit Progress Lokasi'}</h3>
+                          <p className="text-[10px] md:text-xs text-slate-500 mt-1 hidden sm:block">{formDraft.isNew ? 'Isi data awal lokasi baru' : `Update progres pengerjaan untuk ${formDraft.lokasi}`}</p>
                        </div>
                      </div>
-                     <div className="flex gap-3">
-                       <button onClick={() => setFormDraft(null)} className="px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
-                       <button onClick={handleSaveForm} className="px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg flex items-center gap-2 shadow-sm transition-colors"><Save className="w-4 h-4"/> Simpan Perubahan</button>
+                     <div className="flex gap-2 w-full sm:w-auto">
+                       <button onClick={() => setFormDraft(null)} className="flex-1 sm:flex-none px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition-colors text-xs md:text-sm">Batal</button>
+                       <button onClick={handleSaveForm} className="flex-1 sm:flex-none justify-center px-4 md:px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg flex items-center gap-2 shadow-sm transition-colors text-xs md:text-sm"><Save className="w-4 h-4"/> Simpan</button>
                      </div>
                    </div>
 
-                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 pb-12">
                      
                      <div className="lg:col-span-1 space-y-6">
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -1103,7 +1133,7 @@ export default function App() {
                               </div>
                               <div>
                                  <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lokasi</label>
-                                 <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-sm" placeholder="Masukkan nama lokasi..." />
+                                 <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs md:text-sm" placeholder="Masukkan nama lokasi..." />
                               </div>
                               <div>
                                  <label className="block text-xs font-bold text-slate-600 mb-1">Link Google Maps (Opsional)</label>
@@ -1123,18 +1153,20 @@ export default function App() {
                               <label className="block text-xs font-bold text-slate-600 mb-2">Daftar Charger</label>
                               <div className="space-y-2">
                                 {(formDraft.chargers || []).map((chg, idx) => (
-                                  <div key={idx} className="flex gap-1.5 items-center">
-                                    <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jenis', e.target.value)} className="flex-1 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                  <div key={idx} className="flex gap-1.5 items-center flex-wrap sm:flex-nowrap">
+                                    <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jenis', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
                                       <option value="" disabled>Jenis</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
                                     </select>
-                                    <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'brand', e.target.value)} className="flex-1 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                    <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'brand', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
                                       <option value="" disabled>Brand</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
                                     </select>
-                                    <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-14 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white" />
-                                    <button onClick={() => handleDraftArrayRemove('chargers', idx)} className="text-slate-400 hover:text-red-500 p-1.5 rounded transition-colors bg-white border border-slate-300"><Trash2 className="w-3.5 h-3.5" /></button>
+                                    <div className="flex gap-1.5 w-full sm:w-auto">
+                                      <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-16 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white flex-1" />
+                                      <button onClick={() => handleDraftArrayRemove('chargers', idx)} className="text-slate-400 hover:text-red-500 p-1.5 rounded transition-colors bg-white border border-slate-300 shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                                    </div>
                                   </div>
                                 ))}
-                                <button onClick={() => handleDraftArrayAdd('chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full"><Plus className="w-3 h-3"/> Tambah Mesin Charger</button>
+                                <button onClick={() => handleDraftArrayAdd('chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3 h-3"/> Tambah Mesin Charger</button>
                               </div>
                            </div>
 
@@ -1155,7 +1187,7 @@ export default function App() {
 
                      <div className="lg:col-span-2">
                         <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                            {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
                              <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
@@ -1173,57 +1205,61 @@ export default function App() {
 
           {activeTab === 'settings' && (
             <div className="flex-1 overflow-y-auto min-h-0 pb-12">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100">
-                  <div className="p-5 border-b border-slate-100"><h3 className="text-lg font-bold text-slate-800">Daftar Pengguna Sistem</h3></div>
-                  <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-xs">
-                      <tr><th className="py-3 px-5">NAMA PENGGUNA</th><th className="py-3 px-5">EMAIL</th><th className="py-3 px-5">ROLE</th><th className="py-3 px-5 text-center">AKSI</th></tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {users.map(u => (
-                        <tr key={u.id} className="hover:bg-slate-50">
-                          <td className="py-3 px-5 font-bold flex items-center gap-2">
-                             <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">{u.name.charAt(0)}</span> {u.name}
-                          </td>
-                          <td className="py-3 px-5 text-slate-500">{u.email}</td>
-                          <td className="py-3 px-5">
-                            <span className={`px-2.5 py-1 rounded text-xs font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : u.role === 'Editor' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span>
-                          </td>
-                          <td className="py-3 px-5 text-center flex items-center justify-center gap-3">
-                             <button onClick={() => setResetModal({ isOpen: true, userId: u.id, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Reset Password"><Key className="w-4 h-4" /></button>
-                             <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden w-full">
+                  <div className="p-4 md:p-5 border-b border-slate-100"><h3 className="text-base md:text-lg font-bold text-slate-800">Daftar Pengguna Sistem</h3></div>
+                  <div className="overflow-x-auto w-full">
+                    <table className="w-full text-xs md:text-sm text-left min-w-[500px]">
+                      <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] md:text-xs">
+                        <tr><th className="py-3 px-4 md:px-5">NAMA PENGGUNA</th><th className="py-3 px-4 md:px-5">EMAIL</th><th className="py-3 px-4 md:px-5">ROLE</th><th className="py-3 px-4 md:px-5 text-center">AKSI</th></tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {users.map(u => (
+                          <tr key={u.id} className="hover:bg-slate-50">
+                            <td className="py-3 px-4 md:px-5 font-bold flex items-center gap-2">
+                               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs shrink-0">{u.name.charAt(0)}</span> <span className="whitespace-nowrap">{u.name}</span>
+                            </td>
+                            <td className="py-3 px-4 md:px-5 text-slate-500">{u.email}</td>
+                            <td className="py-3 px-4 md:px-5">
+                              <span className={`px-2.5 py-1 rounded text-[10px] md:text-xs font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : u.role === 'Editor' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span>
+                            </td>
+                            <td className="py-3 px-4 md:px-5 text-center">
+                               <div className="flex items-center justify-center gap-3">
+                                 <button onClick={() => setResetModal({ isOpen: true, userId: u.id, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Reset Password"><Key className="w-4 h-4" /></button>
+                                 <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                               </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
                 <div>
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-                    <h3 className="text-lg font-bold text-slate-800 mb-4">Tambah Pengguna Baru</h3>
+                  <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 md:p-5">
+                    <h3 className="text-base md:text-lg font-bold text-slate-800 mb-4">Tambah Pengguna Baru</h3>
                     <form onSubmit={handleAddUser} className="space-y-4">
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
-                        <input type="text" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                        <input type="text" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-1">Email</label>
-                        <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                        <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
-                        <input type="password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                        <input type="password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-1">Role</label>
-                        <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                        <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm">
                           <option value="Admin">Admin</option>
                           <option value="Editor">Editor</option>
                           <option value="Viewer">Viewer</option>
                         </select>
                       </div>
-                      <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">Simpan Pengguna</button>
+                      <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-sm">Simpan Pengguna</button>
                     </form>
                   </div>
                 </div>
@@ -1239,10 +1275,10 @@ export default function App() {
             const firstDayOfMonth = new Date(year, month, 1).getDay();
 
             return (
-              <div className="flex-1 overflow-y-auto min-h-0 pb-12">
-                <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-                   <div className="flex justify-between items-center mb-6">
-                     <h3 className="text-xl font-bold text-slate-800">
+              <div className="flex-1 overflow-y-auto min-h-0 pb-12 w-full">
+                <div className="bg-white p-4 md:p-8 rounded-xl shadow-sm border border-slate-100">
+                   <div className="flex flex-col sm:flex-row justify-between items-center mb-4 md:mb-6 gap-3">
+                     <h3 className="text-lg md:text-xl font-bold text-slate-800">
                        Jadwal {monthNames[month]} {year}
                      </h3>
                      <div className="flex gap-2">
@@ -1251,45 +1287,47 @@ export default function App() {
                      </div>
                    </div>
 
-                   <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-                     {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => (
-                       <div key={d} className="bg-white py-2 text-center text-xs font-bold text-slate-600">{d}</div>
-                     ))}
+                   <div className="overflow-x-auto w-full">
+                     <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden min-w-[700px]">
+                       {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => (
+                         <div key={d} className="bg-white py-2 text-center text-[10px] md:text-xs font-bold text-slate-600">{d}</div>
+                       ))}
 
-                     {Array.from({ length: firstDayOfMonth }).map((_, i) => <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>)}
+                       {Array.from({ length: firstDayOfMonth }).map((_, i) => <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>)}
 
-                     {Array.from({ length: daysInMonth }).map((_, i) => {
-                       const dateNum = i + 1;
-                       const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
-                       
-                       const events = [];
-                       filteredLocations.forEach(loc => {
-                         ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
-                            if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
-                               events.push({ locName: loc.lokasi, stageName: stage });
-                            }
-                            if (loc[stage] && loc[stage] === `Selesai ${fullDateStr}`) {
-                               events.push({ locName: loc.lokasi, stageName: `${stage} (Selesai)` });
-                            }
+                       {Array.from({ length: daysInMonth }).map((_, i) => {
+                         const dateNum = i + 1;
+                         const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
+                         
+                         const events = [];
+                         filteredLocations.forEach(loc => {
+                           ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+                              if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
+                                 events.push({ locName: loc.lokasi, stageName: stage });
+                              }
+                              if (loc[stage] && loc[stage] === `Selesai ${fullDateStr}`) {
+                                 events.push({ locName: loc.lokasi, stageName: `${stage} (Selesai)` });
+                              }
+                           });
                          });
-                       });
 
-                       return (
-                         <div key={i} className="bg-white min-h-[100px] p-2">
-                           <span className={`text-xs font-bold block text-right ${new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' : 'text-slate-400'}`}>
-                             {dateNum}
-                           </span>
-                           <div className="mt-1 space-y-1">
-                             {events.map((ev, idx) => (
-                               <div key={idx} className={`border p-1.5 rounded text-[10px] ${ev.stageName.includes('Selesai') ? 'bg-green-50 border-green-100 text-green-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
-                                  <div className="font-bold capitalize">{ev.stageName}</div>
-                                  <div className="text-slate-500 truncate">{ev.locName}</div>
-                               </div>
-                             ))}
+                         return (
+                           <div key={i} className="bg-white min-h-[100px] p-1 md:p-2">
+                             <span className={`text-[10px] md:text-xs font-bold block text-right ${new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' : 'text-slate-400'}`}>
+                               {dateNum}
+                             </span>
+                             <div className="mt-1 space-y-1">
+                               {events.map((ev, idx) => (
+                                 <div key={idx} className={`border p-1 md:p-1.5 rounded text-[9px] md:text-[10px] ${ev.stageName.includes('Selesai') ? 'bg-green-50 border-green-100 text-green-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
+                                    <div className="font-bold capitalize leading-tight">{ev.stageName}</div>
+                                    <div className="text-slate-500 truncate leading-tight mt-0.5">{ev.locName}</div>
+                                 </div>
+                               ))}
+                             </div>
                            </div>
-                         </div>
-                       );
-                     })}
+                         );
+                       })}
+                     </div>
                    </div>
                 </div>
               </div>
@@ -1324,7 +1362,7 @@ function StatusBadge({ status }) {
     return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm font-bold">Selesai</span>;
   }
   
-  if (status === 'Non PLN') return <span className="px-3 py-1 rounded bg-teal-100 text-teal-700 border border-teal-200 block text-center w-full shadow-sm font-bold">Non PLN</span>;
+  if (status === 'Non PLN') return <span className="px-3 py-1 rounded bg-teal-100 text-teal-700 border border-teal-200 block text-center w-full shadow-sm font-bold whitespace-nowrap">Non PLN</span>;
   if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full shadow-sm font-bold">Proses</span>;
   if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full">Belum</span>;
   
@@ -1367,6 +1405,7 @@ function ChecklistBadge({ status, checklist, type }) {
   const safeChecklist = checklist || {};
 
   const handleMouseEnter = () => {
+    if (window.innerWidth < 1024) return; // Disable hover dropdown on mobile (rely on click if we want to implement it, but hover is bad for mobile anyway)
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 300) {
@@ -1382,21 +1421,28 @@ function ChecklistBadge({ status, checklist, type }) {
     setIsOpen(false); 
   };
 
+  const toggleMobileOpen = () => {
+    if (window.innerWidth < 1024) {
+      setIsOpen(!isOpen);
+    }
+  }
+
   return (
     <div 
       ref={badgeRef}
       className="relative flex flex-col w-full text-center cursor-pointer group" 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={toggleMobileOpen}
     >
       <div className="relative z-10 w-full hover:brightness-95 transition-all">
         <StatusBadge status={status} />
       </div>
       
       {isOpen && (
-        <div className={`absolute left-1/2 -translate-x-1/2 w-max max-w-xs z-50 ${position === 'top' ? 'bottom-full pb-2' : 'top-full pt-2'}`}>
-          <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-4 text-left cursor-default">
-            <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 whitespace-nowrap">
+        <div className={`absolute left-1/2 -translate-x-1/2 w-max max-w-[280px] md:max-w-xs z-50 ${position === 'top' ? 'bottom-full pb-2' : 'top-full pt-2'}`}>
+          <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-3 md:p-4 text-left cursor-default">
+            <p className="text-[11px] md:text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 whitespace-nowrap">
               {type === 'dokumen' ? 'Detail Dokumen Teknis' : 'Detail Perizinan'}
             </p>
             <div className="space-y-2.5">
@@ -1405,17 +1451,17 @@ function ChecklistBadge({ status, checklist, type }) {
                 const linkOrValue = typeof safeChecklist[item.key] === 'object' ? safeChecklist[item.key]?.link : '';
                 
                 const content = (
-                  <div className="flex items-start gap-2 text-xs group/link">
-                    {isChecked ? <Check className="w-4 h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-4 h-4 text-red-400 shrink-0 mt-px" />}
+                  <div className="flex items-start gap-2 text-[11px] md:text-xs group/link">
+                    {isChecked ? <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 shrink-0 mt-px" /> : <X className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-400 shrink-0 mt-px" />}
                     <div className="flex flex-col text-left">
                       <span className={`whitespace-normal leading-tight ${isChecked ? 'text-slate-700 font-medium' : 'text-slate-400'} ${item.type !== 'text' && linkOrValue ? 'group-hover/link:underline group-hover/link:text-blue-600 transition-colors' : ''}`}>
                         {item.label}
                       </span>
                       {item.type === 'text' && linkOrValue && (
-                        <span className="text-[10px] text-slate-500 font-medium mt-0.5">{linkOrValue}</span>
+                        <span className="text-[9px] md:text-[10px] text-slate-500 font-medium mt-0.5">{linkOrValue}</span>
                       )}
                     </div>
-                    {item.type !== 'text' && linkOrValue && <ExternalLink className="w-3 h-3 text-slate-400 group-hover/link:text-blue-500 shrink-0 mt-0.5" />}
+                    {item.type !== 'text' && linkOrValue && <ExternalLink className="w-3 h-3 text-slate-400 group-hover/link:text-blue-500 shrink-0 mt-0.5 hidden md:block" />}
                   </div>
                 );
 
@@ -1445,13 +1491,13 @@ function MediaBadge({ status, links, folderLink, title }) {
     if (!url) return '';
     const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if (match && match[1]) {
-      // FIX 2: Endpoint GDrive diganti dari uc?export jadi /thumbnail biar ga ke-block CORS
       return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w500`; 
     }
     return url;
   };
 
   const handleMouseEnter = () => {
+    if (window.innerWidth < 1024) return;
     if (badgeRef.current) {
       const rect = badgeRef.current.getBoundingClientRect();
       if (window.innerHeight - rect.bottom < 250) {
@@ -1468,7 +1514,12 @@ function MediaBadge({ status, links, folderLink, title }) {
   };
 
   const handleClick = (e) => {
-    if (folderLink) {
+    if (window.innerWidth < 1024 && (safeLinks.length > 0 || folderLink)) {
+      setIsOpen(!isOpen); // Toggle thumbnail view on mobile tap
+      return;
+    }
+
+    if (folderLink && window.innerWidth >= 1024) {
       const url = folderLink.startsWith('http') ? folderLink : `https://${folderLink}`;
       window.open(url, '_blank', 'noopener,noreferrer');
     }
@@ -1477,7 +1528,7 @@ function MediaBadge({ status, links, folderLink, title }) {
   return (
     <div 
       ref={badgeRef}
-      className={`relative flex flex-col w-full text-center ${folderLink ? 'cursor-pointer' : 'cursor-default'} group`} 
+      className={`relative flex flex-col w-full text-center ${folderLink || safeLinks.length > 0 ? 'cursor-pointer' : 'cursor-default'} group`} 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
@@ -1489,10 +1540,10 @@ function MediaBadge({ status, links, folderLink, title }) {
       {isOpen && (
         <div 
           onClick={(e) => e.stopPropagation()} 
-          className={`absolute left-1/2 -translate-x-1/2 w-max max-w-[280px] z-50 ${position === 'top' ? 'bottom-full pb-2' : 'top-full pt-2'}`}
+          className={`absolute left-1/2 -translate-x-1/2 w-max min-w-[200px] max-w-[250px] md:max-w-[280px] z-50 ${position === 'top' ? 'bottom-full pb-2' : 'top-full pt-2'}`}
         >
           <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-3 text-left cursor-default">
-            <p className="text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex items-center gap-1.5 whitespace-nowrap">
+            <p className="text-[11px] md:text-xs font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2 flex items-center gap-1.5 whitespace-nowrap">
               <ImageIcon className="w-4 h-4 text-blue-500" /> Lampiran {title}
             </p>
             {safeLinks.length > 0 ? (
@@ -1523,12 +1574,12 @@ function MediaBadge({ status, links, folderLink, title }) {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic text-center py-3">Belum ada lampiran foto/video.</p>
+              <p className="text-[10px] md:text-xs text-slate-400 italic text-center py-3">Belum ada lampiran foto/video.</p>
             )}
             {folderLink && (
-               <div className="mt-3 pt-2 border-t border-slate-100 text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
-                 <Folder className="w-3 h-3"/> Klik status untuk buka folder GDrive
-               </div>
+               <a href={folderLink.startsWith('http') ? folderLink : `https://${folderLink}`} target="_blank" rel="noreferrer" className="block mt-3 pt-2 border-t border-slate-100 text-[9px] md:text-[10px] text-slate-500 hover:text-blue-600 text-center flex items-center justify-center gap-1 transition-colors">
+                 <Folder className="w-3 h-3"/> Klik di sini buka folder GDrive
+               </a>
             )}
           </div>
         </div>
@@ -1577,14 +1628,14 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
 
     return (
       <div className="flex flex-col gap-2 w-full">
-        <select value={draft[stage]} onChange={handleSelectChange} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+        <select value={draft[stage]} onChange={handleSelectChange} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-[11px] md:text-xs font-bold bg-white">
           <option value="Belum">Belum</option>
           <option value="Proses">Proses</option>
           {draft[stage] === 'Selesai' && <option value="Selesai" disabled>Selesai</option>}
         </select>
         
         {(draft[stage] === 'Proses' || draft[stage] === 'Selesai') && (
-          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+          <div className="flex flex-col gap-3 mt-2 p-2.5 md:p-3 bg-slate-50 border border-slate-200 rounded text-[11px] md:text-xs">
             {ITEMS.map(item => {
               const currentVal = checklist[item.key];
               const isChecked = typeof currentVal === 'object' ? currentVal?.checked : currentVal || false;
@@ -1601,7 +1652,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
                     value={linkOrValue} 
                     onChange={(e) => handleLinkChange(item.key, e.target.value)} 
                     placeholder={item.type === 'text' ? item.placeholder : "Link GDrive dokumen..."} 
-                    className="w-[calc(100%-24px)] ml-[24px] p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
+                    className="w-[calc(100%-24px)] ml-[24px] p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] md:text-xs bg-white" 
                   />
                 </div>
               );
@@ -1622,7 +1673,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     
     return (
       <div className="flex flex-col gap-2 w-full">
-        <select value={isJadwal ? 'Jadwal' : draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+        <select value={isJadwal ? 'Jadwal' : draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value === 'Jadwal' ? 'Jadwal ' : e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-[11px] md:text-xs font-bold bg-white">
           <option value="Belum">Belum</option>
           <option value="Proses">Proses</option>
           <option value="Selesai">Selesai</option>
@@ -1631,24 +1682,24 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
         </select>
         
         {isJadwal && (
-          <input type="date" value={draft[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(stage, `Jadwal ${e.target.value}`)} className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" />
+          <input type="date" value={draft[stage].replace('Jadwal ', '')} onChange={(e) => updateDraftField(stage, `Jadwal ${e.target.value}`)} className="w-full p-2 border border-slate-300 rounded text-slate-700 text-[11px] md:text-xs font-bold bg-white" />
         )}
 
         {(draft[stage] === 'Proses' || draft[stage] === 'Selesai' || draft[stage] === 'Non PLN') && (
-          <div className="flex flex-col gap-3 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+          <div className="flex flex-col gap-3 mt-2 p-2.5 md:p-3 bg-slate-50 border border-slate-200 rounded text-[11px] md:text-xs">
             <div className="border-b border-slate-200 pb-3">
                <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><Folder className="w-3.5 h-3.5 text-blue-500"/> Folder Master GDrive</span>
                <input 
                  type="text" 
                  value={folderLink} 
                  onChange={(e) => updateDraftField(folderField, e.target.value)} 
-                 className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
+                 className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] md:text-xs bg-white" 
                  placeholder="Link folder Google Drive..." 
                />
             </div>
 
             <div>
-               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><ImageIcon className="w-3.5 h-3.5 text-blue-500"/> Lampiran Gambar (Thumbnail)</span>
+               <span className="font-bold text-slate-700 flex items-center gap-1.5 mb-2"><ImageIcon className="w-3.5 h-3.5 text-blue-500"/> Lampiran Gambar</span>
                <div className="space-y-2">
                  {links.map((link, idx) => (
                    <div key={idx} className="flex items-center gap-2">
@@ -1660,17 +1711,17 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
                          newLinks[idx] = e.target.value;
                          updateDraftField(linksField, newLinks);
                        }} 
-                       className="flex-1 p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white" 
+                       className="flex-1 p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] md:text-xs bg-white" 
                        placeholder="Paste link file GDrive..." 
                      />
                      <button onClick={() => {
                        const newLinks = [...links];
                        newLinks.splice(idx, 1);
                        updateDraftField(linksField, newLinks);
-                     }} className="text-slate-400 hover:text-red-500 transition-colors p-2 bg-white border border-slate-200 rounded"><Trash2 className="w-4 h-4"/></button>
+                     }} className="text-slate-400 hover:text-red-500 transition-colors p-1.5 md:p-2 bg-white border border-slate-200 rounded"><Trash2 className="w-4 h-4"/></button>
                    </div>
                  ))}
-                 <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
+                 <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-[10px] md:text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
                </div>
             </div>
           </div>
@@ -1692,7 +1743,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
             const val = e.target.value;
             updateDraftField(stage, (stage === 'pks' && val === 'Selesai') ? 'Selesai ' : val);
           }} 
-          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white"
+          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-[11px] md:text-xs font-bold bg-white"
         >
           <option value="Belum">Belum</option>
           <option value="Proses">Proses</option>
@@ -1704,18 +1755,18 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
             type="date" 
             value={draft[stage].replace('Selesai ', '')} 
             onChange={(e) => updateDraftField(stage, `Selesai ${e.target.value}`)} 
-            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-xs font-bold bg-white" 
+            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-[11px] md:text-xs font-bold bg-white" 
           />
         )}
         
         {(draft[stage]?.startsWith('Proses') || draft[stage]?.startsWith('Selesai')) && (
-          <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+          <div className="flex flex-col gap-2 mt-2 p-2.5 md:p-3 bg-slate-50 border border-slate-200 rounded text-[11px] md:text-xs">
              <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link GDrive</span>
              <input 
                type="text" 
                value={folderLink} 
                onChange={(e) => updateDraftField(folderField, e.target.value)} 
-               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-xs bg-white mt-1" 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] md:text-xs bg-white mt-1" 
                placeholder="Link folder Google Drive..." 
              />
           </div>
@@ -1725,7 +1776,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
   }
 
   return (
-     <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-xs font-bold bg-white">
+     <select value={draft[stage]} onChange={(e) => updateDraftField(stage, e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-[11px] md:text-xs font-bold bg-white">
        <option value="Belum">Belum</option>
        <option value="Proses">Proses</option>
        <option value="Selesai">Selesai</option>
