@@ -613,7 +613,7 @@ export default function App() {
   const SortHeader = ({ label, sortKey, className = "" }) => {
     const isActive = sortConfig.key === sortKey;
     return (
-      <th className={`py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none group sticky top-0 bg-slate-50 ${className || 'z-20'}`} onClick={() => requestSort(sortKey)}>
+      <th className={`py-2 px-2 md:py-4 md:px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none group sticky top-0 bg-slate-50 ${className || 'z-20'}`} onClick={() => requestSort(sortKey)}>
         <div className="flex items-center gap-1">
           {label}
           <div className="flex items-center justify-center w-4 h-4">
@@ -818,14 +818,13 @@ export default function App() {
         </div>
       </aside>
 
-      {/* PERBAIKAN SCROLL MOBILE DI SINI: min-h-screen di HP, h-[100dvh] & overflow-hidden khusus desktop (lg) */}
+      {/* MAIN CONTENT */}
       <main className="flex-1 flex flex-col min-h-screen lg:h-[100dvh] lg:overflow-hidden relative z-10 bg-slate-50 w-full min-w-0">
         <div className="flex flex-col flex-1 lg:min-h-0 p-4 lg:p-8 lg:overflow-hidden">
           
           {/* HEADER DASHBOARD RESPONSIVE */}
           <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-5 lg:mb-8 shrink-0 w-full">
             <div className="flex items-center gap-3 w-full lg:w-auto">
-              {/* TOMBOL HAMBURGER MOBILE */}
               <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 bg-white text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 shrink-0">
                 <Menu className="w-5 h-5" />
               </button>
@@ -867,7 +866,6 @@ export default function App() {
 
           {activeTab === 'dashboard' && (
             <div className="flex flex-col flex-1 lg:min-h-0">
-              {/* GRID STATS RESPONSIVE: 2 Kolom di HP biar hemat tempat */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-5 lg:mb-8 shrink-0">
                 <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-xl md:text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 shrink-0"><Home className="w-4 h-4 md:w-5 md:h-5" /></div></div>
                 <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Selesai</p><p className="text-xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
@@ -875,32 +873,36 @@ export default function App() {
                 <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shrink-0"><Search className="w-4 h-4 md:w-5 md:h-5" /></div></div>
               </div>
 
-              {/* TABLE CONTAINER MOBILE FRIENDLY (min-h-[450px] di HP biar tabelnya muncul lega) */}
+              {/* TABLE CONTAINER: Diperkecil font-nya di mobile (text-[10px]) */}
               <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full min-h-[450px] lg:min-h-0">
                 <div className="overflow-auto flex-1 relative w-full">
-                  <table className="w-max min-w-full text-xs text-left">
+                  <table className="w-max min-w-full text-[10px] md:text-xs text-left">
                     <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                       <tr>
-                        <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]" />
-                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[50px] md:left-[60px] z-50 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KATEGORI</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
+                        {/* Kiri Tetap Sticky Tapi Diperkecil */}
+                        <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]" />
+                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[40px] md:left-[60px] z-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                        
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KATEGORI</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
                         <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
-                        <SortHeader label="PROGRESS KESELURUHAN" sortKey="progress" className="sticky top-0 bg-slate-50 z-20 min-w-[150px]" />
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20 min-w-[120px]">STATUS AKHIR</th>
-                        <th className="py-4 px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
-                        <th className="py-4 px-4 text-center sticky right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-50">HISTORY</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
+                        <SortHeader label="PROGRESS" sortKey="progress" className="sticky top-0 bg-slate-50 z-20 min-w-[120px]" />
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[100px]">STATUS AKHIR</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
+                        
+                        {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 (Lepas sticky di HP) */}
+                        <th className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-30 lg:z-50">HISTORY</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -911,34 +913,34 @@ export default function App() {
                         
                         return (
                         <tr key={item.id} className="hover:bg-slate-50/50 group">
-                          <td className="py-4 px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]">{rowNumber}</td>
-                          <td className="py-4 px-4 font-bold text-slate-800 align-top sticky left-[50px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                          <td className="py-2 px-2 md:py-4 md:px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">{rowNumber}</td>
+                          <td className="py-2 px-2 md:py-4 md:px-4 font-bold text-slate-800 align-top sticky left-[40px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
                             {item.gmapsLink ? (
                               <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
                                 <span className="group-hover/link:underline">{item.lokasi}</span>
-                                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0 hidden sm:block" />
+                                <ExternalLink className="w-3 h-3 md:w-3.5 md:h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0 hidden sm:block" />
                               </a>
                             ) : (
                               item.lokasi
                             )}
                           </td>
-                          <td className="py-4 px-4 align-top">
-                            <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                          <td className="py-2 px-2 md:py-4 md:px-4 align-top">
+                            <span className={`px-2 py-1 rounded text-[9px] md:text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
                               {item.kategori || 'Umum'}
                             </span>
                           </td>
-                          <td className="py-4 px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit whitespace-nowrap">{c.jenis}</span>)}</td>
-                          <td className="py-4 px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.brand}</span>)}</td>
-                          <td className="py-4 px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.jumlah} Unit</span>)}</td>
-                          <td className="py-4 px-4 space-y-1 align-top">
+                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit whitespace-nowrap">{c.jenis}</span>)}</td>
+                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.brand}</span>)}</td>
+                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.jumlah} Unit</span>)}</td>
+                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-1 align-top">
                             {item.pics?.map((p, i) => (
-                              <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600 whitespace-nowrap">{p}</span></div>
+                              <div key={i} className="flex items-center gap-1 md:gap-2"><span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] md:text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600 whitespace-nowrap">{p}</span></div>
                             ))}
                           </td>
-                          <td className="py-4 px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                          <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                           
                           {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
-                             <td key={stage} className="py-4 px-4 align-top min-w-[140px] relative hover:z-30">
+                             <td key={stage} className="py-2 px-2 md:py-4 md:px-4 align-top min-w-[120px] md:min-w-[140px] relative hover:z-30">
                                {stage === 'dokumen' || stage === 'izin' ? (
                                  <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
                                ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
@@ -951,12 +953,13 @@ export default function App() {
                              </td>
                           ))}
 
-                          <td className="py-4 px-4 align-top"><div className={`flex items-center gap-2 font-bold ${statusAkhir.color}`}><span className={`w-2 h-2 rounded-full ${statusAkhir.dot} shrink-0`}></span> <span className="whitespace-nowrap">{statusAkhir.text}</span></div></td>
-                          <td className="py-4 px-4 text-slate-500 min-w-[200px] max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
+                          <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className={`flex items-center gap-1.5 md:gap-2 font-bold ${statusAkhir.color}`}><span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${statusAkhir.dot} shrink-0`}></span> <span className="whitespace-nowrap">{statusAkhir.text}</span></div></td>
+                          <td className="py-2 px-2 md:py-4 md:px-4 text-slate-500 min-w-[150px] md:min-w-[200px] max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
                           
-                          <td className="py-4 px-4 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
-                             <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-1" title="Lihat History Audit Trail">
-                               <Info className="w-5 h-5" />
+                          {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 (Lepas sticky di HP) */}
+                          <td className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
+                             <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-1.5 md:p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-0.5 md:mt-1" title="Lihat History Audit Trail">
+                               <Info className="w-4 h-4 md:w-5 md:h-5" />
                              </button>
                           </td>
                         </tr>
@@ -1004,25 +1007,27 @@ export default function App() {
                {!formDraft && (
                  <>
                    <div className="flex justify-end mb-4 shrink-0">
-                     <button onClick={handleOpenAddForm} className="flex w-full sm:w-auto justify-center items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors text-sm">
+                     <button onClick={handleOpenAddForm} className="flex w-full sm:w-auto justify-center items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors text-sm">
                        <Plus className="w-4 h-4" /> Tambah Lokasi
                      </button>
                    </div>
 
                    <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative min-h-[450px] lg:min-h-0">
                      <div className="overflow-auto flex-1 relative w-full">
-                       <table className="w-max min-w-full text-xs text-left">
+                       <table className="w-max min-w-full text-[10px] md:text-xs text-left">
                          <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
                            <tr>
-                             <th className="py-3 px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]">NO</th>
-                             <th className="py-3 px-3 sticky top-0 left-[50px] md:left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
-                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">KATEGORI</th>
-                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">LINK GMAPS</th>
-                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
-                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[180px]">PIC</th>
-                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">PROGRESS KESELURUHAN</th>
-                             <th className="py-3 px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px]">KETERANGAN</th>
-                             <th className="py-3 px-3 text-center sticky right-0 top-0 bg-slate-50 z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">NO</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 left-[40px] md:left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">KATEGORI</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[150px] md:min-w-[200px]">LINK GMAPS</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px] md:min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[140px] md:min-w-[180px]">PIC</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[120px]">PROGRESS</th>
+                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[150px] md:min-w-[200px]">KETERANGAN</th>
+                             
+                             {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 */}
+                             <th className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 top-0 bg-slate-50 z-30 lg:z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
                            </tr>
                          </thead>
                          <tbody className="divide-y divide-slate-100">
@@ -1032,35 +1037,36 @@ export default function App() {
                              
                              return (
                              <tr key={item.id} className="group hover:bg-slate-50 align-top">
-                               <td className="py-3 px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[50px] md:w-[60px] min-w-[50px] md:min-w-[60px] max-w-[50px] md:max-w-[60px]">{rowNumber}</td>
-                               <td className="py-3 px-3 align-top font-bold text-slate-800 sticky left-[50px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[160px] max-w-[160px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
-                               <td className="py-3 px-3 align-top">
-                                 <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                               <td className="py-2 px-2 md:py-3 md:px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">{rowNumber}</td>
+                               <td className="py-2 px-2 md:py-3 md:px-3 align-top font-bold text-slate-800 sticky left-[40px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
+                               <td className="py-2 px-2 md:py-3 md:px-3 align-top">
+                                 <span className={`px-2 py-1 rounded text-[9px] md:text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
                                    {item.kategori || 'Umum'}
                                  </span>
                                </td>
-                               <td className="py-3 px-3">
-                                  {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[11px] line-clamp-2 mt-1.5">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1.5 block">Kosong</span>}
+                               <td className="py-2 px-2 md:py-3 md:px-3">
+                                  {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[9px] md:text-[11px] line-clamp-2 mt-1">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1 block">Kosong</span>}
                                </td>
-                               <td className="py-3 px-3">
+                               <td className="py-2 px-2 md:py-3 md:px-3">
                                   <div className="space-y-1">
                                      {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
                                      {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                                   </div>
                                </td>
-                               <td className="py-3 px-3">
+                               <td className="py-2 px-2 md:py-3 md:px-3">
                                   <div className="space-y-1">
-                                    {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-2"><span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
+                                    {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-1.5 md:gap-2"><span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] md:text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
                                     {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
                                   </div>
                                </td>
-                               <td className="py-3 px-3"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                               <td className="py-3 px-3"><p className="whitespace-normal break-words max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
+                               <td className="py-2 px-2 md:py-3 md:px-3"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 md:h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                               <td className="py-2 px-2 md:py-3 md:px-3"><p className="whitespace-normal break-words max-w-[150px] md:max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
                                
-                               <td className="py-3 px-3 text-center sticky right-0 z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
-                                 <div className="flex gap-2 justify-center items-center h-full">
-                                   <button onClick={() => handleOpenEditForm(item)} className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors text-[10px] md:text-xs" title="Edit Lokasi"><Edit2 className="w-4 h-4" /> <span className="hidden sm:inline">Edit</span></button>
-                                   <button onClick={() => handleDeleteLocation(item.id)} className="p-1.5 md:p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-4 h-4" /></button>
+                               {/* INI KUNCI FIX-NYA: lg:sticky lg:right-0 */}
+                               <td className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
+                                 <div className="flex gap-1 md:gap-2 justify-center items-center h-full">
+                                   <button onClick={() => handleOpenEditForm(item)} className="px-2 py-1 md:px-4 md:py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors text-[9px] md:text-[10px]" title="Edit Lokasi"><Edit2 className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden sm:inline">Edit</span></button>
+                                   <button onClick={() => handleDeleteLocation(item.id)} className="p-1 md:p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-3 h-3 md:w-4 md:h-4" /></button>
                                  </div>
                                </td>
                              </tr>
