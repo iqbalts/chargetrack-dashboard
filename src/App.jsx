@@ -127,7 +127,7 @@ export default function App() {
 
   // GLOBAL PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10); // FIX: Ubah ke state biar bisa diatur dinamis
 
   const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
 
@@ -971,11 +971,31 @@ export default function App() {
                   </table>
                 </div>
                 
-                {totalPages > 1 && (
+                {filteredLocations.length > 0 && (
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider">Tampilkan</span>
+                      <select 
+                        value={itemsPerPage} 
+                        onChange={(e) => {
+                          setItemsPerPage(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        className="py-1 px-2 text-[10px] md:text-xs border border-slate-200 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-600 font-bold cursor-pointer"
+                      >
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={75}>75</option>
+                        <option value={100}>100</option>
+                      </select>
+                      <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">Data</span>
+                    </div>
+                    
                     <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
                       Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
                     </span>
+                    
                     <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
                       <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
                         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
@@ -1076,11 +1096,31 @@ export default function App() {
                        </table>
                      </div>
 
-                     {totalPages > 1 && (
+                     {filteredLocations.length > 0 && (
                        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
+                         <div className="flex items-center gap-2">
+                           <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider">Tampilkan</span>
+                           <select 
+                             value={itemsPerPage} 
+                             onChange={(e) => {
+                               setItemsPerPage(Number(e.target.value));
+                               setCurrentPage(1);
+                             }}
+                             className="py-1 px-2 text-[10px] md:text-xs border border-slate-200 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-600 font-bold cursor-pointer"
+                           >
+                             <option value={10}>10</option>
+                             <option value={25}>25</option>
+                             <option value={50}>50</option>
+                             <option value={75}>75</option>
+                             <option value={100}>100</option>
+                           </select>
+                           <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">Data</span>
+                         </div>
+                         
                          <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
                            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
                          </span>
+                         
                          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
                            <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
                              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
