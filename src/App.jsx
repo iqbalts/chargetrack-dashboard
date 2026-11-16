@@ -61,7 +61,7 @@ const IZIN_ITEMS = [
 const STAGE_NAME_MAP = {
   survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', 
   pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', 
-  pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'
+  sales: 'Sales Calculator', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'
 };
 
 const FILTER_SECTIONS = [
@@ -74,6 +74,7 @@ const FILTER_SECTIONS = [
   { id: 'pln', title: 'Survey PLN', options: ['Belum', 'Proses', 'Selesai', 'Non PLN', 'Jadwal'] },
   { id: 'izin', title: 'Perizinan', options: ['Belum', 'Proses', 'Selesai'] },
   { id: 'vendor', title: 'Penawaran Vendor', options: ['Belum', 'Proses', 'Selesai'] },
+  { id: 'sales', title: 'Sales Calculator', options: ['Belum', 'Proses', 'Selesai'] },
   { id: 'pks', title: 'PKS', options: ['Belum', 'Proses', 'Selesai'] },
   { id: 'instalasi', title: 'Proses Instalasi', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
   { id: 'testing', title: 'Testing & Comm.', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
@@ -81,7 +82,7 @@ const FILTER_SECTIONS = [
 
 const INITIAL_FILTERS = {
   kategori: [], brand: [], statusAkhir: [], survey: [], teknis: [], dokumen: [], 
-  pln: [], izin: [], vendor: [], pks: [], instalasi: [], testing: []
+  pln: [], izin: [], vendor: [], sales: [], pks: [], instalasi: [], testing: []
 };
 
 // --- Firebase Initialization ---
@@ -246,9 +247,9 @@ export default function App() {
   };
 
   const calculateProgress = (loc) => {
-    const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.pks, loc.instalasi, loc.testing];
+    const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.sales, loc.pks, loc.instalasi, loc.testing];
     const completed = stages.filter(s => (s && s.startsWith('Selesai')) || s === 'Non PLN').length;
-    return Math.round((completed / 9) * 100);
+    return Math.round((completed / 10) * 100);
   };
 
   const getStatusAkhir = (progress) => {
@@ -290,9 +291,9 @@ export default function App() {
       kategori: 'Umum',
       lokasi: '', gmapsLink: '', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
-      vendor: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
+      vendor: 'Belum', sales: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
       surveyLinks: [], teknisLinks: [], plnLinks: [], instalasiLinks: [], testingLinks: [],
-      surveyFolderLink: '', teknisFolderLink: '', plnFolderLink: '', instalasiFolderLink: '', testingFolderLink: '', vendorFolderLink: '', pksFolderLink: '',
+      surveyFolderLink: '', teknisFolderLink: '', plnFolderLink: '', instalasiFolderLink: '', testingFolderLink: '', vendorFolderLink: '', salesFolderLink: '', pksFolderLink: '',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
       izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
       logs: []
@@ -408,7 +409,7 @@ export default function App() {
         }
       });
 
-      const folderStages = ['vendor', 'pks'];
+      const folderStages = ['vendor', 'sales', 'pks'];
       folderStages.forEach(stg => {
         const foldF = stg + 'FolderLink';
         if (originalLoc[foldF] !== formDraft[foldF]) {
@@ -417,7 +418,7 @@ export default function App() {
         }
       });
 
-      ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+      ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].forEach(stage => {
         if (originalLoc[stage] !== formDraft[stage]) {
           updates[stage] = formDraft[stage];
           newLogs.push({ user: currentUser.name, action: `Mengubah status ${STAGE_NAME_MAP[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${formDraft[stage]}"`, time: getFormattedTime() });
@@ -478,12 +479,12 @@ export default function App() {
       </head>
       <body>
         <table>
-          <tr><td colspan="18" class="meta-header">Laporan Status SPKLU | Downloaded by: ${currentUser.name} (${currentUser.email}) | ${timestamp}</td></tr>
+          <tr><td colspan="19" class="meta-header">Laporan Status SPKLU | Downloaded by: ${currentUser.name} (${currentUser.email}) | ${timestamp}</td></tr>
           <tr>
             <th>NO</th><th>KATEGORI</th><th>LOKASI</th><th>LINK GMAPS</th><th>CHARGERS</th><th>PIC</th>
             <th>PROGRESS</th><th>EARLY SURVEY</th><th>SURVEY TEKNIS</th>
             <th>DOKUMEN TEKNIS</th><th>SURVEY PLN</th><th>PERIZINAN</th><th>PENAWARAN VENDOR</th>
-            <th>PKS</th><th>PROSES INSTALASI</th><th>TESTING & COMM</th><th>STATUS AKHIR</th><th>KETERANGAN</th>
+            <th>SALES CALCULATOR</th><th>PKS</th><th>PROSES INSTALASI</th><th>TESTING & COMM</th><th>STATUS AKHIR</th><th>KETERANGAN</th>
           </tr>
     `;
 
@@ -509,6 +510,7 @@ export default function App() {
           <td class="center">${loc.pln || 'Belum'}</td>
           <td class="center">${loc.izin || 'Belum'}</td>
           <td class="center">${loc.vendor || 'Belum'}</td>
+          <td class="center">${loc.sales || 'Belum'}</td>
           <td class="center">${loc.pks || 'Belum'}</td>
           <td class="center">${loc.instalasi || 'Belum'}</td>
           <td class="center">${loc.testing || 'Belum'}</td>
@@ -560,7 +562,7 @@ export default function App() {
         if (!filters.statusAkhir.includes(sAkhir)) return false;
       }
 
-      const stages = ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'];
+      const stages = ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'];
       for (let stage of stages) {
         if (filters[stage] && filters[stage].length > 0) {
           const rawStatus = loc[stage] || 'Belum';
@@ -894,6 +896,7 @@ export default function App() {
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SALES CALCULATOR</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
@@ -937,13 +940,13 @@ export default function App() {
                           </td>
                           <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                           
-                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
+                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].map(stage => (
                              <td key={stage} className="py-2 px-2 md:py-4 md:px-4 align-top min-w-[120px] md:min-w-[140px] relative hover:z-30">
                                {stage === 'dokumen' || stage === 'izin' ? (
                                  <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
                                ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
                                  <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
-                               ) : ['vendor', 'pks'].includes(stage) ? (
+                               ) : ['vendor', 'sales', 'pks'].includes(stage) ? (
                                  <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
                                ) : (
                                  <StatusBadge status={item[stage]} />
@@ -962,7 +965,7 @@ export default function App() {
                         </tr>
                       )})}
                       {filteredLocations.length === 0 && (
-                        <tr><td colSpan="20" className="py-12 text-center text-slate-500 font-medium">Pencarian atau Filter tidak menemukan hasil bray.</td></tr>
+                        <tr><td colSpan="21" className="py-12 text-center text-slate-500 font-medium">Pencarian atau Filter tidak menemukan hasil bray.</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -1190,7 +1193,7 @@ export default function App() {
                      <div className="lg:col-span-2">
                         <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                           {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].map(stage => (
+                           {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].map(stage => (
                              <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
                                <FormEditableStatus draft={formDraft} stage={stage} updateDraftField={updateDraftField} />
@@ -1303,7 +1306,7 @@ export default function App() {
                          
                          const events = [];
                          filteredLocations.forEach(loc => {
-                           ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'pks', 'instalasi', 'testing'].forEach(stage => {
+                           ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].forEach(stage => {
                               if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
                                  events.push({ locName: loc.lokasi, stageName: stage });
                               }
@@ -1732,7 +1735,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
 
-  if (['vendor', 'pks'].includes(stage)) {
+  if (['vendor', 'sales', 'pks'].includes(stage)) {
     const folderField = stage + 'FolderLink';
     const folderLink = draft[folderField] || '';
     const isPksSelesai = stage === 'pks' && draft[stage]?.startsWith('Selesai');
