@@ -42,7 +42,7 @@ const DOKUMEN_ITEMS = [
   { key: 'panel', label: 'Diagram Panel', type: 'link' },
   { key: 'layout', label: 'Layout', type: 'link' },
   { key: 'slo', label: 'SLO & NIDI', type: 'link' },
-  { key: 'proyeksi3d', label: 'Gambar Proyeksi 3D', type: 'link' }
+  { key: 'proyeksi3d', label: 'Gambar Proyeksi 3D (Not mandatory)', type: 'link' }
 ];
 
 const IZIN_ITEMS = [
@@ -61,7 +61,8 @@ const IZIN_ITEMS = [
 const STAGE_NAME_MAP = {
   survey: 'Early Survey', teknis: 'Survey Teknis', dokumen: 'Dokumen Teknis', 
   pln: 'Survey PLN', izin: 'Perizinan', vendor: 'Penawaran Vendor', 
-  sales: 'Sales Calculator', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.'
+  sales: 'Sales Calculator', pks: 'PKS', instalasi: 'Proses Instalasi', testing: 'Testing & Comm.',
+  operasional: 'Operasional'
 };
 
 const FILTER_SECTIONS = [
@@ -78,11 +79,12 @@ const FILTER_SECTIONS = [
   { id: 'pks', title: 'PKS', options: ['Belum', 'Proses', 'Selesai'] },
   { id: 'instalasi', title: 'Proses Instalasi', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
   { id: 'testing', title: 'Testing & Comm.', options: ['Belum', 'Proses', 'Selesai', 'Jadwal'] },
+  { id: 'operasional', title: 'Operasional', options: ['Belum Beroperasi', 'Beroperasi', 'Tidak Beroperasi'] },
 ];
 
 const INITIAL_FILTERS = {
   kategori: [], brand: [], statusAkhir: [], survey: [], teknis: [], dokumen: [], 
-  pln: [], izin: [], vendor: [], sales: [], pks: [], instalasi: [], testing: []
+  pln: [], izin: [], vendor: [], sales: [], pks: [], instalasi: [], testing: [], operasional: []
 };
 
 // --- Firebase Initialization ---
@@ -127,7 +129,7 @@ export default function App() {
 
   // GLOBAL PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // FIX: Ubah ke state biar bisa diatur dinamis
+  const [itemsPerPage, setItemsPerPage] = useState(10); 
 
   const activeFilterCount = Object.values(filters).reduce((acc, curr) => acc + curr.length, 0);
 
@@ -247,9 +249,9 @@ export default function App() {
   };
 
   const calculateProgress = (loc) => {
-    const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.sales, loc.pks, loc.instalasi, loc.testing];
-    const completed = stages.filter(s => (s && s.startsWith('Selesai')) || s === 'Non PLN').length;
-    return Math.round((completed / 10) * 100);
+    const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.sales, loc.pks, loc.instalasi, loc.testing, loc.operasional];
+    const completed = stages.filter(s => (s && s.startsWith('Selesai')) || (s && s.startsWith('Beroperasi')) || s === 'Non PLN').length;
+    return Math.round((completed / 11) * 100); // 11 tahap sekarang
   };
 
   const getStatusAkhir = (progress) => {
@@ -291,9 +293,9 @@ export default function App() {
       kategori: 'Umum',
       lokasi: '', gmapsLink: '', chargers: [], pics: [], keterangan: '',
       survey: 'Belum', teknis: 'Belum', dokumen: 'Belum', pln: 'Belum', izin: 'Belum', 
-      vendor: 'Belum', sales: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum',
+      vendor: 'Belum', sales: 'Belum', pks: 'Belum', instalasi: 'Belum', testing: 'Belum', operasional: 'Belum Beroperasi',
       surveyLinks: [], teknisLinks: [], plnLinks: [], instalasiLinks: [], testingLinks: [],
-      surveyFolderLink: '', teknisFolderLink: '', plnFolderLink: '', instalasiFolderLink: '', testingFolderLink: '', vendorFolderLink: '', salesFolderLink: '', pksFolderLink: '',
+      surveyFolderLink: '', teknisFolderLink: '', plnFolderLink: '', instalasiFolderLink: '', testingFolderLink: '', vendorFolderLink: '', salesFolderLink: '', pksFolderLink: '', operasionalFolderLink: '',
       dokumenChecklist: DOKUMEN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
       izinChecklist: IZIN_ITEMS.reduce((acc, curr) => ({ ...acc, [curr.key]: { checked: false, link: '' } }), {}),
       logs: []
@@ -409,7 +411,7 @@ export default function App() {
         }
       });
 
-      const folderStages = ['vendor', 'sales', 'pks'];
+      const folderStages = ['vendor', 'sales', 'pks', 'operasional'];
       folderStages.forEach(stg => {
         const foldF = stg + 'FolderLink';
         if (originalLoc[foldF] !== formDraft[foldF]) {
@@ -418,7 +420,7 @@ export default function App() {
         }
       });
 
-      ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].forEach(stage => {
+      ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].forEach(stage => {
         if (originalLoc[stage] !== formDraft[stage]) {
           updates[stage] = formDraft[stage];
           newLogs.push({ user: currentUser.name, action: `Mengubah status ${STAGE_NAME_MAP[stage]} dari "${originalLoc[stage] || 'Kosong'}" menjadi "${formDraft[stage]}"`, time: getFormattedTime() });
@@ -479,12 +481,12 @@ export default function App() {
       </head>
       <body>
         <table>
-          <tr><td colspan="19" class="meta-header">Laporan Status SPKLU | Downloaded by: ${currentUser.name} (${currentUser.email}) | ${timestamp}</td></tr>
+          <tr><td colspan="20" class="meta-header">Laporan Status SPKLU | Downloaded by: ${currentUser.name} (${currentUser.email}) | ${timestamp}</td></tr>
           <tr>
             <th>NO</th><th>KATEGORI</th><th>LOKASI</th><th>LINK GMAPS</th><th>CHARGERS</th><th>PIC</th>
             <th>PROGRESS</th><th>EARLY SURVEY</th><th>SURVEY TEKNIS</th>
             <th>DOKUMEN TEKNIS</th><th>SURVEY PLN</th><th>PERIZINAN</th><th>PENAWARAN VENDOR</th>
-            <th>SALES CALCULATOR</th><th>PKS</th><th>PROSES INSTALASI</th><th>TESTING & COMM</th><th>STATUS AKHIR</th><th>KETERANGAN</th>
+            <th>SALES CALCULATOR</th><th>PKS</th><th>PROSES INSTALASI</th><th>TESTING & COMM</th><th>OPERASIONAL</th><th>STATUS AKHIR</th><th>KETERANGAN</th>
           </tr>
     `;
 
@@ -514,6 +516,7 @@ export default function App() {
           <td class="center">${loc.pks || 'Belum'}</td>
           <td class="center">${loc.instalasi || 'Belum'}</td>
           <td class="center">${loc.testing || 'Belum'}</td>
+          <td class="center">${loc.operasional || 'Belum Beroperasi'}</td>
           <td class="center bold">${statusAkhirText}</td>
           <td class="left wrap">${keteranganText}</td>
         </tr>
@@ -562,13 +565,14 @@ export default function App() {
         if (!filters.statusAkhir.includes(sAkhir)) return false;
       }
 
-      const stages = ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'];
+      const stages = ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'];
       for (let stage of stages) {
         if (filters[stage] && filters[stage].length > 0) {
-          const rawStatus = loc[stage] || 'Belum';
+          const rawStatus = loc[stage] || (stage === 'operasional' ? 'Belum Beroperasi' : 'Belum');
           let checkVal = rawStatus;
           if (rawStatus.startsWith('Jadwal')) checkVal = 'Jadwal';
           if (rawStatus.startsWith('Selesai')) checkVal = 'Selesai';
+          if (rawStatus.startsWith('Beroperasi')) checkVal = 'Beroperasi';
           
           if (!filters[stage].includes(checkVal)) return false;
         }
@@ -900,6 +904,7 @@ export default function App() {
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
+                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[140px]">OPERASIONAL</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[100px]">STATUS AKHIR</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
                         
@@ -940,13 +945,13 @@ export default function App() {
                           </td>
                           <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
                           
-                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].map(stage => (
+                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].map(stage => (
                              <td key={stage} className="py-2 px-2 md:py-4 md:px-4 align-top min-w-[120px] md:min-w-[140px] relative hover:z-30">
                                {stage === 'dokumen' || stage === 'izin' ? (
                                  <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
                                ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
                                  <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
-                               ) : ['vendor', 'sales', 'pks'].includes(stage) ? (
+                               ) : ['vendor', 'sales', 'pks', 'operasional'].includes(stage) ? (
                                  <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
                                ) : (
                                  <StatusBadge status={item[stage]} />
@@ -1233,7 +1238,7 @@ export default function App() {
                      <div className="lg:col-span-2">
                         <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                           {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].map(stage => (
+                           {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].map(stage => (
                              <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
                                <FormEditableStatus draft={formDraft} stage={stage} updateDraftField={updateDraftField} />
@@ -1346,12 +1351,15 @@ export default function App() {
                          
                          const events = [];
                          filteredLocations.forEach(loc => {
-                           ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].forEach(stage => {
+                           ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].forEach(stage => {
                               if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
                                  events.push({ locName: loc.lokasi, stageName: stage });
                               }
                               if (loc[stage] && loc[stage] === `Selesai ${fullDateStr}`) {
                                  events.push({ locName: loc.lokasi, stageName: `${stage} (Selesai)` });
+                              }
+                              if (loc[stage] && loc[stage] === `Beroperasi ${fullDateStr}`) {
+                                 events.push({ locName: loc.lokasi, stageName: `${stage} (Beroperasi)` });
                               }
                            });
                          });
@@ -1363,7 +1371,7 @@ export default function App() {
                              </span>
                              <div className="mt-1 space-y-1">
                                {events.map((ev, idx) => (
-                                 <div key={idx} className={`border p-1 md:p-1.5 rounded text-[9px] md:text-[10px] ${ev.stageName.includes('Selesai') ? 'bg-green-50 border-green-100 text-green-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
+                                 <div key={idx} className={`border p-1 md:p-1.5 rounded text-[9px] md:text-[10px] ${ev.stageName.includes('Selesai') || ev.stageName.includes('Beroperasi') ? 'bg-green-50 border-green-100 text-green-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
                                     <div className="font-bold capitalize leading-tight">{ev.stageName}</div>
                                     <div className="text-slate-500 truncate leading-tight mt-0.5">{ev.locName}</div>
                                  </div>
@@ -1389,8 +1397,9 @@ export default function App() {
 function StatusBadge({ status }) {
   if (!status) return null;
   
-  if (status.startsWith('Selesai')) {
+  if (status.startsWith('Selesai') || status.startsWith('Beroperasi')) {
     const parts = status.split(' ');
+    const label = status.startsWith('Selesai') ? 'Selesai' : 'Beroperasi';
     if (parts.length > 1 && parts[1].match(/^\d{4}-\d{2}-\d{2}$/)) {
       const dateStr = parts[1];
       const [year, month, day] = dateStr.split('-');
@@ -1399,15 +1408,17 @@ function StatusBadge({ status }) {
       
       return (
         <div className="flex flex-col w-full text-center shadow-sm">
-          <span className="bg-green-100 text-green-700 border border-green-200 border-b-0 rounded-t py-1 font-bold">Selesai</span>
+          <span className="bg-green-100 text-green-700 border border-green-200 border-b-0 rounded-t py-1 font-bold">{label}</span>
           <span className="bg-white text-slate-600 border border-green-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium whitespace-nowrap px-1 text-[11px]"><Calendar className="w-3 h-3 shrink-0" /> {displayDate}</span>
         </div>
       );
     }
-    return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm font-bold">Selesai</span>;
+    return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm font-bold">{label}</span>;
   }
   
   if (status === 'Non PLN') return <span className="px-3 py-1 rounded bg-teal-100 text-teal-700 border border-teal-200 block text-center w-full shadow-sm font-bold whitespace-nowrap">Non PLN</span>;
+  if (status === 'Belum Beroperasi') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full shadow-sm font-bold whitespace-nowrap">Belum Berop.</span>;
+  if (status === 'Tidak Beroperasi') return <span className="px-3 py-1 rounded bg-red-100 text-red-700 border border-red-200 block text-center w-full shadow-sm font-bold whitespace-nowrap">Tidak Berop.</span>;
   if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full shadow-sm font-bold">Proses</span>;
   if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full">Belum</span>;
   
@@ -1656,6 +1667,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
       const newChecklist = { ...checklist, [key]: { checked, link: currentLink } };
       
       const isAllChecked = ITEMS.every(item => {
+        if (item.key === 'proyeksi3d') return true; // Bypass mandatory check buat 3D
         const val = newChecklist[item.key];
         return typeof val === 'object' ? val?.checked : val;
       });
@@ -1769,6 +1781,51 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
                  <button onClick={() => updateDraftField(linksField, [...links, ''])} className="text-[10px] md:text-xs font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3.5 h-3.5"/> Tambah Thumbnail File</button>
                </div>
             </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+  
+  if (stage === 'operasional') {
+    const folderField = stage + 'FolderLink';
+    const folderLink = draft[folderField] || '';
+    const isBeroperasi = draft[stage]?.startsWith('Beroperasi');
+
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <select 
+          value={isBeroperasi ? 'Beroperasi' : draft[stage] || 'Belum Beroperasi'} 
+          onChange={(e) => {
+            const val = e.target.value;
+            updateDraftField(stage, val === 'Beroperasi' ? 'Beroperasi ' : val);
+          }} 
+          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-[11px] md:text-xs font-bold bg-white"
+        >
+          <option value="Belum Beroperasi">Belum Beroperasi</option>
+          <option value="Beroperasi">Beroperasi</option>
+          <option value="Tidak Beroperasi">Tidak Beroperasi</option>
+        </select>
+
+        {isBeroperasi && (
+          <input 
+            type="date" 
+            value={draft[stage].replace('Beroperasi ', '')} 
+            onChange={(e) => updateDraftField(stage, `Beroperasi ${e.target.value}`)} 
+            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-[11px] md:text-xs font-bold bg-white" 
+          />
+        )}
+
+        {(draft[stage]?.startsWith('Beroperasi') || draft[stage]?.startsWith('Tidak Beroperasi')) && (
+          <div className="flex flex-col gap-2 mt-2 p-2.5 md:p-3 bg-slate-50 border border-slate-200 rounded text-[11px] md:text-xs">
+             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link BAST (GDrive)</span>
+             <input 
+               type="text" 
+               value={folderLink} 
+               onChange={(e) => updateDraftField(folderField, e.target.value)} 
+               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] md:text-xs bg-white mt-1" 
+               placeholder="Link folder/file Google Drive..." 
+             />
           </div>
         )}
       </div>
