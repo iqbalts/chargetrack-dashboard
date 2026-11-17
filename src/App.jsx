@@ -251,7 +251,7 @@ export default function App() {
   const calculateProgress = (loc) => {
     const stages = [loc.survey, loc.teknis, loc.dokumen, loc.pln, loc.izin, loc.vendor, loc.sales, loc.pks, loc.instalasi, loc.testing, loc.operasional];
     const completed = stages.filter(s => (s && s.startsWith('Selesai')) || (s && s.startsWith('Beroperasi')) || s === 'Non PLN').length;
-    return Math.round((completed / 11) * 100); // 11 tahap sekarang
+    return Math.round((completed / 11) * 100); 
   };
 
   const getStatusAkhir = (progress) => {
@@ -904,7 +904,6 @@ export default function App() {
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[140px]">OPERASIONAL</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[100px]">STATUS AKHIR</th>
                         <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
                         
@@ -1152,8 +1151,9 @@ export default function App() {
                )}
 
                {formDraft && (
-                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 md:p-6 flex-1 overflow-y-auto relative w-full">
-                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col flex-1 overflow-hidden relative w-full">
+                   {/* HEADER FIXED/FREEZE */}
+                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-6 border-b border-slate-100 bg-white z-20 shrink-0 shadow-sm">
                      <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
                        <button onClick={() => setFormDraft(null)} className="p-1.5 md:p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors" title="Kembali"><ChevronLeft className="w-5 h-5"/></button>
                        <div>
@@ -1167,86 +1167,89 @@ export default function App() {
                      </div>
                    </div>
 
-                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 pb-12">
-                     
-                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                           <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
-                           <div className="space-y-4">
-                              <div>
-                                 <label className="block text-xs font-bold text-slate-600 mb-1">Kategori Lokasi</label>
-                                 <select value={formDraft.kategori || 'Umum'} onChange={(e) => updateDraftField('kategori', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-xs font-bold text-slate-700 bg-white">
-                                   <option value="Umum">Umum</option>
-                                   <option value="SPBU">SPBU</option>
-                                   <option value="Rest Area">Rest Area</option>
-                                 </select>
-                              </div>
-                              <div>
-                                 <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lokasi</label>
-                                 <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs md:text-sm" placeholder="Masukkan nama lokasi..." />
-                              </div>
-                              <div>
-                                 <label className="block text-xs font-bold text-slate-600 mb-1">Link Google Maps (Opsional)</label>
-                                 <input type="text" value={formDraft.gmapsLink || ''} onChange={(e) => updateDraftField('gmapsLink', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs" placeholder="https://maps.google.com/..." />
-                              </div>
-                              <div>
-                                 <label className="block text-xs font-bold text-slate-600 mb-1">Keterangan / Catatan Tambahan</label>
-                                 <textarea value={formDraft.keterangan} onChange={(e) => updateDraftField('keterangan', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs min-h-[80px]" placeholder="Keterangan kondisi lapangan..."></textarea>
-                              </div>
-                           </div>
-                        </div>
-
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                           <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-blue-500"/> Hardware & Tim</h4>
-                           
-                           <div className="mb-5">
-                              <label className="block text-xs font-bold text-slate-600 mb-2">Daftar Charger</label>
-                              <div className="space-y-2">
-                                {(formDraft.chargers || []).map((chg, idx) => (
-                                  <div key={idx} className="flex gap-1.5 items-center flex-wrap sm:flex-nowrap">
-                                    <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jenis', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
-                                      <option value="" disabled>Jenis</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
-                                    </select>
-                                    <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'brand', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
-                                      <option value="" disabled>Brand</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
-                                    </select>
-                                    <div className="flex gap-1.5 w-full sm:w-auto">
-                                      <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-16 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white flex-1" />
-                                      <button onClick={() => handleDraftArrayRemove('chargers', idx)} className="text-slate-400 hover:text-red-500 p-1.5 rounded transition-colors bg-white border border-slate-300 shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
-                                    </div>
-                                  </div>
-                                ))}
-                                <button onClick={() => handleDraftArrayAdd('chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3 h-3"/> Tambah Mesin Charger</button>
-                              </div>
-                           </div>
-
-                           <div>
-                              <label className="block text-xs font-bold text-slate-600 mb-2">Tim PIC Lapangan</label>
-                              <div className="space-y-2">
-                                {(formDraft.pics || []).map((pic, idx) => (
-                                  <div key={idx} className="flex gap-1.5 items-center">
-                                    <input type="text" placeholder="Nama PIC..." value={pic || ''} onChange={e => handleDraftArrayUpdateString('pics', idx, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded outline-none focus:border-blue-500 text-xs bg-white" />
-                                    <button onClick={() => handleDraftArrayRemove('pics', idx)} className="text-slate-400 hover:text-red-500 p-2 rounded transition-colors bg-white border border-slate-300"><Trash2 className="w-4 h-4" /></button>
-                                  </div>
-                                ))}
-                                <button onClick={() => handleDraftArrayAdd('pics', '')} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full"><Plus className="w-3 h-3"/> Tambah PIC Baru</button>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-
-                     <div className="lg:col-span-2">
-                        <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                           {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].map(stage => (
-                             <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
-                               <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
-                               <FormEditableStatus draft={formDraft} stage={stage} updateDraftField={updateDraftField} />
+                   {/* FORM CONTENT SCROLLABLE */}
+                   <div className="p-4 md:p-6 overflow-y-auto flex-1">
+                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 pb-12">
+                       
+                       <div className="lg:col-span-1 space-y-6">
+                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                             <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
+                             <div className="space-y-4">
+                                <div>
+                                   <label className="block text-xs font-bold text-slate-600 mb-1">Kategori Lokasi</label>
+                                   <select value={formDraft.kategori || 'Umum'} onChange={(e) => updateDraftField('kategori', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-xs font-bold text-slate-700 bg-white">
+                                     <option value="Umum">Umum</option>
+                                     <option value="SPBU">SPBU</option>
+                                     <option value="Rest Area">Rest Area</option>
+                                   </select>
+                                </div>
+                                <div>
+                                   <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lokasi</label>
+                                   <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs md:text-sm" placeholder="Masukkan nama lokasi..." />
+                                </div>
+                                <div>
+                                   <label className="block text-xs font-bold text-slate-600 mb-1">Link Google Maps (Opsional)</label>
+                                   <input type="text" value={formDraft.gmapsLink || ''} onChange={(e) => updateDraftField('gmapsLink', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs" placeholder="https://maps.google.com/..." />
+                                </div>
+                                <div>
+                                   <label className="block text-xs font-bold text-slate-600 mb-1">Keterangan / Catatan Tambahan</label>
+                                   <textarea value={formDraft.keterangan} onChange={(e) => updateDraftField('keterangan', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs min-h-[80px]" placeholder="Keterangan kondisi lapangan..."></textarea>
+                                </div>
                              </div>
-                           ))}
-                        </div>
-                     </div>
+                          </div>
 
+                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                             <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-blue-500"/> Hardware & Tim</h4>
+                             
+                             <div className="mb-5">
+                                <label className="block text-xs font-bold text-slate-600 mb-2">Daftar Charger</label>
+                                <div className="space-y-2">
+                                  {(formDraft.chargers || []).map((chg, idx) => (
+                                    <div key={idx} className="flex gap-1.5 items-center flex-wrap sm:flex-nowrap">
+                                      <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jenis', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                        <option value="" disabled>Jenis</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
+                                      </select>
+                                      <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'brand', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                        <option value="" disabled>Brand</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
+                                      </select>
+                                      <div className="flex gap-1.5 w-full sm:w-auto">
+                                        <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-16 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white flex-1" />
+                                        <button onClick={() => handleDraftArrayRemove('chargers', idx)} className="text-slate-400 hover:text-red-500 p-1.5 rounded transition-colors bg-white border border-slate-300 shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  <button onClick={() => handleDraftArrayAdd('chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3 h-3"/> Tambah Mesin Charger</button>
+                                </div>
+                             </div>
+
+                             <div>
+                                <label className="block text-xs font-bold text-slate-600 mb-2">Tim PIC Lapangan</label>
+                                <div className="space-y-2">
+                                  {(formDraft.pics || []).map((pic, idx) => (
+                                    <div key={idx} className="flex gap-1.5 items-center">
+                                      <input type="text" placeholder="Nama PIC..." value={pic || ''} onChange={e => handleDraftArrayUpdateString('pics', idx, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded outline-none focus:border-blue-500 text-xs bg-white" />
+                                      <button onClick={() => handleDraftArrayRemove('pics', idx)} className="text-slate-400 hover:text-red-500 p-2 rounded transition-colors bg-white border border-slate-300"><Trash2 className="w-4 h-4" /></button>
+                                    </div>
+                                  ))}
+                                  <button onClick={() => handleDraftArrayAdd('pics', '')} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full"><Plus className="w-3 h-3"/> Tambah PIC Baru</button>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+
+                       <div className="lg:col-span-2">
+                          <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].map(stage => (
+                               <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
+                                 <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
+                                 <FormEditableStatus draft={formDraft} stage={stage} updateDraftField={updateDraftField} />
+                               </div>
+                             ))}
+                          </div>
+                       </div>
+
+                     </div>
                    </div>
                  </div>
                )}
