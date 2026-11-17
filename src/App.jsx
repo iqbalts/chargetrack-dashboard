@@ -113,7 +113,8 @@ export default function App() {
   const [locations, setLocations] = useState([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
 
-  const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
+  // GANTI STATE resetModal JADI editUserModal
+  const [editUserModal, setEditUserModal] = useState({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '' });
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
   const [formDraft, setFormDraft] = useState(null);
@@ -274,10 +275,36 @@ export default function App() {
     if (firebaseUser) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', id.toString()));
   };
 
-  const saveNewPassword = async () => {
-    if (!firebaseUser || !resetModal.userId || !resetModal.newPassword) return;
-    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', resetModal.userId.toString()), { password: resetModal.newPassword });
-    setResetModal({ isOpen: false, userId: null, newPassword: '' });
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    if (!firebaseUser || !editUserModal.id) return;
+    
+    const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', editUserModal.id.toString());
+    const updates = {};
+    
+    // Kalau admin, bisa edit nama, email, role. Kalo engga, cuma password.
+    if (currentUser.role === 'Admin') {
+      if (editUserModal.name) updates.name = editUserModal.name;
+      if (editUserModal.email) updates.email = editUserModal.email;
+      if (editUserModal.role) updates.role = editUserModal.role;
+    }
+    
+    if (editUserModal.newPassword) {
+      updates.password = editUserModal.newPassword;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await updateDoc(userRef, updates);
+      
+      // Update state lokal kalo yang diedit profil sendiri
+      if (editUserModal.id === currentUser.id) {
+        const updatedUser = { ...currentUser, ...updates };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('caztrack_user', JSON.stringify(updatedUser));
+      }
+    }
+    
+    setEditUserModal({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '' });
   };
 
   const handleDeleteLocation = async (id) => {
@@ -748,19 +775,53 @@ export default function App() {
         </div>
       )}
 
-      {/* RESET PASSWORD MODAL */}
-      {resetModal.isOpen && (
+      {/* EDIT USER / PASSWORD MODAL */}
+      {editUserModal.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-4">Reset Password</h3>
-            <div className="mb-5">
-              <label className="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
-              <input type="password" value={resetModal.newPassword} onChange={(e) => setResetModal({...resetModal, newPassword: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan password baru..." autoFocus />
-            </div>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setResetModal({ isOpen: false, userId: null, newPassword: '' })} className="px-4 py-2 text-slate-500 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
-              <button onClick={saveNewPassword} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Simpan</button>
-            </div>
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">{currentUser.role === 'Admin' ? 'Edit Data Pengguna' : 'Ganti Password'}</h3>
+            
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              {currentUser.role === 'Admin' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
+                    <input type="text" value={editUserModal.name} onChange={e => setEditUserModal({...editUserModal, name: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Email</label>
+                    <input type="email" value={editUserModal.email} onChange={e => setEditUserModal({...editUserModal, email: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Role</label>
+                    <select value={editUserModal.role} onChange={e => setEditUserModal({...editUserModal, role: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                      <option value="Admin">Admin</option>
+                      <option value="Editor">Editor</option>
+                      <option value="Viewer">Viewer</option>
+                    </select>
+                  </div>
+                </>
+              )}
+              
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1">
+                  {currentUser.role === 'Admin' ? 'Password Baru (Kosongkan jika tidak diubah)' : 'Password Baru'}
+                </label>
+                <input 
+                  type="password" 
+                  value={editUserModal.newPassword} 
+                  onChange={e => setEditUserModal({...editUserModal, newPassword: e.target.value})} 
+                  className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" 
+                  placeholder="Masukkan password baru..." 
+                  required={currentUser.role !== 'Admin'} 
+                />
+              </div>
+              
+              <div className="flex justify-end gap-3 mt-6 pt-2 border-t border-slate-100">
+                <button type="button" onClick={() => setEditUserModal({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '' })} className="px-4 py-2 text-slate-500 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Simpan Perubahan</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -816,9 +877,22 @@ export default function App() {
           ))}
         </nav>
         <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">{currentUser?.name.charAt(0)}</div>
-            <div className="text-left"><p className="text-sm font-semibold truncate max-w-[140px]">{currentUser?.name}</p><p className="text-xs text-slate-400">{currentUser?.role}</p></div>
+          <div className="flex items-center justify-between gap-3 mb-4 px-2">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">{currentUser?.name.charAt(0)}</div>
+              <div className="text-left">
+                <p className="text-sm font-semibold truncate max-w-[100px]">{currentUser?.name}</p>
+                <p className="text-xs text-slate-400">{currentUser?.role}</p>
+              </div>
+            </div>
+            {/* Tombol Edit Profile / Password buat semua user */}
+            <button 
+              onClick={() => setEditUserModal({ isOpen: true, id: currentUser.id, name: currentUser.name, email: currentUser.email, role: currentUser.role, newPassword: '' })} 
+              className="text-slate-400 hover:text-blue-400 transition-colors p-1" 
+              title={currentUser.role === 'Admin' ? 'Edit Profile' : 'Ganti Password'}
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
           </div>
           <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-slate-800 rounded-lg"><LogOut className="w-4 h-4" /> Keluar</button>
         </div>
@@ -879,7 +953,6 @@ export default function App() {
                 <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shrink-0"><Search className="w-4 h-4 md:w-5 md:h-5" /></div></div>
               </div>
 
-              {/* TABLE CONTAINER: Diperkecil font-nya di mobile (text-[10px]) */}
               <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full min-h-[450px] lg:min-h-0">
                 <div className="overflow-auto flex-1 relative w-full">
                   <table className="w-max min-w-full text-[10px] md:text-xs text-left">
@@ -1278,7 +1351,7 @@ export default function App() {
                             </td>
                             <td className="py-3 px-4 md:px-5 text-center">
                                <div className="flex items-center justify-center gap-3">
-                                 <button onClick={() => setResetModal({ isOpen: true, userId: u.id, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Reset Password"><Key className="w-4 h-4" /></button>
+                                 <button onClick={() => setEditUserModal({ isOpen: true, id: u.id, name: u.name, email: u.email, role: u.role, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Edit Pengguna"><Edit2 className="w-4 h-4" /></button>
                                  <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
                                </div>
                             </td>
