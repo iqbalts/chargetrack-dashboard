@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection } from 'firebase/firestore';
+import { ClipboardList, CalendarCheck, AlertTriangle, ClipboardCheck, History as HistoryIcon, Package as PackageIcon, CalendarDays, BarChart3, Database, Zap, Users } from 'lucide-react';
+import MaintenanceModule from './components/maintenance/MaintenanceModule.jsx';
 
 // --- Custom Icons ---
 const Activity = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
@@ -88,6 +90,7 @@ const INITIAL_FILTERS = {
 };
 
 // --- Firebase Initialization ---
+// FIX: Dibalikin ke hardcode punya Caztrack biar nggak error pas di-deploy
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "caztrack-app.firebaseapp.com",
@@ -113,7 +116,6 @@ export default function App() {
   const [locations, setLocations] = useState([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
 
-  // GANTI STATE resetModal JADI editUserModal
   const [editUserModal, setEditUserModal] = useState({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '' });
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
@@ -127,6 +129,7 @@ export default function App() {
   
   // MOBILE MENU STATE
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedMaintenanceGroups, setExpandedMaintenanceGroups] = useState(['operations']);
 
   // GLOBAL PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,6 +145,14 @@ export default function App() {
   useEffect(() => {
     setCurrentPage(1);
   }, [filters, searchQuery, activeTab]);
+
+  useEffect(() => {
+    const handleMaintenanceNavigation = (event) => {
+      if (event.detail) setActiveTab(event.detail);
+    };
+    window.addEventListener('chargetrack-maintenance-nav', handleMaintenanceNavigation);
+    return () => window.removeEventListener('chargetrack-maintenance-nav', handleMaintenanceNavigation);
+  }, []);
 
   useEffect(() => {
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
@@ -220,7 +231,6 @@ export default function App() {
     });
 
     const unsubLocs = onSnapshot(locsRef, (snapshot) => {
-      // Sort Descending biar data paling baru langsung muncul di atas
       setLocations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => parseInt(b.id) - parseInt(a.id)));
       setIsFirebaseLoaded(true);
     });
@@ -282,7 +292,6 @@ export default function App() {
     const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', editUserModal.id.toString());
     const updates = {};
     
-    // Kalau admin, bisa edit nama, email, role. Kalo engga, cuma password.
     if (currentUser.role === 'Admin') {
       if (editUserModal.name) updates.name = editUserModal.name;
       if (editUserModal.email) updates.email = editUserModal.email;
@@ -295,8 +304,6 @@ export default function App() {
 
     if (Object.keys(updates).length > 0) {
       await updateDoc(userRef, updates);
-      
-      // Update state lokal kalo yang diedit profil sendiri
       if (editUserModal.id === currentUser.id) {
         const updatedUser = { ...currentUser, ...updates };
         setCurrentUser(updatedUser);
@@ -695,10 +702,37 @@ export default function App() {
   }
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Activity },
+    { id: 'dashboard', label: 'Dashboard', icon: Activity, section: 'PROJECT MANAGEMENT' },
     { id: 'update', label: 'Update Progress', icon: Home, allowedRoles: ['Admin', 'Editor'] },
     { id: 'calendar', label: 'Kalender', icon: Calendar },
-    { id: 'settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['Admin'] },
+    { id: 'maintenance-overview', label: 'Maintenance Overview', icon: Activity, section: 'MAINTENANCE MANAGEMENT' },
+    { id: 'maintenance-sparepart', label: 'Sparepart Management', icon: PackageIcon },
+    { id: 'maintenance-reports', label: 'Maintenance Reports', icon: BarChart3 },
+    { id: 'settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['Admin'], section: 'SYSTEM' },
+  ];
+
+  const maintenanceNavGroups = [
+    {
+      id: 'operations',
+      label: 'Work Management',
+      icon: ClipboardList,
+      items: [
+        { id: 'maintenance-pm', label: 'Preventive Maintenance', icon: CalendarCheck },
+        { id: 'maintenance-corrective', label: 'Corrective Maintenance', icon: AlertTriangle },
+        { id: 'maintenance-inspection', label: 'Inspection & Checklist', icon: ClipboardCheck },
+        { id: 'maintenance-schedule', label: 'Maintenance Schedule', icon: CalendarDays },
+      ],
+    },
+    {
+      id: 'master',
+      label: 'Master',
+      icon: Database,
+      items: [
+        { id: 'maintenance-charger', label: 'Charger', icon: Zap },
+        { id: 'maintenance-history', label: 'Charger History', icon: HistoryIcon },
+        { id: 'maintenance-technician', label: 'Technician', icon: Users },
+      ],
+    },
   ];
 
   const totalTitik = filteredLocations.length;
@@ -862,21 +896,56 @@ export default function App() {
       )}
 
       {/* SIDEBAR DENGAN KONDISI MOBILE RESPONSIVE */}
-      <aside className={`fixed inset-y-0 left-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 w-64 bg-[#111827] text-white flex flex-col shadow-xl z-50 shrink-0`}>
-        <div className="p-6 mb-4 flex justify-between items-center">
+      <aside className={`fixed inset-y-0 left-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 w-64 bg-[#111827] text-white flex flex-col shadow-xl z-50 shrink-0 overflow-y-auto overflow-x-hidden`}>
+        <div className="p-6 mb-4 flex justify-between items-center shrink-0">
           <h1 className="text-2xl font-bold tracking-wider text-green-400">CAZ<span className="text-white">TRACK</span></h1>
           <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white">
             <X className="w-6 h-6" />
           </button>
         </div>
-        <nav className="flex-1 space-y-1 px-3">
+        
+        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-3">
           {navItems.filter(i => !i.allowedRoles || i.allowedRoles.includes(currentUser.role)).map((item) => (
-            <button key={item.id} onClick={() => { setActiveTab(item.id); setFormDraft(null); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-              <item.icon className="w-5 h-5" /> <span className="font-medium">{item.label}</span>
-            </button>
+            <React.Fragment key={item.id}>
+              {item.section && <p className="px-4 pt-4 pb-1 text-[9px] font-bold tracking-[0.16em] text-slate-500">{item.section}</p>}
+              <button onClick={() => { setActiveTab(item.id); setFormDraft(null); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-left ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                <item.icon className="w-5 h-5 shrink-0" /> <span className="font-medium text-xs md:text-sm text-left truncate">{item.label}</span>
+              </button>
+              {item.id === 'maintenance-overview' && maintenanceNavGroups.map((group) => {
+                const GroupIcon = group.icon;
+                const isExpanded = expandedMaintenanceGroups.includes(group.id) || group.items.some(child => child.id === activeTab);
+                return (
+                  <div key={group.id} className="mt-1">
+                    <button
+                      onClick={() => setExpandedMaintenanceGroups(old => old.includes(group.id) ? old.filter(id => id !== group.id) : [...old, group.id])}
+                      aria-expanded={isExpanded}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                    >
+                      <GroupIcon className="w-5 h-5 shrink-0 text-slate-400" />
+                      <span className="flex-1 text-xs font-semibold">{group.label}</span>
+                      <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                    </button>
+                    {isExpanded && (
+                      <div className="ml-5 border-l border-slate-700 pl-2 py-1 space-y-1">
+                        {group.items.map(child => (
+                          <button
+                            key={child.id}
+                            onClick={() => { setActiveTab(child.id); setFormDraft(null); setIsMobileMenuOpen(false); }}
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${activeTab === child.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                          >
+                            <child.icon className="w-4 h-4 shrink-0" />
+                            <span className="text-[11px] font-medium">{child.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </React.Fragment>
           ))}
         </nav>
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-slate-800 shrink-0 bg-[#111827] sticky bottom-0">
           <div className="flex items-center justify-between gap-3 mb-4 px-2">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">{currentUser?.name.charAt(0)}</div>
@@ -900,569 +969,571 @@ export default function App() {
 
       {/* MAIN CONTENT */}
       <main className="flex-1 flex flex-col min-h-screen lg:h-[100dvh] lg:overflow-hidden relative z-10 bg-slate-50 w-full min-w-0">
-        <div className="flex flex-col flex-1 lg:min-h-0 p-4 lg:p-8 lg:overflow-hidden">
-          
-          {/* HEADER DASHBOARD RESPONSIVE */}
-          <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-5 lg:mb-8 shrink-0 w-full">
-            <div className="flex items-center gap-3 w-full lg:w-auto">
-              <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 bg-white text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 shrink-0">
-                <Menu className="w-5 h-5" />
-              </button>
-              <div>
-                <h2 className="text-xl lg:text-3xl font-bold text-slate-800 leading-tight">
-                  {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
-                </h2>
-                <p className="text-xs lg:text-sm text-slate-500 mt-1 hidden sm:block">Pantau progres deployment titik charging station.</p>
-              </div>
-            </div>
+        
+        {/* Konten Placeholder untuk Tab Modul Maintenance Baru (Silakan integrasikan file .jsx teman Anda di sini) */}
+        {activeTab.startsWith('maintenance-') || activeTab.startsWith('master-') ? (
+          <MaintenanceModule activeTab={activeTab} db={db} appId={appId} firebaseApp={app} currentUser={currentUser} locations={locations} />
+        ) : (
+          /* KONTEN EKSISTING CAZTRACK DASHBOARD */
+          <div className="flex flex-col flex-1 lg:min-h-0 p-4 lg:p-8 lg:overflow-hidden">
             
-            {activeTab !== 'settings' && !formDraft && (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-                <div className="relative w-full sm:w-auto">
-                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                  <input 
-                    type="text" 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari lokasi atau PIC..." 
-                    className="pl-10 pr-4 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full w-full lg:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm"
-                  />
+            {/* HEADER DASHBOARD RESPONSIVE */}
+            <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-5 lg:mb-8 shrink-0 w-full">
+              <div className="flex items-center gap-3 w-full lg:w-auto">
+                <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 bg-white text-slate-600 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 shrink-0">
+                  <Menu className="w-5 h-5" />
+                </button>
+                <div>
+                  <h2 className="text-xl lg:text-3xl font-bold text-slate-800 leading-tight">
+                    {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
+                  </h2>
+                  <p className="text-xs lg:text-sm text-slate-500 mt-1 hidden sm:block">Pantau progres deployment titik charging station.</p>
                 </div>
-                
-                {activeTab === 'dashboard' && (
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    <button onClick={() => setIsFilterModalOpen(true)} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm flex text-xs md:text-sm">
-                      <FilterIcon className="w-4 h-4" /> Filter
-                      {activeFilterCount > 0 && <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{activeFilterCount}</span>}
-                    </button>
-                    <button onClick={handleExportExcel} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-green-50 border border-green-200 rounded-full text-green-700 font-bold hover:bg-green-100 transition-colors shadow-sm flex text-xs md:text-sm">
-                      <Download className="w-4 h-4" /> Export
-                    </button>
+              </div>
+              
+              {activeTab !== 'settings' && !formDraft && (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                  <div className="relative w-full sm:w-auto">
+                    <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                    <input 
+                      type="text" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Cari lokasi atau PIC..." 
+                      className="pl-10 pr-4 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full w-full lg:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm"
+                    />
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {activeTab === 'dashboard' && (
-            <div className="flex flex-col flex-1 lg:min-h-0">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-5 lg:mb-8 shrink-0">
-                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-xl md:text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 shrink-0"><Home className="w-4 h-4 md:w-5 md:h-5" /></div></div>
-                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Beroperasi</p><p className="text-xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
-                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Proses</p><p className="text-xl md:text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
-                <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shrink-0"><Search className="w-4 h-4 md:w-5 md:h-5" /></div></div>
-              </div>
-
-              <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full min-h-[450px] lg:min-h-0">
-                <div className="overflow-auto flex-1 relative w-full">
-                  <table className="w-max min-w-full text-[10px] md:text-xs text-left">
-                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                      <tr>
-                        <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]" />
-                        <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[40px] md:left-[60px] z-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
-                        
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KATEGORI</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
-                        <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
-                        <SortHeader label="PROGRESS" sortKey="progress" className="sticky top-0 bg-slate-50 z-20 min-w-[120px]" />
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SALES CALCULATOR</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[100px]">STATUS AKHIR</th>
-                        <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
-                        
-                        <th className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-30 lg:z-50">HISTORY</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {currentLocs.map((item, index) => {
-                        const progress = calculateProgress(item);
-                        const statusAkhir = getStatusAkhir(progress);
-                        const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
-                        
-                        return (
-                        <tr key={item.id} className="hover:bg-slate-50/50 group">
-                          <td className="py-2 px-2 md:py-4 md:px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">{rowNumber}</td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 font-bold text-slate-800 align-top sticky left-[40px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
-                            {item.gmapsLink ? (
-                              <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
-                                <span className="group-hover/link:underline">{item.lokasi}</span>
-                                <ExternalLink className="w-3 h-3 md:w-3.5 md:h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0 hidden sm:block" />
-                              </a>
-                            ) : (
-                              item.lokasi
-                            )}
-                          </td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 align-top">
-                            <span className={`px-2 py-1 rounded text-[9px] md:text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                              {item.kategori || 'Umum'}
-                            </span>
-                          </td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit whitespace-nowrap">{c.jenis}</span>)}</td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.brand}</span>)}</td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.jumlah} Unit</span>)}</td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 space-y-1 align-top">
-                            {item.pics?.map((p, i) => (
-                              <div key={i} className="flex items-center gap-1 md:gap-2"><span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] md:text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600 whitespace-nowrap">{p}</span></div>
-                            ))}
-                          </td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                          
-                          {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].map(stage => (
-                             <td key={stage} className="py-2 px-2 md:py-4 md:px-4 align-top min-w-[120px] md:min-w-[140px] relative hover:z-30">
-                               {stage === 'dokumen' || stage === 'izin' ? (
-                                 <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
-                               ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
-                                 <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
-                               ) : ['vendor', 'sales', 'pks', 'operasional'].includes(stage) ? (
-                                 <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
-                               ) : (
-                                 <StatusBadge status={item[stage]} />
-                               )}
-                             </td>
-                          ))}
-
-                          <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className={`flex items-center gap-1.5 md:gap-2 font-bold ${statusAkhir.color}`}><span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${statusAkhir.dot} shrink-0`}></span> <span className="whitespace-nowrap">{statusAkhir.text}</span></div></td>
-                          <td className="py-2 px-2 md:py-4 md:px-4 text-slate-500 min-w-[150px] md:min-w-[200px] max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
-                          
-                          <td className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
-                             <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-1.5 md:p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-0.5 md:mt-1" title="Lihat History Audit Trail">
-                               <Info className="w-4 h-4 md:w-5 md:h-5" />
-                             </button>
-                          </td>
-                        </tr>
-                      )})}
-                      {filteredLocations.length === 0 && (
-                        <tr><td colSpan="21" className="py-12 text-center text-slate-500 font-medium">Pencarian atau Filter tidak menemukan hasil bray.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                
-                {filteredLocations.length > 0 && (
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider">Tampilkan</span>
-                      <select 
-                        value={itemsPerPage} 
-                        onChange={(e) => {
-                          setItemsPerPage(Number(e.target.value));
-                          setCurrentPage(1);
-                        }}
-                        className="py-1 px-2 text-[10px] md:text-xs border border-slate-200 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-600 font-bold cursor-pointer"
-                      >
-                        <option value={10}>10</option>
-                        <option value={25}>25</option>
-                        <option value={50}>50</option>
-                        <option value={75}>75</option>
-                        <option value={100}>100</option>
-                      </select>
-                      <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">Data</span>
-                    </div>
-                    
-                    <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
-                      Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
-                    </span>
-                    
-                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                      <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                        <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                  
+                  {activeTab === 'dashboard' && (
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <button onClick={() => setIsFilterModalOpen(true)} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm flex text-xs md:text-sm">
+                        <FilterIcon className="w-4 h-4" /> Filter
+                        {activeFilterCount > 0 && <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{activeFilterCount}</span>}
                       </button>
-                      <div className="flex items-center px-1 gap-1">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                          <button 
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`w-6 h-6 md:w-8 md:h-8 rounded-md text-[10px] md:text-xs font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
-                          >
-                            {page}
-                          </button>
-                        ))}
-                      </div>
-                      <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                        <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                      <button onClick={handleExportExcel} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-green-50 border border-green-200 rounded-full text-green-700 font-bold hover:bg-green-100 transition-colors shadow-sm flex text-xs md:text-sm">
+                        <Download className="w-4 h-4" /> Export
                       </button>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
 
-          {activeTab === 'update' && (
-             <div className="flex flex-col flex-1 lg:min-h-0">
-               
-               {!formDraft && (
-                 <>
-                   <div className="flex justify-end mb-4 shrink-0">
-                     <button onClick={handleOpenAddForm} className="flex w-full sm:w-auto justify-center items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors text-sm">
-                       <Plus className="w-4 h-4" /> Tambah Lokasi
-                     </button>
-                   </div>
+            {activeTab === 'dashboard' && (
+              <div className="flex flex-col flex-1 lg:min-h-0">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-5 lg:mb-8 shrink-0">
+                  <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Total Titik</p><p className="text-xl md:text-3xl font-bold text-slate-800">{totalTitik}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 shrink-0"><Home className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                  <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Beroperasi</p><p className="text-xl md:text-3xl font-bold text-green-600">{selesai}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                  <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Proses</p><p className="text-xl md:text-3xl font-bold text-amber-500">{proses}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 shrink-0"><Activity className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                  <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shrink-0"><Search className="w-4 h-4 md:w-5 md:h-5" /></div></div>
+                </div>
 
-                   <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative min-h-[450px] lg:min-h-0">
-                     <div className="overflow-auto flex-1 relative w-full">
-                       <table className="w-max min-w-full text-[10px] md:text-xs text-left">
-                         <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                           <tr>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">NO</th>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 left-[40px] md:left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">KATEGORI</th>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[150px] md:min-w-[200px]">LINK GMAPS</th>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px] md:min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[140px] md:min-w-[180px]">PIC</th>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[120px]">PROGRESS</th>
-                             <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[150px] md:min-w-[200px]">KETERANGAN</th>
-                             
-                             <th className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 top-0 bg-slate-50 z-30 lg:z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
-                           </tr>
-                         </thead>
-                         <tbody className="divide-y divide-slate-100">
-                           {currentLocs.map((item, index) => {
-                             const progress = calculateProgress(item);
-                             const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
-                             
-                             return (
-                             <tr key={item.id} className="group hover:bg-slate-50 align-top">
-                               <td className="py-2 px-2 md:py-3 md:px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">{rowNumber}</td>
-                               <td className="py-2 px-2 md:py-3 md:px-3 align-top font-bold text-slate-800 sticky left-[40px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
-                               <td className="py-2 px-2 md:py-3 md:px-3 align-top">
-                                 <span className={`px-2 py-1 rounded text-[9px] md:text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                                   {item.kategori || 'Umum'}
-                                 </span>
-                               </td>
-                               <td className="py-2 px-2 md:py-3 md:px-3">
-                                  {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[9px] md:text-[11px] line-clamp-2 mt-1">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1 block">Kosong</span>}
-                               </td>
-                               <td className="py-2 px-2 md:py-3 md:px-3">
-                                  <div className="space-y-1">
-                                     {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
-                                     {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                                  </div>
-                               </td>
-                               <td className="py-2 px-2 md:py-3 md:px-3">
-                                  <div className="space-y-1">
-                                    {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-1.5 md:gap-2"><span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] md:text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
-                                    {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
-                                  </div>
-                               </td>
-                               <td className="py-2 px-2 md:py-3 md:px-3"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 md:h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
-                               <td className="py-2 px-2 md:py-3 md:px-3"><p className="whitespace-normal break-words max-w-[150px] md:max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
-                               
-                               <td className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
-                                 <div className="flex gap-1 md:gap-2 justify-center items-center h-full">
-                                   <button onClick={() => handleOpenEditForm(item)} className="px-2 py-1 md:px-4 md:py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors text-[9px] md:text-[10px]" title="Edit Lokasi"><Edit2 className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden sm:inline">Edit</span></button>
-                                   <button onClick={() => handleDeleteLocation(item.id)} className="p-1 md:p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-3 h-3 md:w-4 md:h-4" /></button>
-                                 </div>
-                               </td>
-                             </tr>
-                           )})}
-                           {filteredLocations.length === 0 && (
-                             <tr><td colSpan="9" className="py-12 text-center text-slate-500 font-medium">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
-                           )}
-                         </tbody>
-                       </table>
-                     </div>
-
-                     {filteredLocations.length > 0 && (
-                       <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
-                         <div className="flex items-center gap-2">
-                           <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider">Tampilkan</span>
-                           <select 
-                             value={itemsPerPage} 
-                             onChange={(e) => {
-                               setItemsPerPage(Number(e.target.value));
-                               setCurrentPage(1);
-                             }}
-                             className="py-1 px-2 text-[10px] md:text-xs border border-slate-200 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-600 font-bold cursor-pointer"
-                           >
-                             <option value={10}>10</option>
-                             <option value={25}>25</option>
-                             <option value={50}>50</option>
-                             <option value={75}>75</option>
-                             <option value={100}>100</option>
-                           </select>
-                           <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">Data</span>
-                         </div>
-                         
-                         <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
-                           Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
-                         </span>
-                         
-                         <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                           <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
-                           </button>
-                           <div className="flex items-center px-1 gap-1">
-                             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                               <button 
-                                 key={page}
-                                 onClick={() => setCurrentPage(page)}
-                                 className={`w-6 h-6 md:w-8 md:h-8 rounded-md text-[10px] md:text-xs font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
-                               >
-                                 {page}
-                               </button>
-                             ))}
-                           </div>
-                           <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
-                             <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-                           </button>
-                         </div>
-                       </div>
-                     )}
-                   </div>
-                 </>
-               )}
-
-               {formDraft && (
-                 <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col flex-1 overflow-hidden relative w-full">
-                   {/* HEADER FIXED/FREEZE */}
-                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-6 border-b border-slate-100 bg-white z-20 shrink-0 shadow-sm">
-                     <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
-                       <button onClick={() => setFormDraft(null)} className="p-1.5 md:p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors" title="Kembali"><ChevronLeft className="w-5 h-5"/></button>
-                       <div>
-                          <h3 className="text-lg md:text-xl font-bold text-slate-800">{formDraft.isNew ? 'Tambah Lokasi Baru' : 'Edit Progress Lokasi'}</h3>
-                          <p className="text-[10px] md:text-xs text-slate-500 mt-1 hidden sm:block">{formDraft.isNew ? 'Isi data awal lokasi baru' : `Update progres pengerjaan untuk ${formDraft.lokasi}`}</p>
-                       </div>
-                     </div>
-                     <div className="flex gap-2 w-full sm:w-auto">
-                       <button onClick={() => setFormDraft(null)} className="flex-1 sm:flex-none px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition-colors text-xs md:text-sm">Batal</button>
-                       <button onClick={handleSaveForm} className="flex-1 sm:flex-none justify-center px-4 md:px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg flex items-center gap-2 shadow-sm transition-colors text-xs md:text-sm"><Save className="w-4 h-4"/> Simpan</button>
-                     </div>
-                   </div>
-
-                   {/* FORM CONTENT SCROLLABLE */}
-                   <div className="p-4 md:p-6 overflow-y-auto flex-1">
-                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 pb-12">
-                       
-                       <div className="lg:col-span-1 space-y-6">
-                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                             <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
-                             <div className="space-y-4">
-                                <div>
-                                   <label className="block text-xs font-bold text-slate-600 mb-1">Kategori Lokasi</label>
-                                   <select value={formDraft.kategori || 'Umum'} onChange={(e) => updateDraftField('kategori', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-xs font-bold text-slate-700 bg-white">
-                                     <option value="Umum">Umum</option>
-                                     <option value="SPBU">SPBU</option>
-                                     <option value="Rest Area">Rest Area</option>
-                                   </select>
-                                </div>
-                                <div>
-                                   <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lokasi</label>
-                                   <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs md:text-sm" placeholder="Masukkan nama lokasi..." />
-                                </div>
-                                <div>
-                                   <label className="block text-xs font-bold text-slate-600 mb-1">Link Google Maps (Opsional)</label>
-                                   <input type="text" value={formDraft.gmapsLink || ''} onChange={(e) => updateDraftField('gmapsLink', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs" placeholder="https://maps.google.com/..." />
-                                </div>
-                                <div>
-                                   <label className="block text-xs font-bold text-slate-600 mb-1">Keterangan / Catatan Tambahan</label>
-                                   <textarea value={formDraft.keterangan} onChange={(e) => updateDraftField('keterangan', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs min-h-[80px]" placeholder="Keterangan kondisi lapangan..."></textarea>
-                                </div>
-                             </div>
-                          </div>
-
-                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                             <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-blue-500"/> Hardware & Tim</h4>
-                             
-                             <div className="mb-5">
-                                <label className="block text-xs font-bold text-slate-600 mb-2">Daftar Charger</label>
-                                <div className="space-y-2">
-                                  {(formDraft.chargers || []).map((chg, idx) => (
-                                    <div key={idx} className="flex gap-1.5 items-center flex-wrap sm:flex-nowrap">
-                                      <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jenis', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
-                                        <option value="" disabled>Jenis</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
-                                      </select>
-                                      <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'brand', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
-                                        <option value="" disabled>Brand</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
-                                      </select>
-                                      <div className="flex gap-1.5 w-full sm:w-auto">
-                                        <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-16 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white flex-1" />
-                                        <button onClick={() => handleDraftArrayRemove('chargers', idx)} className="text-slate-400 hover:text-red-500 p-1.5 rounded transition-colors bg-white border border-slate-300 shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                  <button onClick={() => handleDraftArrayAdd('chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3 h-3"/> Tambah Mesin Charger</button>
-                                </div>
-                             </div>
-
-                             <div>
-                                <label className="block text-xs font-bold text-slate-600 mb-2">Tim PIC Lapangan</label>
-                                <div className="space-y-2">
-                                  {(formDraft.pics || []).map((pic, idx) => (
-                                    <div key={idx} className="flex gap-1.5 items-center">
-                                      <input type="text" placeholder="Nama PIC..." value={pic || ''} onChange={e => handleDraftArrayUpdateString('pics', idx, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded outline-none focus:border-blue-500 text-xs bg-white" />
-                                      <button onClick={() => handleDraftArrayRemove('pics', idx)} className="text-slate-400 hover:text-red-500 p-2 rounded transition-colors bg-white border border-slate-300"><Trash2 className="w-4 h-4" /></button>
-                                    </div>
-                                  ))}
-                                  <button onClick={() => handleDraftArrayAdd('pics', '')} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full"><Plus className="w-3 h-3"/> Tambah PIC Baru</button>
-                                </div>
-                             </div>
-                          </div>
-                       </div>
-
-                       <div className="lg:col-span-2">
-                          <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                             {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].map(stage => (
-                               <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
-                                 <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
-                                 <FormEditableStatus draft={formDraft} stage={stage} updateDraftField={updateDraftField} />
-                               </div>
-                             ))}
-                          </div>
-                       </div>
-
-                     </div>
-                   </div>
-                 </div>
-               )}
-             </div>
-          )}
-
-          {activeTab === 'settings' && (
-            <div className="flex-1 overflow-y-auto lg:min-h-0 pb-12">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden w-full">
-                  <div className="p-4 md:p-5 border-b border-slate-100"><h3 className="text-base md:text-lg font-bold text-slate-800">Daftar Pengguna Sistem</h3></div>
-                  <div className="overflow-x-auto w-full">
-                    <table className="w-full text-xs md:text-sm text-left min-w-[500px]">
-                      <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] md:text-xs">
-                        <tr><th className="py-3 px-4 md:px-5">NAMA PENGGUNA</th><th className="py-3 px-4 md:px-5">EMAIL</th><th className="py-3 px-4 md:px-5">ROLE</th><th className="py-3 px-4 md:px-5 text-center">AKSI</th></tr>
+                <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full min-h-[450px] lg:min-h-0">
+                  <div className="overflow-auto flex-1 relative w-full">
+                    <table className="w-max min-w-full text-[10px] md:text-xs text-left">
+                      <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                        <tr>
+                          <SortHeader label="NO" sortKey="no" className="sticky left-0 z-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]" />
+                          <SortHeader label="LOKASI" sortKey="lokasi" className="sticky left-[40px] md:left-[60px] z-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100" />
+                          
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KATEGORI</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">JENIS CHARGER</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">BRAND</th>
+                          <SortHeader label="JUMLAH" sortKey="jumlah" className="sticky top-0 bg-slate-50 z-20" />
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PIC</th>
+                          <SortHeader label="PROGRESS" sortKey="progress" className="sticky top-0 bg-slate-50 z-20 min-w-[120px]" />
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">EARLY SURVEY</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SURVEY TEKNIS</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">DOKUMEN TEKNIS</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SURVEY PLN</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PERIZINAN</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PENAWARAN VENDOR</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">SALES CALCULATOR</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PKS</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">PROSES INSTALASI</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">TESTING & COMM.</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20 min-w-[100px]">STATUS AKHIR</th>
+                          <th className="py-2 px-2 md:py-4 md:px-4 sticky top-0 bg-slate-50 z-20">KETERANGAN</th>
+                          
+                          <th className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 top-0 bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] z-30 lg:z-50">HISTORY</th>
+                        </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {users.map(u => (
-                          <tr key={u.id} className="hover:bg-slate-50">
-                            <td className="py-3 px-4 md:px-5 font-bold flex items-center gap-2">
-                               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs shrink-0">{u.name.charAt(0)}</span> <span className="whitespace-nowrap">{u.name}</span>
+                        {currentLocs.map((item, index) => {
+                          const progress = calculateProgress(item);
+                          const statusAkhir = getStatusAkhir(progress);
+                          const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                          
+                          return (
+                          <tr key={item.id} className="hover:bg-slate-50/50 group">
+                            <td className="py-2 px-2 md:py-4 md:px-4 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">{rowNumber}</td>
+                            <td className="py-2 px-2 md:py-4 md:px-4 font-bold text-slate-800 align-top sticky left-[40px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">
+                              {item.gmapsLink ? (
+                                <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 hover:text-blue-600 transition-colors group/link">
+                                  <span className="group-hover/link:underline">{item.lokasi}</span>
+                                  <ExternalLink className="w-3 h-3 md:w-3.5 md:h-3.5 text-slate-400 group-hover/link:text-blue-500 mt-0.5 shrink-0 hidden sm:block" />
+                                </a>
+                              ) : (
+                                item.lokasi
+                              )}
                             </td>
-                            <td className="py-3 px-4 md:px-5 text-slate-500">{u.email}</td>
-                            <td className="py-3 px-4 md:px-5">
-                              <span className={`px-2.5 py-1 rounded text-[10px] md:text-xs font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : u.role === 'Editor' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span>
+                            <td className="py-2 px-2 md:py-4 md:px-4 align-top">
+                              <span className={`px-2 py-1 rounded text-[9px] md:text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                {item.kategori || 'Umum'}
+                              </span>
                             </td>
-                            <td className="py-3 px-4 md:px-5 text-center">
-                               <div className="flex items-center justify-center gap-3">
-                                 <button onClick={() => setEditUserModal({ isOpen: true, id: u.id, name: u.name, email: u.email, role: u.role, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Edit Pengguna"><Edit2 className="w-4 h-4" /></button>
-                                 <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
-                               </div>
+                            <td className="py-2 px-2 md:py-4 md:px-4 space-y-1 align-top">{item.chargers?.map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit whitespace-nowrap">{c.jenis}</span>)}</td>
+                            <td className="py-2 px-2 md:py-4 md:px-4 space-y-2 font-semibold align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.brand}</span>)}</td>
+                            <td className="py-2 px-2 md:py-4 md:px-4 space-y-2 text-slate-500 align-top">{item.chargers?.map((c, i) => <span key={i} className="block whitespace-nowrap">{c.jumlah} Unit</span>)}</td>
+                            <td className="py-2 px-2 md:py-4 md:px-4 space-y-1 align-top">
+                              {item.pics?.map((p, i) => (
+                                <div key={i} className="flex items-center gap-1 md:gap-2"><span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] md:text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600 whitespace-nowrap">{p}</span></div>
+                              ))}
+                            </td>
+                            <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className="flex items-center gap-2"><div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                            
+                            {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].map(stage => (
+                               <td key={stage} className="py-2 px-2 md:py-4 md:px-4 align-top min-w-[120px] md:min-w-[140px] relative hover:z-30">
+                                 {stage === 'dokumen' || stage === 'izin' ? (
+                                   <ChecklistBadge status={item[stage]} checklist={stage === 'dokumen' ? item.dokumenChecklist : item.izinChecklist} type={stage} />
+                                 ) : ['survey', 'teknis', 'pln', 'instalasi', 'testing'].includes(stage) ? (
+                                   <MediaBadge status={item[stage]} links={item[`${stage}Links`]} folderLink={item[`${stage}FolderLink`]} title={STAGE_NAME_MAP[stage]} />
+                                 ) : ['vendor', 'sales', 'pks'].includes(stage) ? (
+                                   <FolderBadge status={item[stage]} folderLink={item[`${stage}FolderLink`]} />
+                                 ) : (
+                                   <StatusBadge status={item[stage]} />
+                                 )}
+                               </td>
+                            ))}
+
+                            <td className="py-2 px-2 md:py-4 md:px-4 align-top"><div className={`flex items-center gap-1.5 md:gap-2 font-bold ${statusAkhir.color}`}><span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${statusAkhir.dot} shrink-0`}></span> <span className="whitespace-nowrap">{statusAkhir.text}</span></div></td>
+                            <td className="py-2 px-2 md:py-4 md:px-4 text-slate-500 min-w-[150px] md:min-w-[200px] max-w-[250px] align-top"><p className="whitespace-normal break-words">{item.keterangan}</p></td>
+                            
+                            <td className="py-2 px-2 md:py-4 md:px-4 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-100 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-top">
+                               <button onClick={() => setHistoryModal({ isOpen: true, location: item })} className="p-1.5 md:p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors mt-0.5 md:mt-1" title="Lihat History Audit Trail">
+                                 <Info className="w-4 h-4 md:w-5 md:h-5" />
+                               </button>
                             </td>
                           </tr>
-                        ))}
+                        )})}
+                        {filteredLocations.length === 0 && (
+                          <tr><td colSpan="21" className="py-12 text-center text-slate-500 font-medium">Pencarian atau Filter tidak menemukan hasil bray.</td></tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
-                </div>
-                <div>
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 md:p-5">
-                    <h3 className="text-base md:text-lg font-bold text-slate-800 mb-4">Tambah Pengguna Baru</h3>
-                    <form onSubmit={handleAddUser} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
-                        <input type="text" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-1">Email</label>
-                        <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
-                        <input type="password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-1">Role</label>
-                        <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm">
-                          <option value="Admin">Admin</option>
-                          <option value="Editor">Editor</option>
-                          <option value="Viewer">Viewer</option>
+                  
+                  {filteredLocations.length > 0 && (
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider">Tampilkan</span>
+                        <select 
+                          value={itemsPerPage} 
+                          onChange={(e) => {
+                            setItemsPerPage(Number(e.target.value));
+                            setCurrentPage(1);
+                          }}
+                          className="py-1 px-2 text-[10px] md:text-xs border border-slate-200 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-600 font-bold cursor-pointer"
+                        >
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                          <option value={75}>75</option>
+                          <option value={100}>100</option>
                         </select>
+                        <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">Data</span>
                       </div>
-                      <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-sm">Simpan Pengguna</button>
-                    </form>
+                      
+                      <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
+                        Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
+                      </span>
+                      
+                      <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                        <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                        </button>
+                        <div className="flex items-center px-1 gap-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <button 
+                              key={page}
+                              onClick={() => setCurrentPage(page)}
+                              className={`w-6 h-6 md:w-8 md:h-8 rounded-md text-[10px] md:text-xs font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                        </div>
+                        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                          <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'update' && (
+               <div className="flex flex-col flex-1 lg:min-h-0">
+                 
+                 {!formDraft && (
+                   <>
+                     <div className="flex justify-end mb-4 shrink-0">
+                       <button onClick={handleOpenAddForm} className="flex w-full sm:w-auto justify-center items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-sm transition-colors text-sm">
+                         <Plus className="w-4 h-4" /> Tambah Lokasi
+                       </button>
+                     </div>
+
+                     <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative min-h-[450px] lg:min-h-0">
+                       <div className="overflow-auto flex-1 relative w-full">
+                         <table className="w-max min-w-full text-[10px] md:text-xs text-left">
+                           <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                             <tr>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 left-0 z-50 bg-slate-50 border-b border-slate-100 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">NO</th>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 left-[40px] md:left-[60px] z-50 bg-slate-50 border-b border-r border-slate-100 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)]">LOKASI</th>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100">KATEGORI</th>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[150px] md:min-w-[200px]">LINK GMAPS</th>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[200px] md:min-w-[300px]">CHARGERS (JENIS, BRAND, QTY)</th>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[140px] md:min-w-[180px]">PIC</th>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[120px]">PROGRESS</th>
+                               <th className="py-2 px-2 md:py-3 md:px-3 sticky top-0 bg-slate-50 z-20 border-b border-slate-100 min-w-[150px] md:min-w-[200px]">KETERANGAN</th>
+                               
+                               <th className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 top-0 bg-slate-50 z-30 lg:z-50 border-b border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)]">AKSI EDIT</th>
+                             </tr>
+                           </thead>
+                           <tbody className="divide-y divide-slate-100">
+                             {currentLocs.map((item, index) => {
+                               const progress = calculateProgress(item);
+                               const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                               
+                               return (
+                               <tr key={item.id} className="group hover:bg-slate-50 align-top">
+                                 <td className="py-2 px-2 md:py-3 md:px-3 text-slate-400 align-top font-bold sticky left-0 z-40 bg-white group-hover:bg-slate-50 w-[40px] md:w-[60px] min-w-[40px] md:min-w-[60px] max-w-[40px] md:max-w-[60px]">{rowNumber}</td>
+                                 <td className="py-2 px-2 md:py-3 md:px-3 align-top font-bold text-slate-800 sticky left-[40px] md:left-[60px] z-40 bg-white group-hover:bg-slate-50 min-w-[140px] max-w-[140px] md:min-w-[250px] md:max-w-[250px] shadow-[8px_0_10px_-5px_rgba(0,0,0,0.05)] border-r border-slate-100">{item.lokasi}</td>
+                                 <td className="py-2 px-2 md:py-3 md:px-3 align-top">
+                                   <span className={`px-2 py-1 rounded text-[9px] md:text-[10px] font-bold ${item.kategori === 'Umum' ? 'bg-blue-100 text-blue-600' : item.kategori === 'SPBU' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                     {item.kategori || 'Umum'}
+                                   </span>
+                                 </td>
+                                 <td className="py-2 px-2 md:py-3 md:px-3">
+                                    {item.gmapsLink ? <a href={item.gmapsLink.startsWith('http') ? item.gmapsLink : `https://${item.gmapsLink}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-[9px] md:text-[11px] line-clamp-2 mt-1">{item.gmapsLink}</a> : <span className="italic text-slate-400 mt-1 block">Kosong</span>}
+                                 </td>
+                                 <td className="py-2 px-2 md:py-3 md:px-3">
+                                    <div className="space-y-1">
+                                       {(item.chargers || []).map((c, i) => <span key={i} className="block px-2 py-1 bg-slate-100 rounded text-slate-600 border border-slate-200 w-fit">{c.jenis} | {c.brand} | {c.jumlah} Unit</span>)}
+                                       {(!item.chargers || item.chargers.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                                    </div>
+                                 </td>
+                                 <td className="py-2 px-2 md:py-3 md:px-3">
+                                    <div className="space-y-1">
+                                      {(item.pics || []).map((p, i) => <div key={i} className="flex items-center gap-1.5 md:gap-2"><span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] md:text-[10px] font-bold text-slate-500">{p.charAt(0)}</span><span className="text-slate-600">{p}</span></div>)}
+                                      {(!item.pics || item.pics.length === 0) && <span className="text-slate-400 italic">Kosong</span>}
+                                    </div>
+                                 </td>
+                                 <td className="py-2 px-2 md:py-3 md:px-3"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 md:h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div></div><span className="font-bold text-slate-700">{progress}%</span></div></td>
+                                 <td className="py-2 px-2 md:py-3 md:px-3"><p className="whitespace-normal break-words max-w-[150px] md:max-w-[200px] text-slate-600">{item.keterangan || <span className="italic text-slate-400">Kosong</span>}</p></td>
+                                 
+                                 <td className="py-2 px-2 md:py-3 md:px-3 text-center lg:sticky lg:right-0 z-20 lg:z-40 bg-white group-hover:bg-slate-50 border-l border-slate-200 shadow-[-8px_0_10px_-5px_rgba(0,0,0,0.05)] transition-colors align-middle">
+                                   <div className="flex gap-1 md:gap-2 justify-center items-center h-full">
+                                     <button onClick={() => handleOpenEditForm(item)} className="px-2 py-1 md:px-4 md:py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded font-bold flex items-center gap-1 transition-colors text-[9px] md:text-[10px]" title="Edit Lokasi"><Edit2 className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden sm:inline">Edit</span></button>
+                                     <button onClick={() => handleDeleteLocation(item.id)} className="p-1 md:p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Lokasi"><Trash2 className="w-3 h-3 md:w-4 md:h-4" /></button>
+                                   </div>
+                                 </td>
+                               </tr>
+                             )})}
+                             {filteredLocations.length === 0 && (
+                               <tr><td colSpan="9" className="py-12 text-center text-slate-500 font-medium">Pencarian "{searchQuery}" tidak ditemukan bray.</td></tr>
+                             )}
+                           </tbody>
+                         </table>
+                       </div>
+
+                       {filteredLocations.length > 0 && (
+                         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-white border-t border-slate-100 shrink-0">
+                           <div className="flex items-center gap-2">
+                             <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider">Tampilkan</span>
+                             <select 
+                               value={itemsPerPage} 
+                               onChange={(e) => {
+                                 setItemsPerPage(Number(e.target.value));
+                                 setCurrentPage(1);
+                               }}
+                               className="py-1 px-2 text-[10px] md:text-xs border border-slate-200 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-600 font-bold cursor-pointer"
+                             >
+                               <option value={10}>10</option>
+                               <option value={25}>25</option>
+                               <option value={50}>50</option>
+                               <option value={75}>75</option>
+                               <option value={100}>100</option>
+                             </select>
+                             <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">Data</span>
+                           </div>
+                           
+                           <span className="text-[10px] md:text-xs font-medium text-slate-400 uppercase tracking-wider text-center">
+                             Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, sortedDashboardLocations.length)} dari {sortedDashboardLocations.length}
+                           </span>
+                           
+                           <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                             <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                               <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                             </button>
+                             <div className="flex items-center px-1 gap-1">
+                               {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                 <button 
+                                   key={page}
+                                   onClick={() => setCurrentPage(page)}
+                                   className={`w-6 h-6 md:w-8 md:h-8 rounded-md text-[10px] md:text-xs font-bold transition-colors ${currentPage === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-blue-100'}`}
+                                 >
+                                   {page}
+                                 </button>
+                               ))}
+                             </div>
+                             <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-1 md:p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors">
+                               <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                             </button>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                   </>
+                 )}
+
+                 {formDraft && (
+                   <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col flex-1 overflow-hidden relative w-full">
+                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-6 border-b border-slate-100 bg-white z-20 shrink-0 shadow-sm">
+                       <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
+                         <button onClick={() => setFormDraft(null)} className="p-1.5 md:p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors" title="Kembali"><ChevronLeft className="w-5 h-5"/></button>
+                         <div>
+                            <h3 className="text-lg md:text-xl font-bold text-slate-800">{formDraft.isNew ? 'Tambah Lokasi Baru' : 'Edit Progress Lokasi'}</h3>
+                            <p className="text-[10px] md:text-xs text-slate-500 mt-1 hidden sm:block">{formDraft.isNew ? 'Isi data awal lokasi baru' : `Update progres pengerjaan untuk ${formDraft.lokasi}`}</p>
+                         </div>
+                       </div>
+                       <div className="flex gap-2 w-full sm:w-auto">
+                         <button onClick={() => setFormDraft(null)} className="flex-1 sm:flex-none px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition-colors text-xs md:text-sm">Batal</button>
+                         <button onClick={handleSaveForm} className="flex-1 sm:flex-none justify-center px-4 md:px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg flex items-center gap-2 shadow-sm transition-colors text-xs md:text-sm"><Save className="w-4 h-4"/> Simpan</button>
+                       </div>
+                     </div>
+
+                     <div className="p-4 md:p-6 overflow-y-auto flex-1">
+                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 pb-12">
+                         
+                         <div className="lg:col-span-1 space-y-6">
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                               <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Home className="w-4 h-4 text-blue-500"/> Profil Lokasi</h4>
+                               <div className="space-y-4">
+                                  <div>
+                                     <label className="block text-xs font-bold text-slate-600 mb-1">Kategori Lokasi</label>
+                                     <select value={formDraft.kategori || 'Umum'} onChange={(e) => updateDraftField('kategori', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-xs font-bold text-slate-700 bg-white">
+                                       <option value="Umum">Umum</option>
+                                       <option value="SPBU">SPBU</option>
+                                       <option value="Rest Area">Rest Area</option>
+                                     </select>
+                                  </div>
+                                  <div>
+                                     <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lokasi</label>
+                                     <input type="text" value={formDraft.lokasi} onChange={(e) => updateDraftField('lokasi', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs md:text-sm" placeholder="Masukkan nama lokasi..." />
+                                  </div>
+                                  <div>
+                                     <label className="block text-xs font-bold text-slate-600 mb-1">Link Google Maps (Opsional)</label>
+                                     <input type="text" value={formDraft.gmapsLink || ''} onChange={(e) => updateDraftField('gmapsLink', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs" placeholder="https://maps.google.com/..." />
+                                  </div>
+                                  <div>
+                                     <label className="block text-xs font-bold text-slate-600 mb-1">Keterangan / Catatan Tambahan</label>
+                                     <textarea value={formDraft.keterangan} onChange={(e) => updateDraftField('keterangan', e.target.value)} className="w-full p-2 border border-slate-300 rounded focus:border-blue-500 outline-none text-xs min-h-[80px]" placeholder="Keterangan kondisi lapangan..."></textarea>
+                                  </div>
+                               </div>
+                            </div>
+
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                               <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-blue-500"/> Hardware & Tim</h4>
+                               
+                               <div className="mb-5">
+                                  <label className="block text-xs font-bold text-slate-600 mb-2">Daftar Charger</label>
+                                  <div className="space-y-2">
+                                    {(formDraft.chargers || []).map((chg, idx) => (
+                                      <div key={idx} className="flex gap-1.5 items-center flex-wrap sm:flex-nowrap">
+                                        <select value={chg.jenis || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jenis', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                          <option value="" disabled>Jenis</option><option value="7kW AC">7kW AC</option><option value="22kW AC">22kW AC</option><option value="30kW DC">30kW DC</option><option value="60kW DC">60kW DC</option><option value="120kW DC">120kW DC</option><option value="240kW DC">240kW DC</option>
+                                        </select>
+                                        <select value={chg.brand || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'brand', e.target.value)} className="flex-1 w-full sm:w-auto p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white">
+                                          <option value="" disabled>Brand</option><option value="TIDE">TIDE</option><option value="Moderntec">Moderntec</option><option value="Teison">Teison</option><option value="Starcharge">Starcharge</option>
+                                        </select>
+                                        <div className="flex gap-1.5 w-full sm:w-auto">
+                                          <input type="number" placeholder="Qty" value={chg.jumlah || ''} onChange={e => handleDraftArrayUpdate('chargers', idx, 'jumlah', parseInt(e.target.value) || 0)} className="w-16 p-1.5 border border-slate-300 rounded outline-none focus:border-blue-500 text-[11px] bg-white flex-1" />
+                                          <button onClick={() => handleDraftArrayRemove('chargers', idx)} className="text-slate-400 hover:text-red-500 p-1.5 rounded transition-colors bg-white border border-slate-300 shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                    <button onClick={() => handleDraftArrayAdd('chargers', {jenis: '', brand: '', jumlah: 1})} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full mt-2"><Plus className="w-3 h-3"/> Tambah Mesin Charger</button>
+                                  </div>
+                               </div>
+
+                               <div>
+                                  <label className="block text-xs font-bold text-slate-600 mb-2">Tim PIC Lapangan</label>
+                                  <div className="space-y-2">
+                                    {(formDraft.pics || []).map((pic, idx) => (
+                                      <div key={idx} className="flex gap-1.5 items-center">
+                                        <input type="text" placeholder="Nama PIC..." value={pic || ''} onChange={e => handleDraftArrayUpdateString('pics', idx, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded outline-none focus:border-blue-500 text-xs bg-white" />
+                                        <button onClick={() => handleDraftArrayRemove('pics', idx)} className="text-slate-400 hover:text-red-500 p-2 rounded transition-colors bg-white border border-slate-300"><Trash2 className="w-4 h-4" /></button>
+                                      </div>
+                                    ))}
+                                    <button onClick={() => handleDraftArrayAdd('pics', '')} className="text-[11px] font-bold bg-blue-100 text-blue-700 px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors w-full"><Plus className="w-3 h-3"/> Tambah PIC Baru</button>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+
+                         <div className="lg:col-span-2">
+                            <h4 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> Update Status Pengerjaan</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                               {['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].map(stage => (
+                                 <div key={stage} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:border-blue-200 transition-colors">
+                                   <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{STAGE_NAME_MAP[stage]}</label>
+                                   <FormEditableStatus draft={formDraft} stage={stage} updateDraftField={updateDraftField} />
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+
+                       </div>
+                     </div>
+                   </div>
+                 )}
+               </div>
+            )}
+
+            {activeTab === 'settings' && (
+              <div className="flex-1 overflow-y-auto lg:min-h-0 pb-12">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                  <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden w-full">
+                    <div className="p-4 md:p-5 border-b border-slate-100"><h3 className="text-base md:text-lg font-bold text-slate-800">Daftar Pengguna Sistem</h3></div>
+                    <div className="overflow-x-auto w-full">
+                      <table className="w-full text-xs md:text-sm text-left min-w-[500px]">
+                        <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] md:text-xs">
+                          <tr><th className="py-3 px-4 md:px-5">NAMA PENGGUNA</th><th className="py-3 px-4 md:px-5">EMAIL</th><th className="py-3 px-4 md:px-5">ROLE</th><th className="py-3 px-4 md:px-5 text-center">AKSI</th></tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {users.map(u => (
+                            <tr key={u.id} className="hover:bg-slate-50">
+                              <td className="py-3 px-4 md:px-5 font-bold flex items-center gap-2">
+                                 <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs shrink-0">{u.name.charAt(0)}</span> <span className="whitespace-nowrap">{u.name}</span>
+                              </td>
+                              <td className="py-3 px-4 md:px-5 text-slate-500">{u.email}</td>
+                              <td className="py-3 px-4 md:px-5">
+                                <span className={`px-2.5 py-1 rounded text-[10px] md:text-xs font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : u.role === 'Editor' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span>
+                              </td>
+                              <td className="py-3 px-4 md:px-5 text-center">
+                                 <div className="flex items-center justify-center gap-3">
+                                   <button onClick={() => setEditUserModal({ isOpen: true, id: u.id, name: u.name, email: u.email, role: u.role, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Edit Pengguna"><Edit2 className="w-4 h-4" /></button>
+                                   <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                                 </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 md:p-5">
+                      <h3 className="text-base md:text-lg font-bold text-slate-800 mb-4">Tambah Pengguna Baru</h3>
+                      <form onSubmit={handleAddUser} className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
+                          <input type="text" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-600 mb-1">Email</label>
+                          <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
+                          <input type="password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm" required />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-600 mb-1">Role</label>
+                          <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm">
+                            <option value="Admin">Admin</option>
+                            <option value="Editor">Editor</option>
+                            <option value="Viewer">Viewer</option>
+                          </select>
+                        </div>
+                        <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-sm">Simpan Pengguna</button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {activeTab === 'calendar' && (() => {
-            const year = calendarMonth.getFullYear();
-            const month = calendarMonth.getMonth();
-            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            {activeTab === 'calendar' && (() => {
+              const year = calendarMonth.getFullYear();
+              const month = calendarMonth.getMonth();
+              const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+              const daysInMonth = new Date(year, month + 1, 0).getDate();
+              const firstDayOfMonth = new Date(year, month, 1).getDay();
 
-            return (
-              <div className="flex-1 overflow-y-auto lg:min-h-0 pb-12 w-full">
-                <div className="bg-white p-4 md:p-8 rounded-xl shadow-sm border border-slate-100">
-                   <div className="flex flex-col sm:flex-row justify-between items-center mb-4 md:mb-6 gap-3">
-                     <h3 className="text-lg md:text-xl font-bold text-slate-800">
-                       Jadwal {monthNames[month]} {year}
-                     </h3>
-                     <div className="flex gap-2">
-                       <button onClick={handlePrevMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Sebelumnya"><ChevronLeft className="w-5 h-5" /></button>
-                       <button onClick={handleNextMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Selanjutnya"><ChevronRight className="w-5 h-5" /></button>
+              return (
+                <div className="flex-1 overflow-y-auto lg:min-h-0 pb-12 w-full">
+                  <div className="bg-white p-4 md:p-8 rounded-xl shadow-sm border border-slate-100">
+                     <div className="flex flex-col sm:flex-row justify-between items-center mb-4 md:mb-6 gap-3">
+                       <h3 className="text-lg md:text-xl font-bold text-slate-800">
+                         Jadwal {monthNames[month]} {year}
+                       </h3>
+                       <div className="flex gap-2">
+                         <button onClick={handlePrevMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Sebelumnya"><ChevronLeft className="w-5 h-5" /></button>
+                         <button onClick={handleNextMonth} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded transition-colors" title="Bulan Selanjutnya"><ChevronRight className="w-5 h-5" /></button>
+                       </div>
                      </div>
-                   </div>
 
-                   <div className="overflow-x-auto w-full">
-                     <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden min-w-[700px]">
-                       {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => (
-                         <div key={d} className="bg-white py-2 text-center text-[10px] md:text-xs font-bold text-slate-600">{d}</div>
-                       ))}
+                     <div className="overflow-x-auto w-full">
+                       <div className="grid grid-cols-7 gap-[1px] bg-slate-200 border border-slate-200 rounded-lg overflow-hidden min-w-[700px]">
+                         {['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'].map(d => (
+                           <div key={d} className="bg-white py-2 text-center text-[10px] md:text-xs font-bold text-slate-600">{d}</div>
+                         ))}
 
-                       {Array.from({ length: firstDayOfMonth }).map((_, i) => <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>)}
+                         {Array.from({ length: firstDayOfMonth }).map((_, i) => <div key={`empty-${i}`} className="bg-slate-50 min-h-[100px]"></div>)}
 
-                       {Array.from({ length: daysInMonth }).map((_, i) => {
-                         const dateNum = i + 1;
-                         const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
-                         
-                         const events = [];
-                         filteredLocations.forEach(loc => {
-                           ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'].forEach(stage => {
-                              if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
-                                 events.push({ locName: loc.lokasi, stageName: stage });
-                              }
-                              if (loc[stage] && loc[stage] === `Selesai ${fullDateStr}`) {
-                                 events.push({ locName: loc.lokasi, stageName: `${stage} (Selesai)` });
-                              }
-                              if (loc[stage] && loc[stage] === `Beroperasi ${fullDateStr}`) {
-                                 events.push({ locName: loc.lokasi, stageName: `${stage} (Beroperasi)` });
-                              }
+                         {Array.from({ length: daysInMonth }).map((_, i) => {
+                           const dateNum = i + 1;
+                           const fullDateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateNum.toString().padStart(2, '0')}`;
+                           
+                           const events = [];
+                           filteredLocations.forEach(loc => {
+                             ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing'].forEach(stage => {
+                                if (loc[stage] && loc[stage].includes(`Jadwal ${fullDateStr}`)) {
+                                   events.push({ locName: loc.lokasi, stageName: stage });
+                                }
+                                if (loc[stage] && loc[stage] === `Selesai ${fullDateStr}`) {
+                                   events.push({ locName: loc.lokasi, stageName: `${stage} (Selesai)` });
+                                }
+                             });
                            });
-                         });
 
-                         return (
-                           <div key={i} className="bg-white min-h-[100px] p-1 md:p-2">
-                             <span className={`text-[10px] md:text-xs font-bold block text-right ${new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' : 'text-slate-400'}`}>
-                               {dateNum}
-                             </span>
-                             <div className="mt-1 space-y-1">
-                               {events.map((ev, idx) => (
-                                 <div key={idx} className={`border p-1 md:p-1.5 rounded text-[9px] md:text-[10px] ${ev.stageName.includes('Selesai') || ev.stageName.includes('Beroperasi') ? 'bg-green-50 border-green-100 text-green-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
-                                    <div className="font-bold capitalize leading-tight">{ev.stageName}</div>
-                                    <div className="text-slate-500 truncate leading-tight mt-0.5">{ev.locName}</div>
-                                 </div>
-                               ))}
+                           return (
+                             <div key={i} className="bg-white min-h-[100px] p-1 md:p-2">
+                               <span className={`text-[10px] md:text-xs font-bold block text-right ${new Date().getDate() === dateNum && new Date().getMonth() === month && new Date().getFullYear() === year ? 'text-blue-600 bg-blue-100 w-fit ml-auto px-1.5 rounded' : 'text-slate-400'}`}>
+                                 {dateNum}
+                               </span>
+                               <div className="mt-1 space-y-1">
+                                 {events.map((ev, idx) => (
+                                   <div key={idx} className={`border p-1 md:p-1.5 rounded text-[9px] md:text-[10px] ${ev.stageName.includes('Selesai') ? 'bg-green-50 border-green-100 text-green-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
+                                      <div className="font-bold capitalize leading-tight">{ev.stageName}</div>
+                                      <div className="text-slate-500 truncate leading-tight mt-0.5">{ev.locName}</div>
+                                   </div>
+                                 ))}
+                               </div>
                              </div>
-                           </div>
-                         );
-                       })}
+                           );
+                         })}
+                       </div>
                      </div>
-                   </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })()}
-        </div>
+              );
+            })()}
+          </div>
+        )}
       </main>
     </div>
   );
@@ -1473,9 +1544,8 @@ export default function App() {
 function StatusBadge({ status }) {
   if (!status) return null;
   
-  if (status.startsWith('Selesai') || status.startsWith('Beroperasi')) {
+  if (status.startsWith('Selesai')) {
     const parts = status.split(' ');
-    const label = status.startsWith('Selesai') ? 'Selesai' : 'Beroperasi';
     if (parts.length > 1 && parts[1].match(/^\d{4}-\d{2}-\d{2}$/)) {
       const dateStr = parts[1];
       const [year, month, day] = dateStr.split('-');
@@ -1484,17 +1554,15 @@ function StatusBadge({ status }) {
       
       return (
         <div className="flex flex-col w-full text-center shadow-sm">
-          <span className="bg-green-100 text-green-700 border border-green-200 border-b-0 rounded-t py-1 font-bold">{label}</span>
+          <span className="bg-green-100 text-green-700 border border-green-200 border-b-0 rounded-t py-1 font-bold">Selesai</span>
           <span className="bg-white text-slate-600 border border-green-200 rounded-b py-1 flex items-center justify-center gap-1 font-medium whitespace-nowrap px-1 text-[11px]"><Calendar className="w-3 h-3 shrink-0" /> {displayDate}</span>
         </div>
       );
     }
-    return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm font-bold">{label}</span>;
+    return <span className="px-3 py-1 rounded bg-green-100 text-green-700 border border-green-200 block text-center w-full shadow-sm font-bold">Selesai</span>;
   }
   
   if (status === 'Non PLN') return <span className="px-3 py-1 rounded bg-teal-100 text-teal-700 border border-teal-200 block text-center w-full shadow-sm font-bold whitespace-nowrap">Non PLN</span>;
-  if (status === 'Belum Beroperasi') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full shadow-sm font-bold whitespace-nowrap">Belum Berop.</span>;
-  if (status === 'Tidak Beroperasi') return <span className="px-3 py-1 rounded bg-red-100 text-red-700 border border-red-200 block text-center w-full shadow-sm font-bold whitespace-nowrap">Tidak Berop.</span>;
   if (status === 'Proses') return <span className="px-3 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200 block text-center w-full shadow-sm font-bold">Proses</span>;
   if (status === 'Belum') return <span className="px-3 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 block text-center w-full">Belum</span>;
   
@@ -1743,7 +1811,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
       const newChecklist = { ...checklist, [key]: { checked, link: currentLink } };
       
       const isAllChecked = ITEMS.every(item => {
-        if (item.key === 'proyeksi3d') return true; // Bypass mandatory check buat 3D
+        if (item.key === 'proyeksi3d') return true; 
         const val = newChecklist[item.key];
         return typeof val === 'object' ? val?.checked : val;
       });
@@ -1863,51 +1931,6 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
     );
   }
   
-  if (stage === 'operasional') {
-    const folderField = stage + 'FolderLink';
-    const folderLink = draft[folderField] || '';
-    const isBeroperasi = draft[stage]?.startsWith('Beroperasi');
-
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <select 
-          value={isBeroperasi ? 'Beroperasi' : draft[stage] || 'Belum Beroperasi'} 
-          onChange={(e) => {
-            const val = e.target.value;
-            updateDraftField(stage, val === 'Beroperasi' ? 'Beroperasi ' : val);
-          }} 
-          className="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none text-slate-700 text-[11px] md:text-xs font-bold bg-white"
-        >
-          <option value="Belum Beroperasi">Belum Beroperasi</option>
-          <option value="Beroperasi">Beroperasi</option>
-          <option value="Tidak Beroperasi">Tidak Beroperasi</option>
-        </select>
-
-        {isBeroperasi && (
-          <input 
-            type="date" 
-            value={draft[stage].replace('Beroperasi ', '')} 
-            onChange={(e) => updateDraftField(stage, `Beroperasi ${e.target.value}`)} 
-            className="w-full p-2 border border-slate-300 rounded text-slate-700 text-[11px] md:text-xs font-bold bg-white" 
-          />
-        )}
-
-        {(draft[stage]?.startsWith('Beroperasi') || draft[stage]?.startsWith('Tidak Beroperasi')) && (
-          <div className="flex flex-col gap-2 mt-2 p-2.5 md:p-3 bg-slate-50 border border-slate-200 rounded text-[11px] md:text-xs">
-             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Folder className="w-3.5 h-3.5 text-blue-500"/> Link BAST (GDrive)</span>
-             <input 
-               type="text" 
-               value={folderLink} 
-               onChange={(e) => updateDraftField(folderField, e.target.value)} 
-               className="w-full p-2 border border-slate-200 rounded outline-none focus:border-blue-500 text-[10px] md:text-xs bg-white mt-1" 
-               placeholder="Link folder/file Google Drive..." 
-             />
-          </div>
-        )}
-      </div>
-    );
-  }
-
   if (['vendor', 'sales', 'pks'].includes(stage)) {
     const folderField = stage + 'FolderLink';
     const folderLink = draft[folderField] || '';
