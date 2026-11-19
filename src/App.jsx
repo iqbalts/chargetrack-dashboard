@@ -90,7 +90,6 @@ const INITIAL_FILTERS = {
 };
 
 // --- Firebase Initialization ---
-// FIX: Dibalikin ke hardcode punya Caztrack biar nggak error pas di-deploy
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "caztrack-app.firebaseapp.com",
@@ -114,9 +113,13 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [users, setUsers] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '' });
+  
+  // FIX: Tambah akses project & maintenance default untuk tambah user
+  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Viewer', password: '', accessProject: true, accessMaintenance: true });
 
-  const [editUserModal, setEditUserModal] = useState({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '' });
+  // FIX: Tambah properti accessProject & accessMaintenance ke edit modal
+  const [editUserModal, setEditUserModal] = useState({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '', accessProject: true, accessMaintenance: true });
+  
   const [historyModal, setHistoryModal] = useState({ isOpen: false, location: null }); 
   
   const [formDraft, setFormDraft] = useState(null);
@@ -219,10 +222,11 @@ export default function App() {
     const unsubUsers = onSnapshot(usersRef, (snapshot) => {
       if (snapshot.empty && !seededUsers) {
         seededUsers = true;
+        // Seeding user default dengan full access true
         const defaultUsers = [
-          { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin' },
-          { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi' },
-          { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti' }
+          { id: '1', name: 'Admin EV', email: 'admin@cazgo.id', role: 'Admin', password: 'admin', accessProject: true, accessMaintenance: true },
+          { id: '2', name: 'Budi P.', email: 'budi@cazgo.id', role: 'Editor', password: 'budi', accessProject: true, accessMaintenance: true },
+          { id: '3', name: 'Siti A.', email: 'siti@cazgo.id', role: 'Viewer', password: 'siti', accessProject: true, accessMaintenance: true }
         ];
         defaultUsers.forEach(u => setDoc(doc(usersRef, u.id), u));
       } else {
@@ -246,7 +250,10 @@ export default function App() {
       localStorage.setItem('caztrack_user', JSON.stringify(user));
       localStorage.setItem('caztrack_lastActivity', Date.now().toString());
       setLoginError('');
-      setActiveTab('dashboard'); 
+      
+      // Redirect awal sesuai akses yang dipunya
+      const startTab = user.accessProject !== false ? 'dashboard' : (user.accessMaintenance !== false ? 'maintenance-overview' : 'settings');
+      setActiveTab(startTab); 
     } else {
       setLoginError('Email atau password salah!');
     }
@@ -277,7 +284,7 @@ export default function App() {
     if (newUser.name && newUser.email && newUser.password) {
       const newId = Date.now().toString();
       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', newId), { ...newUser, id: newId });
-      setNewUser({ name: '', email: '', role: 'Viewer', password: '' });
+      setNewUser({ name: '', email: '', role: 'Viewer', password: '', accessProject: true, accessMaintenance: true });
     }
   };
 
@@ -296,6 +303,9 @@ export default function App() {
       if (editUserModal.name) updates.name = editUserModal.name;
       if (editUserModal.email) updates.email = editUserModal.email;
       if (editUserModal.role) updates.role = editUserModal.role;
+      // Nyimpen centang akses
+      updates.accessProject = editUserModal.accessProject;
+      updates.accessMaintenance = editUserModal.accessMaintenance;
     }
     
     if (editUserModal.newPassword) {
@@ -311,7 +321,7 @@ export default function App() {
       }
     }
     
-    setEditUserModal({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '' });
+    setEditUserModal({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '', accessProject: true, accessMaintenance: true });
   };
 
   const handleDeleteLocation = async (id) => {
@@ -475,9 +485,7 @@ export default function App() {
 
   const handleExportExcel = () => {
     if (!currentUser) return;
-    
     const timestamp = getFormattedTime();
-    
     let tableHTML = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head>
@@ -485,28 +493,9 @@ export default function App() {
         <style>
           body { font-family: 'Calibri', 'Arial', sans-serif; }
           table { border-collapse: collapse; width: 100%; }
-          th, td { 
-            border: 0.5pt solid #94a3b8; 
-            padding: 6px 8px; 
-            font-size: 10pt; 
-            vertical-align: middle; 
-          }
-          th { 
-            background-color: #0f172a; 
-            color: #ffffff; 
-            font-weight: bold; 
-            text-align: center; 
-            font-size: 9pt;
-            text-transform: uppercase;
-          }
-          .meta-header { 
-            border: none; 
-            font-size: 11pt; 
-            font-weight: bold; 
-            color: #475569; 
-            padding-bottom: 20px; 
-            text-align: left; 
-          }
+          th, td { border: 0.5pt solid #94a3b8; padding: 6px 8px; font-size: 10pt; vertical-align: middle; }
+          th { background-color: #0f172a; color: #ffffff; font-weight: bold; text-align: center; font-size: 9pt; text-transform: uppercase; }
+          .meta-header { border: none; font-size: 11pt; font-weight: bold; color: #475569; padding-bottom: 20px; text-align: left; }
           .center { text-align: center; }
           .left { text-align: left; }
           .bold { font-weight: bold; }
@@ -556,16 +545,10 @@ export default function App() {
         </tr>
       `;
     });
-
-    tableHTML += `
-        </table>
-      </body>
-      </html>
-    `;
+    tableHTML += `</table></body></html>`;
 
     const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
-    
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", `Data_SPKLU_${timestamp.replace(/[:/, ]/g, "_")}.xls`);
@@ -581,24 +564,20 @@ export default function App() {
       const matchPic = loc.pics?.some(pic => pic.toLowerCase().includes(query)) || false;
       if (!matchLokasi && !matchPic) return false;
     }
-
     if (activeFilterCount > 0) {
       if (filters.kategori && filters.kategori.length > 0) {
         if (!filters.kategori.includes(loc.kategori || 'Umum')) return false;
       }
-
       if (filters.brand.length > 0) {
         const locBrands = (loc.chargers || []).map(c => c.brand);
         const hasMatchingBrand = locBrands.some(b => filters.brand.includes(b));
         if (!hasMatchingBrand) return false;
       }
-
       if (filters.statusAkhir.length > 0) {
         const progress = calculateProgress(loc);
         const sAkhir = getStatusAkhir(progress).text;
         if (!filters.statusAkhir.includes(sAkhir)) return false;
       }
-
       const stages = ['survey', 'teknis', 'dokumen', 'pln', 'izin', 'vendor', 'sales', 'pks', 'instalasi', 'testing', 'operasional'];
       for (let stage of stages) {
         if (filters[stage] && filters[stage].length > 0) {
@@ -607,7 +586,6 @@ export default function App() {
           if (rawStatus.startsWith('Jadwal')) checkVal = 'Jadwal';
           if (rawStatus.startsWith('Selesai')) checkVal = 'Selesai';
           if (rawStatus.startsWith('Beroperasi')) checkVal = 'Beroperasi';
-          
           if (!filters[stage].includes(checkVal)) return false;
         }
       }
@@ -646,7 +624,6 @@ export default function App() {
   };
 
   const sortedDashboardLocations = getSortedLocations(filteredLocations);
-
   const totalPages = Math.ceil(sortedDashboardLocations.length / itemsPerPage) || 1;
   const currentLocs = sortedDashboardLocations.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -701,14 +678,15 @@ export default function App() {
     );
   }
 
+  // --- NAV ITEMS INTEGRATION DENGAN MAINTENANCE MODULE (V1.7) ---
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Activity, section: 'PROJECT MANAGEMENT' },
-    { id: 'update', label: 'Update Progress', icon: Home, allowedRoles: ['Admin', 'Editor'] },
-    { id: 'calendar', label: 'Kalender', icon: Calendar },
-    { id: 'maintenance-overview', label: 'Maintenance Overview', icon: Activity, section: 'MAINTENANCE MANAGEMENT' },
-    { id: 'maintenance-sparepart', label: 'Sparepart Management', icon: PackageIcon },
-    { id: 'maintenance-reports', label: 'Maintenance Reports', icon: BarChart3 },
-    { id: 'settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['Admin'], section: 'SYSTEM' },
+    { id: 'dashboard', label: 'Dashboard', icon: Activity, section: 'PROJECT MANAGEMENT', module: 'project' },
+    { id: 'update', label: 'Update Progress', icon: Home, allowedRoles: ['Admin', 'Editor'], module: 'project' },
+    { id: 'calendar', label: 'Kalender', icon: Calendar, module: 'project' },
+    { id: 'maintenance-overview', label: 'Maintenance Overview', icon: Activity, section: 'MAINTENANCE MANAGEMENT', module: 'maintenance' },
+    { id: 'maintenance-sparepart', label: 'Sparepart Management', icon: PackageIcon, module: 'maintenance' },
+    { id: 'maintenance-reports', label: 'Maintenance Reports', icon: BarChart3, module: 'maintenance' },
+    { id: 'settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['Admin'], section: 'SYSTEM', module: 'system' },
   ];
 
   const maintenanceNavGroups = [
@@ -834,6 +812,21 @@ export default function App() {
                       <option value="Viewer">Viewer</option>
                     </select>
                   </div>
+                  
+                  {/* KONFIGURASI AKSES MODUL */}
+                  <div className="pt-2">
+                    <label className="block text-xs font-bold text-slate-600 mb-2 border-b border-slate-100 pb-1">Hak Akses Modul</label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                        <input type="checkbox" checked={editUserModal.accessProject ?? true} onChange={e => setEditUserModal({...editUserModal, accessProject: e.target.checked})} className="accent-blue-600 w-3.5 h-3.5" />
+                        Project Mgt
+                      </label>
+                      <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                        <input type="checkbox" checked={editUserModal.accessMaintenance ?? true} onChange={e => setEditUserModal({...editUserModal, accessMaintenance: e.target.checked})} className="accent-blue-600 w-3.5 h-3.5" />
+                        Maintenance
+                      </label>
+                    </div>
+                  </div>
                 </>
               )}
               
@@ -852,7 +845,7 @@ export default function App() {
               </div>
               
               <div className="flex justify-end gap-3 mt-6 pt-2 border-t border-slate-100">
-                <button type="button" onClick={() => setEditUserModal({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '' })} className="px-4 py-2 text-slate-500 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
+                <button type="button" onClick={() => setEditUserModal({ isOpen: false, id: null, name: '', email: '', role: '', newPassword: '', accessProject: true, accessMaintenance: true })} className="px-4 py-2 text-slate-500 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Simpan Perubahan</button>
               </div>
             </form>
@@ -905,11 +898,16 @@ export default function App() {
         </div>
         
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-3">
-          {navItems.filter(i => !i.allowedRoles || i.allowedRoles.includes(currentUser.role)).map((item) => (
+          {navItems.filter(i => {
+            if (i.allowedRoles && !i.allowedRoles.includes(currentUser.role)) return false;
+            if (i.module === 'project' && currentUser.accessProject === false) return false;
+            if (i.module === 'maintenance' && currentUser.accessMaintenance === false) return false;
+            return true;
+          }).map((item) => (
             <React.Fragment key={item.id}>
               {item.section && <p className="px-4 pt-4 pb-1 text-[9px] font-bold tracking-[0.16em] text-slate-500">{item.section}</p>}
               <button onClick={() => { setActiveTab(item.id); setFormDraft(null); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-left ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                <item.icon className="w-5 h-5 shrink-0" /> <span className="font-medium text-xs md:text-sm text-left truncate">{item.label}</span>
+                <item.icon className="w-5 h-5 shrink-0" /> <span className="font-medium text-xs md:text-sm text-left truncate">{item.id === 'maintenance-reports' ? 'Maintenance Reports' : item.label}</span>
               </button>
               {item.id === 'maintenance-overview' && maintenanceNavGroups.map((group) => {
                 const GroupIcon = group.icon;
@@ -956,7 +954,7 @@ export default function App() {
             </div>
             {/* Tombol Edit Profile / Password buat semua user */}
             <button 
-              onClick={() => setEditUserModal({ isOpen: true, id: currentUser.id, name: currentUser.name, email: currentUser.email, role: currentUser.role, newPassword: '' })} 
+              onClick={() => setEditUserModal({ isOpen: true, id: currentUser.id, name: currentUser.name, email: currentUser.email, role: currentUser.role, newPassword: '', accessProject: currentUser.accessProject ?? true, accessMaintenance: currentUser.accessMaintenance ?? true })} 
               className="text-slate-400 hover:text-blue-400 transition-colors p-1" 
               title={currentUser.role === 'Admin' ? 'Edit Profile' : 'Ganti Password'}
             >
@@ -985,13 +983,25 @@ export default function App() {
                 </button>
                 <div>
                   <h2 className="text-xl lg:text-3xl font-bold text-slate-800 leading-tight">
-                    {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : 'Pengaturan Sistem'}
+                    {activeTab === 'dashboard' ? 'Dashboard Project SPKLU' : activeTab === 'update' ? 'Update Progress SPKLU' : activeTab === 'calendar' ? 'Kalender Penjadwalan' : activeTab === 'settings' ? 'Pengaturan Sistem' : ({
+                      'maintenance-overview': 'Maintenance Overview',
+                      'maintenance-ticket': 'Work Order / Maintenance Ticket',
+                      'maintenance-pm': 'Preventive Maintenance',
+                      'maintenance-corrective': 'Corrective Maintenance',
+                      'maintenance-inspection': 'Inspection & Checklist',
+                      'maintenance-history': 'Charger Maintenance History',
+                      'maintenance-charger': 'Master Charger',
+                      'maintenance-technician': 'Master Technician',
+                      'maintenance-sparepart': 'Sparepart Management',
+                      'maintenance-schedule': 'Maintenance Schedule',
+                      'maintenance-reports': 'Maintenance Reports'
+                    }[activeTab] || 'CAZGO ChargeTrack')}
                   </h2>
-                  <p className="text-xs lg:text-sm text-slate-500 mt-1 hidden sm:block">Pantau progres deployment titik charging station.</p>
+                  <p className="text-xs lg:text-sm text-slate-500 mt-1 hidden sm:block">{activeTab.startsWith('maintenance-') ? 'Monitoring operasional, pemeliharaan, dan keandalan charger CAZGO.' : 'Pantau progres deployment titik charging station.'}</p>
                 </div>
               </div>
               
-              {activeTab !== 'settings' && !formDraft && (
+              {activeTab !== 'settings' && !activeTab.startsWith('maintenance-') && !formDraft && (
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
                   <div className="relative w-full sm:w-auto">
                     <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
@@ -1028,6 +1038,7 @@ export default function App() {
                   <div className="bg-white p-3.5 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"><div><p className="text-[11px] md:text-sm font-medium text-slate-500 mb-1">Menunggu</p><p className="text-xl md:text-3xl font-bold text-slate-600">{menunggu}</p></div><div className="w-9 h-9 md:w-12 md:h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shrink-0"><Search className="w-4 h-4 md:w-5 md:h-5" /></div></div>
                 </div>
 
+                {/* TABLE CONTAINER: Diperkecil font-nya di mobile (text-[10px]) */}
                 <div className="flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex-1 relative w-full min-h-[450px] lg:min-h-0">
                   <div className="overflow-auto flex-1 relative w-full">
                     <table className="w-max min-w-full text-[10px] md:text-xs text-left">
@@ -1424,7 +1435,7 @@ export default function App() {
                               </td>
                               <td className="py-3 px-4 md:px-5 text-center">
                                  <div className="flex items-center justify-center gap-3">
-                                   <button onClick={() => setEditUserModal({ isOpen: true, id: u.id, name: u.name, email: u.email, role: u.role, newPassword: '' })} className="text-slate-400 hover:text-blue-500" title="Edit Pengguna"><Edit2 className="w-4 h-4" /></button>
+                                   <button onClick={() => setEditUserModal({ isOpen: true, id: u.id, name: u.name, email: u.email, role: u.role, newPassword: '', accessProject: u.accessProject ?? true, accessMaintenance: u.accessMaintenance ?? true })} className="text-slate-400 hover:text-blue-500" title="Edit Pengguna"><Edit2 className="w-4 h-4" /></button>
                                    <button onClick={() => handleDeleteUser(u.id)} className="text-slate-400 hover:text-red-500" title="Hapus"><Trash2 className="w-4 h-4" /></button>
                                  </div>
                               </td>
@@ -1458,7 +1469,23 @@ export default function App() {
                             <option value="Viewer">Viewer</option>
                           </select>
                         </div>
-                        <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-sm">Simpan Pengguna</button>
+                        
+                        {/* KONFIGURASI AKSES MODUL BUAT USER BARU */}
+                        <div className="pt-2">
+                          <label className="block text-xs font-bold text-slate-600 mb-2 border-b border-slate-100 pb-1">Hak Akses Modul</label>
+                          <div className="flex gap-4">
+                            <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                              <input type="checkbox" checked={newUser.accessProject} onChange={e => setNewUser({...newUser, accessProject: e.target.checked})} className="accent-blue-600 w-3.5 h-3.5" />
+                              Project Mgt
+                            </label>
+                            <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                              <input type="checkbox" checked={newUser.accessMaintenance} onChange={e => setNewUser({...newUser, accessMaintenance: e.target.checked})} className="accent-blue-600 w-3.5 h-3.5" />
+                              Maintenance
+                            </label>
+                          </div>
+                        </div>
+
+                        <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-sm mt-2">Simpan Pengguna</button>
                       </form>
                     </div>
                   </div>
@@ -1930,7 +1957,7 @@ function FormEditableStatus({ draft, stage, updateDraftField }) {
       </div>
     );
   }
-  
+
   if (['vendor', 'sales', 'pks'].includes(stage)) {
     const folderField = stage + 'FolderLink';
     const folderLink = draft[folderField] || '';
